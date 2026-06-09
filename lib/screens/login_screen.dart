@@ -1,0 +1,118 @@
+import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
+import 'home_screen.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _userCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
+  bool _obscure = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 24),
+              Container(
+                height: 96,
+                width: 96,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppTheme.gold, AppTheme.goldDark],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.gold.withOpacity(.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.diamond_outlined,
+                    size: 48, color: Colors.white),
+              ).center(),
+              const SizedBox(height: 28),
+              const Text('Jewellery Manager',
+                      style: TextStyle(
+                          fontSize: 26, fontWeight: FontWeight.w700))
+                  .center(),
+              const SizedBox(height: 6),
+              const Text('Stock & Ledger Management',
+                      style: TextStyle(color: AppTheme.muted))
+                  .center(),
+              const SizedBox(height: 40),
+              const Text('User ID',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _userCtrl,
+                decoration: const InputDecoration(
+                  hintText: 'Enter user ID',
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
+              ),
+              const SizedBox(height: 18),
+              const Text('Password',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _passCtrl,
+                obscureText: _obscure,
+                decoration: InputDecoration(
+                  hintText: 'Enter password',
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscure
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined),
+                    onPressed: () => setState(() => _obscure = !_obscure),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {},
+                  child: const Text('Change Password',
+                      style: TextStyle(color: AppTheme.goldDark)),
+                ),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const HomeScreen())),
+                child: const Text('Sign In'),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Secure access · Encrypted data',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppTheme.muted, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+extension _Center on Widget {
+  Widget center() => Center(child: this);
+}
