@@ -17,13 +17,21 @@ class TransactionEntryScreen extends StatefulWidget {
   });
 
   @override
-  State<TransactionEntryScreen> createState() =>
-      _TransactionEntryScreenState();
+  State<TransactionEntryScreen> createState() => _TransactionEntryScreenState();
 }
 
 class _TransactionEntryScreenState extends State<TransactionEntryScreen> {
+  final weightController = TextEditingController();
   final amountController = TextEditingController();
   final remarkController = TextEditingController();
+
+  @override
+  void dispose() {
+    weightController.dispose();
+    amountController.dispose();
+    remarkController.dispose();
+    super.dispose();
+  }
 
   DateTime selectedDate = DateTime.now();
   MetalType stockItemType = MetalType.gold;
@@ -45,9 +53,9 @@ class _TransactionEntryScreenState extends State<TransactionEntryScreen> {
             );
             Navigator.pop(context);
           } else if (state is TransactionError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -66,11 +74,14 @@ class _TransactionEntryScreenState extends State<TransactionEntryScreen> {
                       if (widget.isStock) ...[
                         const Align(
                           alignment: Alignment.centerLeft,
-                          child: Text("Metal Type", style: TextStyle(fontWeight: FontWeight.w600)),
+                          child: Text(
+                            "Metal Type",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                         ),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<MetalType>(
-                          value: stockItemType,
+                          initialValue: stockItemType,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -82,8 +93,8 @@ class _TransactionEntryScreenState extends State<TransactionEntryScreen> {
                               child: Text("Gold"),
                             ),
                             DropdownMenuItem(
-                              value: MetalType.silver,
-                              child: Text("Silver"),
+                              value: MetalType.jewellery,
+                              child: Text("Jewellery"),
                             ),
                             DropdownMenuItem(
                               value: MetalType.none,
@@ -97,14 +108,24 @@ class _TransactionEntryScreenState extends State<TransactionEntryScreen> {
                           },
                         ),
                         const SizedBox(height: 16),
+                        TextFormField(
+                          controller: weightController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: "Weight (gm)",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                       ],
 
                       TextFormField(
                         controller: amountController,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
-                          labelText:
-                          widget.isStock ? "Weight (gm)" : "Amount (₹)",
+                          labelText: "Amount (₹)",
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -168,35 +189,61 @@ class _TransactionEntryScreenState extends State<TransactionEntryScreen> {
                             ),
                             onPressed: () {
                               final amountStr = amountController.text.trim();
-                              if (amountStr.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("Please enter amount/weight")),
-                                );
-                                return;
-                              }
+                              final amountVal = double.tryParse(amountStr);
                               
-                              final val = double.tryParse(amountStr);
+                              double? weightVal;
+                              if (widget.isStock) {
+                                final weightStr = weightController.text.trim();
+                                if (weightStr.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Please enter weight"),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                weightVal = double.tryParse(weightStr);
+                              } else {
+                                if (amountStr.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Please enter amount"),
+                                    ),
+                                  );
+                                  return;
+                                }
+                              }
+
                               final remark = remarkController.text.trim();
 
                               TransactionType type;
                               if (widget.title.contains("Add Stock")) {
-                                type = TransactionType.stockOut; // Giving stock to customer
-                              } else if (widget.title.contains("Receive Stock")) {
+                                type = TransactionType
+                                    .stockOut; // Giving stock to customer
+                              } else if (widget.title.contains(
+                                "Receive Stock",
+                              )) {
                                 type = TransactionType.stockIn;
                               } else if (widget.title.contains("Add Payment")) {
-                                type = TransactionType.paymentOut; // Giving money to customer
+                                type = TransactionType
+                                    .paymentOut; // Giving money to customer
                               } else {
-                                type = TransactionType.paymentIn; // Receive Payment
+                                type = TransactionType
+                                    .paymentIn; // Receive Payment
                               }
 
-                              context.read<TransactionCubit>().createTransaction(
-                                customerId: widget.customerId,
-                                type: type,
-                                metalType: widget.isStock ? stockItemType : MetalType.none,
-                                weight: widget.isStock ? val : null,
-                                amount: !widget.isStock ? val : null,
-                                remark: remark.isNotEmpty ? remark : null,
-                              );
+                              context
+                                  .read<TransactionCubit>()
+                                  .createTransaction(
+                                    customerId: widget.customerId,
+                                    type: type,
+                                    metalType: widget.isStock
+                                        ? stockItemType
+                                        : MetalType.none,
+                                    weight: weightVal,
+                                    amount: amountVal,
+                                    remark: remark.isNotEmpty ? remark : null,
+                                  );
                             },
                             child: const Text(
                               "SAVE",
@@ -206,7 +253,7 @@ class _TransactionEntryScreenState extends State<TransactionEntryScreen> {
                               ),
                             ),
                           ),
-                        )
+                        ),
                     ],
                   ),
                 ),

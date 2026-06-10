@@ -27,8 +27,8 @@ class StockLedgerEntryModel extends Equatable {
       case 'GOLD':
         parsedMetalType = MetalType.gold;
         break;
-      case 'SILVER':
-        parsedMetalType = MetalType.silver;
+      case 'JEWELLERY':
+        parsedMetalType = MetalType.jewellery;
         break;
       default:
         parsedMetalType = MetalType.none;
@@ -54,7 +54,9 @@ class StockLedgerEntryModel extends Equatable {
       metalType: parsedMetalType,
       weight: (json['weight'] ?? 0).toDouble(),
       remark: json['remark'],
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.now(),
       balanceAfter: (json['balanceAfter'] ?? 0).toDouble(),
     );
   }
@@ -63,7 +65,9 @@ class StockLedgerEntryModel extends Equatable {
     return {
       'id': id,
       'type': type == TransactionType.stockIn ? 'STOCK_IN' : 'STOCK_OUT',
-      'metalType': metalType == MetalType.gold ? 'GOLD' : (metalType == MetalType.silver ? 'SILVER' : 'NONE'),
+      'metalType': metalType == MetalType.gold
+          ? 'GOLD'
+          : (metalType == MetalType.jewellery ? 'JEWELLERY' : 'NONE'),
       'weight': weight,
       'remark': remark,
       'createdAt': createdAt.toIso8601String(),
@@ -72,5 +76,13 @@ class StockLedgerEntryModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, type, metalType, weight, remark, createdAt, balanceAfter];
+  List<Object?> get props => [
+    id,
+    type,
+    metalType,
+    weight,
+    remark,
+    createdAt,
+    balanceAfter,
+  ];
 }

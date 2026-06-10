@@ -7,7 +7,11 @@ class AddStockScreen extends StatefulWidget {
   final String? customerId;
   final TransactionType? initialTransactionType;
 
-  const AddStockScreen({super.key, this.customerId, this.initialTransactionType});
+  const AddStockScreen({
+    super.key,
+    this.customerId,
+    this.initialTransactionType,
+  });
 
   @override
   State<AddStockScreen> createState() => _AddStockScreenState();
@@ -18,10 +22,14 @@ class _AddStockScreenState extends State<AddStockScreen> {
   final amountController = TextEditingController();
   final remarkController = TextEditingController();
   final dateController = TextEditingController();
+  final wastageController = TextEditingController();
+  final stoneController = TextEditingController();
+  final goldRateController = TextEditingController();
   DateTime? selectedDate;
-  
+
   late TransactionType stockType;
   MetalType stockItemType = MetalType.gold;
+  CurrencyType currencyType = CurrencyType.inr;
 
   @override
   void initState() {
@@ -35,6 +43,9 @@ class _AddStockScreenState extends State<AddStockScreen> {
     amountController.dispose();
     remarkController.dispose();
     dateController.dispose();
+    wastageController.dispose();
+    stoneController.dispose();
+    goldRateController.dispose();
     super.dispose();
   }
 
@@ -47,10 +58,11 @@ class _AddStockScreenState extends State<AddStockScreen> {
         title: Row(
           children: [
             InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: const Icon(Icons.arrow_back_ios)),
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: const Icon(Icons.arrow_back_ios),
+            ),
             const Expanded(child: Center(child: Text("Transaction Entry"))),
           ],
         ),
@@ -64,9 +76,9 @@ class _AddStockScreenState extends State<AddStockScreen> {
             );
             Navigator.pop(context);
           } else if (state is TransactionError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -79,7 +91,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                 const Text("Transaction Type"),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<TransactionType>(
-                  value: stockType,
+                  initialValue: stockType,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
@@ -108,12 +120,13 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   },
                 ),
 
-                if (stockType == TransactionType.stockIn || stockType == TransactionType.stockOut) ...[
+                if (stockType == TransactionType.stockIn ||
+                    stockType == TransactionType.stockOut) ...[
                   const SizedBox(height: 15),
                   const Text("Metal Type"),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<MetalType>(
-                    value: stockItemType,
+                    initialValue: stockItemType,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     ),
@@ -123,12 +136,8 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         child: Text("Gold"),
                       ),
                       DropdownMenuItem(
-                        value: MetalType.silver,
-                        child: Text("Silver"),
-                      ),
-                      DropdownMenuItem(
-                        value: MetalType.none,
-                        child: Text("None"),
+                        value: MetalType.jewellery,
+                        child: Text("Jewellery"),
                       ),
                     ],
                     onChanged: (value) {
@@ -149,9 +158,71 @@ class _AddStockScreenState extends State<AddStockScreen> {
                       border: OutlineInputBorder(),
                     ),
                   ),
+
+                  const SizedBox(height: 15),
+                  const Text("Wasteage (%)"),
+                  TextFormField(
+                    controller: wastageController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: "Wastage (%)",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+
+                  const SizedBox(height: 15),
+                  const Text("Stone (Gram)"),
+                  TextFormField(
+                    controller: stoneController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: "Stone Weight (Gram)",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+
+                  const SizedBox(height: 15),
+                  const Text("Currency (INR)"),
+                  DropdownButtonFormField<CurrencyType>(
+                    initialValue: CurrencyType.inr,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: CurrencyType.inr,
+                        child: Text("INR"),
+                      ),
+                      DropdownMenuItem(
+                        value: CurrencyType.usd,
+                        child: Text("USD"),
+                      ),
+                      DropdownMenuItem(
+                        value: CurrencyType.myr,
+                        child: Text("MYR"),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        currencyType = value!;
+                      });
+                    },
+                  ),
+
+                  const SizedBox(height: 15),
+                  const Text("Gold Rate"),
+                  TextFormField(
+                    controller: goldRateController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: "Gold Rate",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
                 ],
 
-                if (stockType == TransactionType.paymentIn || stockType == TransactionType.paymentOut) ...[
+                if (stockType == TransactionType.paymentIn ||
+                    stockType == TransactionType.paymentOut) ...[
                   const SizedBox(height: 15),
                   const Text("Amount (₹)"),
                   const SizedBox(height: 10),
@@ -188,7 +259,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                       setState(() {
                         selectedDate = pickedDate;
                         dateController.text =
-                        "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+                            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
                       });
                     }
                   },
@@ -226,17 +297,39 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         final weightStr = weightController.text.trim();
                         final amountStr = amountController.text.trim();
                         final remarkStr = remarkController.text.trim();
-                        
-                        double? weightVal = weightStr.isNotEmpty ? double.tryParse(weightStr) : null;
-                        double? amountVal = amountStr.isNotEmpty ? double.tryParse(amountStr) : null;
+                        final wastageStr = wastageController.text.trim();
+                        final stoneStr = stoneController.text.trim();
+                        final goldRateStr = goldRateController.text.trim();
+
+                        double? weightVal = weightStr.isNotEmpty
+                            ? double.tryParse(weightStr)
+                            : null;
+                        double? amountVal = amountStr.isNotEmpty
+                            ? double.tryParse(amountStr)
+                            : null;
+                        double? wastageVal = wastageStr.isNotEmpty
+                            ? double.tryParse(wastageStr)
+                            : null;
+                        double? stoneVal = stoneStr.isNotEmpty
+                            ? double.tryParse(stoneStr)
+                            : null;
+                        double? goldRateVal = goldRateStr.isNotEmpty
+                            ? double.tryParse(goldRateStr)
+                            : null;
 
                         context.read<TransactionCubit>().createTransaction(
                           customerId: cId,
                           type: stockType,
                           metalType: stockItemType,
-                          weight: weightVal,
+                          weight:
+                              weightVal, // Pass to standard weight (in case it's not a calculation)
+                          grossWeight:
+                              weightVal, // Also pass as grossWeight for backend auto-calc
                           amount: amountVal,
-                          remark: remarkStr.isNotEmpty ? remarkStr : null,
+                          remark: remarkStr.isEmpty ? null : remarkStr,
+                          wastagePercent: wastageVal,
+                          stoneWeight: stoneVal,
+                          goldRate: goldRateVal,
                         );
                       },
                       child: const Text(
@@ -247,7 +340,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         ),
                       ),
                     ),
-                  )
+                  ),
               ],
             ),
           );

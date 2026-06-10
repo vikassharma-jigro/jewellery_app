@@ -42,6 +42,11 @@ class TransactionCubit extends Cubit<TransactionState> {
     double? weight,
     double? amount,
     String? remark,
+    double? grossWeight,
+    double? stoneWeight,
+    double? wastagePercent,
+    double? goldRate,
+    CurrencyType currency = CurrencyType.inr,
   }) async {
     emit(TransactionLoading());
     try {
@@ -52,6 +57,11 @@ class TransactionCubit extends Cubit<TransactionState> {
         weight: weight,
         amount: amount,
         remark: remark,
+        grossWeight: grossWeight,
+        stoneWeight: stoneWeight,
+        wastagePercent: wastagePercent,
+        goldRate: goldRate,
+        currency: currency,
       );
       emit(TransactionCreated());
       fetchTransactionsByCustomer(customerId);

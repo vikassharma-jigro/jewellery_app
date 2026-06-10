@@ -39,31 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 24),
-                  Container(
-                    height: 96,
-                    width: 96,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppTheme.gold, AppTheme.goldDark],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(28),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.gold.withOpacity(.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.diamond_outlined,
-                      size: 48,
-                      color: Colors.white,
-                    ),
-                  ).center(),
+                  Image.asset('assets/images/appLogo.jpeg').center(),
                   const SizedBox(height: 28),
                   const Text(
                     'Jewellery Manager',
@@ -109,21 +85,32 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        'Change Password',
-                        style: TextStyle(color: AppTheme.goldDark),
-                      ),
-                    ),
-                  ),
+                  // Align(
+                  //   alignment: Alignment.centerRight,
+                  //   child: TextButton(
+                  //     onPressed: () {},
+                  //     child: const Text(
+                  //       'Change Password',
+                  //       style: TextStyle(color: AppTheme.goldDark),
+                  //     ),
+                  //   ),
+                  // ),
                   const SizedBox(height: 8),
                   if (state is AuthLoading)
                     const Center(child: CircularProgressIndicator())
                   else
                     ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.goldDark,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 24,
+                        ),
+                      ),
                       onPressed: () {
                         final userId = _userCtrl.text.trim();
                         final password = _passCtrl.text;

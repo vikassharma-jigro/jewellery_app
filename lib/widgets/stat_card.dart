@@ -5,18 +5,19 @@ class StatCard extends StatelessWidget {
   final IconData icon;
   final String label, value;
   final Color tint, iconColor;
-  const StatCard(
-      {super.key,
-      required this.icon,
-      required this.label,
-      required this.value,
-      required this.tint,
-      required this.iconColor});
+  const StatCard({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.tint,
+    required this.iconColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -28,16 +29,21 @@ class StatCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-                color: tint, borderRadius: BorderRadius.circular(10)),
+              color: tint,
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Icon(icon, color: iconColor, size: 20),
           ),
           const Spacer(),
-          Text(label,
-              style: const TextStyle(color: AppTheme.muted, fontSize: 12)),
+          Text(
+            label,
+            style: const TextStyle(color: AppTheme.muted, fontSize: 12),
+          ),
           const SizedBox(height: 2),
-          Text(value,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 18)),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+          ),
         ],
       ),
     );

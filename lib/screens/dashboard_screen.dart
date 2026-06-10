@@ -3,13 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_theme.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/section_title.dart';
-import 'stock_screen.dart';
 import 'add_stock_screen.dart';
-import 'customers_screen.dart';
 import 'add_customer_screen.dart';
 import '../blocs/dashboard_cubit.dart';
 import '../data/models/transaction_model.dart';
-import '../data/models/dashboard_summary_model.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -156,7 +153,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         StatCard(
                           icon: Icons.arrow_upward,
-                          label: 'Silver Stock',
+                          label: 'Gold Stock',
                           value: '${summary.silverStock.toStringAsFixed(2)} g',
                           tint: const Color(0xFFEDE7FE),
                           iconColor: const Color(0xFF6E48C9),
@@ -257,11 +254,11 @@ class _HeroBalance extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(.2),
+                  color: Colors.white.withValues(alpha: .2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
-                  'Gold & Silver',
+                  'Gold & Jewellery',
                   style: TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ),
@@ -278,7 +275,7 @@ class _HeroBalance extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '${silverStock.toStringAsFixed(2)} g (Silver)',
+            '${silverStock.toStringAsFixed(2)} g (Jewellery)',
             style: const TextStyle(
               color: Colors.white70,
               fontSize: 20,

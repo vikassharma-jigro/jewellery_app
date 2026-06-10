@@ -29,4 +29,9 @@ class UserModel extends Equatable {
 
   @override
   List<Object?> get props => [id, username, role];
+
+  // Stub getters for legacy UI components
+  String get name => username;
+  String get emailOrPhone => "user@example.com";
+  String? get avatarUrl => null;
 }

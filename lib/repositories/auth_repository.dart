@@ -35,7 +35,9 @@ class AuthRepository {
 
       return UserModel.fromJson(responseData['user'] ?? {});
     } on DioException catch (e) {
-      throw AppException(e.response?.data['message'] ?? 'Login failed');
+      final message = e.response?.data['message'];
+      final String errorMessage = message is List ? message.join(', ') : (message?.toString() ?? 'Login failed');
+      throw AppException(errorMessage);
     } catch (e) {
       throw AppException(e.toString());
     }

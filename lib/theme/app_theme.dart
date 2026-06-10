@@ -74,3 +74,16 @@ class AppTheme {
         ),
       );
 }
+
+// Constants for legacy/merged presentation screens
+const kGold = AppTheme.gold;
+const kGoldSoft = AppTheme.goldLight;
+const kText = AppTheme.ink;
+const kMuted = AppTheme.muted;
+const kCard = AppTheme.surface;
+const kCardHigh = Color(0xFFF5F5F5);
+const kDivider = Color(0xFFE0E0E0);
+const kError = AppTheme.danger;
+const kBg = AppTheme.bg;
+const kCard2 = Color(0xFFFAFAFA);
+const kGoldContainer = Color(0xFFFBF8F1);

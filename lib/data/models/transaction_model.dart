@@ -1,7 +1,10 @@
 import 'package:equatable/equatable.dart';
 
 enum TransactionType { stockIn, stockOut, paymentIn, paymentOut }
-enum MetalType { gold, silver, none }
+
+enum MetalType { gold, jewellery, none }
+
+enum CurrencyType { inr, usd, myr }
 
 class TransactionModel extends Equatable {
   final String id;
@@ -12,6 +15,15 @@ class TransactionModel extends Equatable {
   final double? weight;
   final double? amount;
   final String? remark;
+  final double? grossWeight;
+  final double? stoneWeight;
+  final double? netWeight;
+  final double? wastagePercent;
+  final double? wastage;
+  final double? finalWeight;
+  final double? goldRate;
+  final double? totalAmount;
+  final CurrencyType currency;
   final DateTime createdAt;
 
   const TransactionModel({
@@ -23,15 +35,27 @@ class TransactionModel extends Equatable {
     this.weight,
     this.amount,
     this.remark,
+    this.grossWeight,
+    this.stoneWeight,
+    this.netWeight,
+    this.wastagePercent,
+    this.wastage,
+    this.finalWeight,
+    this.goldRate,
+    this.totalAmount,
+    this.currency = CurrencyType.inr,
     required this.createdAt,
   });
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     String pCustomerId = '';
     String? pCustomerName;
-    
+
     if (json['customerId'] is Map) {
-      pCustomerId = json['customerId']['_id']?.toString() ?? json['customerId']['id']?.toString() ?? '';
+      pCustomerId =
+          json['customerId']['_id']?.toString() ??
+          json['customerId']['id']?.toString() ??
+          '';
       pCustomerName = json['customerId']['name']?.toString();
     } else {
       pCustomerId = json['customerId']?.toString() ?? '';
@@ -46,7 +70,18 @@ class TransactionModel extends Equatable {
       weight: json['weight']?.toDouble(),
       amount: json['amount']?.toDouble(),
       remark: json['remark'],
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
+      grossWeight: json['grossWeight']?.toDouble(),
+      stoneWeight: json['stoneWeight']?.toDouble(),
+      netWeight: json['netWeight']?.toDouble(),
+      wastagePercent: json['wastagePercent']?.toDouble(),
+      wastage: json['wastage']?.toDouble(),
+      finalWeight: json['finalWeight']?.toDouble(),
+      goldRate: json['goldRate']?.toDouble(),
+      totalAmount: json['totalAmount']?.toDouble(),
+      currency: _parseCurrencyType(json['currency']),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.now(),
     );
   }
 
@@ -59,6 +94,15 @@ class TransactionModel extends Equatable {
       'weight': weight,
       'amount': amount,
       'remark': remark,
+      'grossWeight': grossWeight,
+      'stoneWeight': stoneWeight,
+      'netWeight': netWeight,
+      'wastagePercent': wastagePercent,
+      'wastage': wastage,
+      'finalWeight': finalWeight,
+      'goldRate': goldRate,
+      'totalAmount': totalAmount,
+      'currency': _currencyTypeToString(currency),
       'createdAt': createdAt.toIso8601String(),
     };
   }
@@ -95,8 +139,9 @@ class TransactionModel extends Equatable {
     switch (type) {
       case 'GOLD':
         return MetalType.gold;
-      case 'SILVER':
-        return MetalType.silver;
+      case 'JEWELLERY':
+        return MetalType.jewellery;
+
       case 'NONE':
       default:
         return MetalType.none;
@@ -107,13 +152,55 @@ class TransactionModel extends Equatable {
     switch (type) {
       case MetalType.gold:
         return 'GOLD';
-      case MetalType.silver:
-        return 'SILVER';
+      case MetalType.jewellery:
+        return 'JEWELLERY';
       case MetalType.none:
         return 'NONE';
     }
   }
 
+  static CurrencyType _parseCurrencyType(String? type) {
+    switch (type) {
+      case 'USD':
+        return CurrencyType.usd;
+      case 'MYR':
+        return CurrencyType.myr;
+      case 'INR':
+      default:
+        return CurrencyType.inr;
+    }
+  }
+
+  static String _currencyTypeToString(CurrencyType type) {
+    switch (type) {
+      case CurrencyType.usd:
+        return 'USD';
+      case CurrencyType.myr:
+        return 'MYR';
+      case CurrencyType.inr:
+        return 'INR';
+    }
+  }
+
   @override
-  List<Object?> get props => [id, customerId, customerName, type, metalType, weight, amount, remark, createdAt];
+  List<Object?> get props => [
+    id,
+    customerId,
+    customerName,
+    type,
+    metalType,
+    weight,
+    amount,
+    remark,
+    grossWeight,
+    stoneWeight,
+    netWeight,
+    wastagePercent,
+    wastage,
+    finalWeight,
+    goldRate,
+    totalAmount,
+    currency,
+    createdAt,
+  ];
 }

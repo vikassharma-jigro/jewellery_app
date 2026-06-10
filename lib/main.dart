@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jewellary_stock/presentation/screens/calculator_screen.dart';
+import 'package:jewellary_stock/screens/calculator_screen.dart';
 
 import 'core/api_service.dart';
 import 'repositories/auth_repository.dart';
