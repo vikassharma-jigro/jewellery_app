@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_theme.dart';
 import 'customer_ledger_screen.dart';
+import '../blocs/transaction_cubit.dart';
+import '../data/models/transaction_model.dart';
+import 'package:intl/intl.dart';
 
-class CustomerDetailsScreen extends StatelessWidget {
+class CustomerDetailsScreen extends StatefulWidget {
+  final String customerId;
   final String name;
   final String phone;
   final String stock;
@@ -10,11 +15,23 @@ class CustomerDetailsScreen extends StatelessWidget {
 
   const CustomerDetailsScreen({
     super.key,
+    required this.customerId,
     required this.name,
     required this.phone,
     required this.stock,
     required this.payment,
   });
+
+  @override
+  State<CustomerDetailsScreen> createState() => _CustomerDetailsScreenState();
+}
+
+class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<TransactionCubit>().fetchTransactionsByCustomer(widget.customerId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +47,6 @@ class CustomerDetailsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-
             /// Customer Info Card
             Container(
               padding: const EdgeInsets.all(18),
@@ -44,7 +60,7 @@ class CustomerDetailsScreen extends StatelessWidget {
                     radius: 32,
                     backgroundColor: AppTheme.goldLight,
                     child: Text(
-                      name[0],
+                      widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?',
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -52,34 +68,28 @@ class CustomerDetailsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 12),
-
                   Text(
-                    name,
+                    widget.name,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
                   const SizedBox(height: 4),
-
                   Text(
-                    phone,
+                    widget.phone,
                     style: const TextStyle(
                       color: AppTheme.muted,
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   Row(
                     children: [
                       Expanded(
                         child: _infoCard(
                           "Pending Stock",
-                          stock,
+                          widget.stock,
                           Icons.inventory_2_outlined,
                         ),
                       ),
@@ -87,7 +97,7 @@ class CustomerDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: _infoCard(
                           "Pending Payment",
-                          payment,
+                          widget.payment,
                           Icons.currency_rupee,
                         ),
                       ),
@@ -108,28 +118,24 @@ class CustomerDetailsScreen extends StatelessWidget {
               mainAxisSpacing: 12,
               childAspectRatio: 1.5,
               children: [
-
                 _actionButton(
                   context,
                   "Add Stock",
                   Icons.add_box,
                   Colors.green,
                 ),
-
                 _actionButton(
                   context,
                   "Receive Stock",
                   Icons.inventory,
                   Colors.orange,
                 ),
-
                 _actionButton(
                   context,
                   "Add Payment",
                   Icons.account_balance_wallet,
                   Colors.red,
                 ),
-
                 _actionButton(
                   context,
                   "Receive Payment",
@@ -142,8 +148,8 @@ class CustomerDetailsScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             /// Transaction History
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Text(
                   "Transaction History",
                   style: TextStyle(
@@ -156,32 +162,56 @@ class CustomerDetailsScreen extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            _historyTile(
-              "Stock Added",
-              "+15 gm",
-              "09 Jun 2026",
-              Colors.green,
-            ),
+            BlocBuilder<TransactionCubit, TransactionState>(
+              builder: (context, state) {
+                if (state is TransactionLoading || state is TransactionInitial) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is TransactionError) {
+                  return Text('Error: ${state.message}', style: const TextStyle(color: Colors.red));
+                } else if (state is TransactionLoaded) {
+                  if (state.transactions.isEmpty) {
+                    return const Text('No transactions yet.');
+                  }
+                  
+                  // Filter transactions for this customer just in case
+                  final txs = state.transactions.where((t) => t.customerId == widget.customerId).toList();
+                  if (txs.isEmpty && state.transactions.isNotEmpty) {
+                    // Loading new data for this customer
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-            _historyTile(
-              "Payment Received",
-              "₹10,000",
-              "08 Jun 2026",
-              Colors.blue,
-            ),
+                  return Column(
+                    children: txs.map((tx) {
+                      String title = '';
+                      String amount = '';
+                      Color color = Colors.black;
 
-            _historyTile(
-              "Stock Received",
-              "-5 gm",
-              "07 Jun 2026",
-              Colors.orange,
-            ),
+                      if (tx.type == TransactionType.paymentIn || tx.type == TransactionType.paymentOut) {
+                        title = tx.type == TransactionType.paymentIn ? 'Payment Received' : 'Payment Sent';
+                        amount = '₹${tx.amount?.toStringAsFixed(2) ?? "0.00"}';
+                        color = tx.type == TransactionType.paymentIn ? Colors.blue : Colors.red;
+                      } else {
+                        title = tx.type == TransactionType.stockIn ? 'Stock In' : 'Stock Out';
+                        if (tx.metalType != MetalType.none) {
+                          title += ' · ${tx.metalType.name.toUpperCase()}';
+                        }
+                        amount = '${tx.weight?.toStringAsFixed(2) ?? "0.00"} g';
+                        color = tx.type == TransactionType.stockIn ? Colors.green : Colors.orange;
+                      }
 
-            _historyTile(
-              "Payment Added",
-              "₹20,000",
-              "05 Jun 2026",
-              Colors.red,
+                      final dateStr = DateFormat('dd MMM yyyy, HH:mm').format(tx.createdAt);
+
+                      return _historyTile(
+                        title,
+                        (tx.type == TransactionType.paymentIn || tx.type == TransactionType.stockIn ? '+' : '-') + amount,
+                        dateStr,
+                        color,
+                      );
+                    }).toList(),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
             ),
           ],
         ),
@@ -223,6 +253,7 @@ class CustomerDetailsScreen extends StatelessWidget {
       ),
     );
   }
+
   Widget _actionButton(
       BuildContext context,
       String title,
@@ -237,6 +268,7 @@ class CustomerDetailsScreen extends StatelessWidget {
             builder: (_) => TransactionEntryScreen(
               title: title,
               isStock: title.contains("Stock"),
+              customerId: widget.customerId,
             ),
           ),
         );

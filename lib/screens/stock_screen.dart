@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_theme.dart';
 import '../widgets/section_title.dart';
 import 'add_stock_screen.dart';
+import '../blocs/stock_cubit.dart';
+import '../data/models/stock_ledger_entry_model.dart';
+import '../data/models/transaction_model.dart';
+import 'package:intl/intl.dart';
 
 class StockScreen extends StatefulWidget {
   const StockScreen({super.key});
@@ -14,68 +19,123 @@ class _StockScreenState extends State<StockScreen>
   late final TabController _tab = TabController(length: 2, vsync: this);
 
   @override
+  void initState() {
+    super.initState();
+    context.read<StockCubit>().fetchStockData();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-            child: Row(
-              children: [
-                const Text('Stock Management',
-                    style:
-                        TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
-                const Spacer(),
-                IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AddStockScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.filter_list_rounded)),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFFEFE8D2)),
-              ),
-              child: TabBar(
-                controller: _tab,
-                indicator: BoxDecoration(
-                  color: AppTheme.gold,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                labelColor: Colors.white,
-                unselectedLabelColor: AppTheme.muted,
-                dividerColor: Colors.transparent,
-                tabs: const [
-                  Tab(text: 'Stock In'),
-                  Tab(text: 'Stock Out'),
+      child: BlocBuilder<StockCubit, StockState>(
+        builder: (context, state) {
+          if (state is StockLoading || state is StockInitial) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is StockError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${state.message}'),
+                  ElevatedButton(
+                    onPressed: () =>
+                        context.read<StockCubit>().fetchStockData(),
+                    child: const Text('Retry'),
+                  ),
                 ],
               ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: TabBarView(
-              controller: _tab,
-              children: [
-                _StockList(isIn: true),
-                _StockList(isIn: false),
-              ],
-            ),
-          ),
-        ],
+            );
+          }
+
+          final summary = (state as StockLoaded).summary;
+          final ledger = state.ledger;
+
+          final stockInLedger = ledger
+              .where((l) => l.type == TransactionType.stockIn)
+              .toList();
+          final stockOutLedger = ledger
+              .where((l) => l.type == TransactionType.stockOut)
+              .toList();
+
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                child: Row(
+                  children: [
+                    const Text(
+                      'Stock Management',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AddStockScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.add_box_rounded),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFEFE8D2)),
+                  ),
+                  child: TabBar(
+                    controller: _tab,
+                    indicator: BoxDecoration(
+                      color: AppTheme.gold,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: AppTheme.muted,
+                    dividerColor: Colors.transparent,
+                    tabs: const [
+                      Tab(text: 'Stock In'),
+                      Tab(text: 'Stock Out'),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: TabBarView(
+                  controller: _tab,
+                  children: [
+                    _StockList(
+                      isIn: true,
+                      entries: stockInLedger,
+                      totalGold: summary.totalGold,
+                      totalSilver: summary.totalSilver,
+                    ),
+                    _StockList(
+                      isIn: false,
+                      entries: stockOutLedger,
+                      totalGold: summary.totalGold,
+                      totalSilver: summary.totalSilver,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -83,87 +143,115 @@ class _StockScreenState extends State<StockScreen>
 
 class _StockList extends StatelessWidget {
   final bool isIn;
-  const _StockList({required this.isIn});
+  final List<StockLedgerEntryModel> entries;
+  final double totalGold;
+  final double totalSilver;
+
+  const _StockList({
+    required this.isIn,
+    required this.entries,
+    required this.totalGold,
+    required this.totalSilver,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final items = List.generate(6, (i) => i);
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFEFE8D2)),
-          ),
-          child: Row(
-            children: [
-              _MetricBox(
+    // Calculate total in/out for display (just sum the entries for simplicity, though API might provide it)
+    double totalWeight = entries.fold(0.0, (sum, item) => sum + item.weight);
+
+    return RefreshIndicator(
+      onRefresh: () => context.read<StockCubit>().fetchStockData(),
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFEFE8D2)),
+            ),
+            child: Row(
+              children: [
+                _MetricBox(
                   label: 'Total ${isIn ? "In" : "Out"}',
-                  value: isIn ? '340.00 g' : '185.25 g'),
-              Container(
-                  width: 1, height: 36, color: const Color(0xFFEFE8D2)),
-              _MetricBox(
-                  label: 'Running Balance', value: '1,248.75 g'),
-            ],
+                  value: '${totalWeight.toStringAsFixed(2)} g',
+                ),
+                Container(width: 1, height: 36, color: const Color(0xFFEFE8D2)),
+                _MetricBox(
+                  label: 'Running Balance',
+                  value: '${(totalGold + totalSilver).toStringAsFixed(2)} g',
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 20),
-        const SectionTitle('Recent Entries'),
-        const SizedBox(height: 12),
-        ...items.map((i) => Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFFEFE8D2)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: isIn
-                          ? const Color(0xFFE8F6EF)
-                          : const Color(0xFFFDEAE6),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      isIn ? Icons.south_west : Icons.north_east,
-                      color: isIn ? AppTheme.success : AppTheme.danger,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(isIn ? 'Stock In · Gold' : 'Stock Out · Silver',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 2),
-                        Text(
-                            isIn
-                                ? 'Supplier: Anil Verma · 02 Jun 2026'
-                                : 'Customer: Rahul Sharma · 02 Jun 2026',
-                            style: const TextStyle(
-                                color: AppTheme.muted, fontSize: 12)),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    isIn ? '+${(40 + i * 5).toString()}.00 g' : '-${(15 + i * 3).toString()}.50 g',
-                    style: TextStyle(
+          const SizedBox(height: 20),
+          const SectionTitle('Recent Entries'),
+          const SizedBox(height: 12),
+          if (entries.isEmpty)
+            const Center(child: Text('No entries found'))
+          else
+            ...entries.map(
+              (entry) => Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFEFE8D2)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: isIn
+                            ? const Color(0xFFE8F6EF)
+                            : const Color(0xFFFDEAE6),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        isIn ? Icons.south_west : Icons.north_east,
                         color: isIn ? AppTheme.success : AppTheme.danger,
-                        fontWeight: FontWeight.w700),
-                  ),
-                ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isIn
+                                ? 'Stock In · ${entry.metalType.name.toUpperCase()}'
+                                : 'Stock Out · ${entry.metalType.name.toUpperCase()}',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${entry.remark ?? "Entry"} · ${DateFormat('dd MMM yyyy').format(entry.createdAt)}',
+                            style: const TextStyle(
+                              color: AppTheme.muted,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      (isIn ? '+' : '-') +
+                          '${entry.weight.toStringAsFixed(2)} g',
+                      style: TextStyle(
+                        color: isIn ? AppTheme.success : AppTheme.danger,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            )),
-      ],
+            ),
+        ],
+      ),
     );
   }
 }
@@ -176,12 +264,15 @@ class _MetricBox extends StatelessWidget {
     return Expanded(
       child: Column(
         children: [
-          Text(label,
-              style: const TextStyle(color: AppTheme.muted, fontSize: 12)),
+          Text(
+            label,
+            style: const TextStyle(color: AppTheme.muted, fontSize: 12),
+          ),
           const SizedBox(height: 4),
-          Text(value,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 16)),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+          ),
         ],
       ),
     );

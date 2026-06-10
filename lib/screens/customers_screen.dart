@@ -1,99 +1,128 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_theme.dart';
 import 'add_customer_screen.dart';
 import 'customer_details_screen.dart';
+import '../blocs/customer_cubit.dart';
+import '../data/models/customer_model.dart';
 
-class CustomersScreen extends StatelessWidget {
+class CustomersScreen extends StatefulWidget {
   const CustomersScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final customers = [
-      ('Rahul Sharma', '+91 98765 43210', '125.40 g', '₹45,000', true),
-      ('Meena Jewellers', '+91 98989 12121', '0.00 g', '₹0', false),
-      ('Anil Verma', '+91 91111 22222', '80.20 g', '₹18,500', true),
-      ('Suresh Bullion', '+91 90000 11111', '210.75 g', '₹78,000', true),
-      ('Pooja Soni', '+91 93333 44444', '15.00 g', '₹2,800', true),
-    ];
+  State<CustomersScreen> createState() => _CustomersScreenState();
+}
 
+class _CustomersScreenState extends State<CustomersScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<CustomerCubit>().fetchCustomers();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
-        children: [
-          Row(
-            children: [
-              const Text('Customers',
-                  style:
-                      TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
-              const Spacer(),
-              FilledButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AddCustomerScreen(),
+      child: BlocConsumer<CustomerCubit, CustomerState>(
+        listener: (context, state) {
+          if (state is CustomerOperationSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          } else if (state is CustomerError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
+        builder: (context, state) {
+          List<CustomerModel> customers = [];
+          
+          if (state is CustomerLoaded) {
+            customers = state.customers;
+          }
+
+          return RefreshIndicator(
+            onRefresh: () => context.read<CustomerCubit>().fetchCustomers(),
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+              children: [
+                Row(
+                  children: [
+                    const Text('Customers',
+                        style:
+                            TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+                    const Spacer(),
+                    FilledButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AddCustomerScreen(),
+                          ),
+                        );
+                      },
+                      style: FilledButton.styleFrom(
+                          backgroundColor: AppTheme.gold,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12))),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text('Add'),
                     ),
-                  );
-                },
-                style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.gold,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12))),
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text('Add'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'Search by name or mobile',
-              prefixIcon: const Icon(Icons.search),
-              hintStyle: const TextStyle(color: AppTheme.muted),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: Colors.white,
+                  ],
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search by name or mobile',
+                    prefixIcon: const Icon(Icons.search),
+                    hintStyle: const TextStyle(color: AppTheme.muted),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (state is CustomerLoading || state is CustomerInitial)
+                  const Center(child: CircularProgressIndicator())
+                else if (customers.isEmpty)
+                  const Center(child: Text('No customers found'))
+                else
+                  ...customers.map((c) => _CustomerCard(customer: c)),
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-          ...customers.map((c) => _CustomerCard(
-                name: c.$1,
-                phone: c.$2,
-                stock: c.$3,
-                pay: c.$4,
-                hasDue: c.$5,
-              )),
-        ],
+          );
+        },
       ),
     );
   }
 }
 
 class _CustomerCard extends StatelessWidget {
-  final String name, phone, stock, pay;
-  final bool hasDue;
-  const _CustomerCard(
-      {required this.name,
-      required this.phone,
-      required this.stock,
-      required this.pay,
-      required this.hasDue});
+  final CustomerModel customer;
+  
+  const _CustomerCard({required this.customer});
 
   @override
   Widget build(BuildContext context) {
+    final stock = '${customer.goldBalance.toStringAsFixed(2)} g (Gold)';
+    final pay = '₹${customer.cashBalance.toStringAsFixed(2)}';
+    final hasDue = customer.cashBalance < 0; // assuming negative balance means due
+    
     return InkWell(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => CustomerDetailsScreen(
-              name: name,
-              phone: phone,
+              customerId: customer.id,
+              name: customer.name,
+              phone: customer.phone ?? '',
               stock: stock,
               payment: pay,
             ),
@@ -115,7 +144,7 @@ class _CustomerCard extends StatelessWidget {
                 CircleAvatar(
                   radius: 22,
                   backgroundColor: AppTheme.goldLight,
-                  child: Text(name[0],
+                  child: Text(customer.name.isNotEmpty ? customer.name[0].toUpperCase() : '?',
                       style: const TextStyle(
                           color: AppTheme.goldDark,
                           fontWeight: FontWeight.w700)),
@@ -125,10 +154,10 @@ class _CustomerCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name,
+                      Text(customer.name,
                           style: const TextStyle(
                               fontWeight: FontWeight.w600, fontSize: 15)),
-                      Text(phone,
+                      Text(customer.phone ?? 'No phone',
                           style: const TextStyle(
                               color: AppTheme.muted, fontSize: 12)),
                     ],

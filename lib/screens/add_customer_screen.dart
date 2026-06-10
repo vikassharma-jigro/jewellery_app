@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_theme.dart';
+import '../blocs/customer_cubit.dart';
 
 class AddCustomerScreen extends StatefulWidget {
   const AddCustomerScreen({super.key});
@@ -109,11 +111,25 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
         ),
         backgroundColor: AppTheme.gold,
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
+      body: BlocConsumer<CustomerCubit, CustomerState>(
+        listener: (context, state) {
+          if (state is CustomerOperationSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+            Navigator.pop(context);
+          } else if (state is CustomerError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
+        builder: (context, state) {
+          return Form(
+            key: _formKey,
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
             buildFieldTitle("Customer Name"),
             buildTextField(
               controller: nameController,
@@ -193,48 +209,72 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
             const SizedBox(height: 30),
 
-            SizedBox(
-              height: 55,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  if (nameController.text.trim().isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Please enter customer name"),
-                      ),
+            if (state is CustomerLoading)
+              const Center(child: CircularProgressIndicator())
+            else
+              SizedBox(
+                height: 55,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    if (nameController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Please enter customer name"),
+                        ),
+                      );
+                      return;
+                    }
+                    if (mobileController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Please enter mobile number"),
+                        ),
+                      );
+                      return;
+                    }
+                    if (addressController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Please enter address"),
+                        ),
+                      );
+                      return;
+                    }
+                    
+                    context.read<CustomerCubit>().createCustomer(
+                      name: nameController.text.trim(),
+                      mobile: mobileController.text.trim(),
+                      address: addressController.text.trim(),
+                      aadhaar: aadhaarController.text.trim().isEmpty ? null : aadhaarController.text.trim(),
+                      gst: gstController.text.trim().isEmpty ? null : gstController.text.trim(),
+                      goldBalance: goldController.text.trim().isEmpty ? null : double.tryParse(goldController.text.trim()),
+                      silverBalance: silverController.text.trim().isEmpty ? null : double.tryParse(silverController.text.trim()),
+                      paymentDue: dueController.text.trim().isEmpty ? null : double.tryParse(dueController.text.trim()),
                     );
-                    return;
-                  }
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Customer Added Successfully"),
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.gold,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                  );
-
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.gold,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
                   ),
-                ),
-                icon: const Icon(Icons.save),
-                label: const Text(
-                  "Save Customer",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                  icon: const Icon(Icons.save),
+                  label: const Text(
+                    "Save Customer",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
-            ),
 
             const SizedBox(height: 30),
           ],
         ),
-      ),
-    );
+      );
+    },
+  ),
+);
   }
 }

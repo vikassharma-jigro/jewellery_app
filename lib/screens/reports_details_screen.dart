@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../blocs/stock_cubit.dart';
+import '../blocs/transaction_cubit.dart';
+import '../data/models/transaction_model.dart';
 
-class ReportDetailsScreen extends StatelessWidget {
+class ReportDetailsScreen extends StatefulWidget {
   final String title;
 
   const ReportDetailsScreen({
@@ -10,11 +14,29 @@ class ReportDetailsScreen extends StatelessWidget {
   });
 
   @override
+  State<ReportDetailsScreen> createState() => _ReportDetailsScreenState();
+}
+
+class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.title == 'Stock Movement Report' || widget.title == 'Stock Summary Report' || widget.title == 'Gold Balance Report') {
+        context.read<StockCubit>().fetchStockData();
+      }
+      if (widget.title == 'Daily Transaction Report' || widget.title == 'Monthly Sales Report') {
+        context.read<TransactionCubit>().fetchTransactions();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffF8F6F1),
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
         backgroundColor: AppTheme.goldDark,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -51,7 +73,7 @@ class ReportDetailsScreen extends StatelessWidget {
   }
 
   List<Widget> _getReportData() {
-    switch (title) {
+    switch (widget.title) {
 
       case 'Customer Ledger Report':
         return [
@@ -63,12 +85,45 @@ class ReportDetailsScreen extends StatelessWidget {
         ];
 
       case 'Stock Movement Report':
+      case 'Stock Summary Report':
         return [
-          _card("Opening Stock", "5,250 gm", Icons.inventory),
-          _card("Stock Added", "250 gm", Icons.add_circle_outline),
-          _card("Stock Sold", "175 gm", Icons.remove_circle_outline),
-          _card("Closing Stock", "5,325 gm", Icons.inventory_2),
-          _card("Last Updated", "09 Jun 2026", Icons.calendar_month),
+          BlocBuilder<StockCubit, StockState>(
+            builder: (context, state) {
+              if (state is StockLoading) {
+                return const Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: Center(child: CircularProgressIndicator(color: AppTheme.goldDark)),
+                );
+              }
+              if (state is StockLoaded) {
+                double stockAdded = 0;
+                double stockSold = 0;
+                for (var entry in state.ledger) {
+                  if (entry.type == TransactionType.stockIn) {
+                    stockAdded += entry.weight;
+                  } else if (entry.type == TransactionType.stockOut) {
+                    stockSold += entry.weight;
+                  }
+                }
+                double closingStock = state.summary.totalGold;
+                double openingStock = closingStock - stockAdded + stockSold;
+
+                return Column(
+                  children: [
+                    _card("Opening Stock", "${openingStock.toStringAsFixed(2)} gm", Icons.inventory),
+                    _card("Stock Added", "${stockAdded.toStringAsFixed(2)} gm", Icons.add_circle_outline),
+                    _card("Stock Sold", "${stockSold.toStringAsFixed(2)} gm", Icons.remove_circle_outline),
+                    _card("Closing Stock", "${closingStock.toStringAsFixed(2)} gm", Icons.inventory_2),
+                    _card("Last Updated", DateTime.now().toString().substring(0, 10), Icons.calendar_month),
+                  ],
+                );
+              }
+              return const Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Center(child: Text('Failed to load stock data.')),
+              );
+            },
+          ),
         ];
 
       case 'Payment Report':
@@ -90,11 +145,36 @@ class ReportDetailsScreen extends StatelessWidget {
 
       case 'Daily Transaction Report':
         return [
-          _card("Today's Sale", "₹1,25,000", Icons.trending_up),
-          _card("Today's Purchase", "₹75,000", Icons.shopping_cart),
-          _card("Cash Received", "₹50,000", Icons.payments),
-          _card("Total Transactions", "28", Icons.receipt_long),
-          _card("Date", "09 Jun 2026", Icons.calendar_month),
+          BlocBuilder<TransactionCubit, TransactionState>(
+            builder: (context, state) {
+              if (state is TransactionLoading) return const Center(child: CircularProgressIndicator(color: AppTheme.goldDark));
+              if (state is TransactionLoaded) {
+                final now = DateTime.now();
+                final todayTx = state.transactions.where((t) => t.createdAt.year == now.year && t.createdAt.month == now.month && t.createdAt.day == now.day).toList();
+                
+                double todaySale = 0;
+                double todayPurchase = 0;
+                double cashReceived = 0;
+                
+                for (var t in todayTx) {
+                   if (t.type == TransactionType.stockOut) todaySale += (t.amount ?? 0);
+                   else if (t.type == TransactionType.stockIn) todayPurchase += (t.amount ?? 0);
+                   else if (t.type == TransactionType.paymentIn) cashReceived += (t.amount ?? 0);
+                }
+                
+                return Column(
+                  children: [
+                    _card("Today's Sale", "₹${todaySale.toStringAsFixed(2)}", Icons.trending_up),
+                    _card("Today's Purchase", "₹${todayPurchase.toStringAsFixed(2)}", Icons.shopping_cart),
+                    _card("Cash Received", "₹${cashReceived.toStringAsFixed(2)}", Icons.payments),
+                    _card("Total Transactions", "${todayTx.length}", Icons.receipt_long),
+                    _card("Date", now.toString().substring(0, 10), Icons.calendar_month),
+                  ]
+                );
+              }
+              return const Center(child: Text('Failed to load transactions.'));
+            }
+          ),
         ];
 
       case 'All Customer Outstanding':
@@ -107,18 +187,72 @@ class ReportDetailsScreen extends StatelessWidget {
 
       case 'Gold Balance Report':
         return [
-          _card("Opening Gold", "5000 gm", Icons.account_balance_wallet),
-          _card("Gold Purchased", "350 gm", Icons.add_circle_outline),
-          _card("Gold Sold", "220 gm", Icons.remove_circle_outline),
-          _card("Current Balance", "5130 gm", Icons.inventory_2),
+          BlocBuilder<StockCubit, StockState>(
+            builder: (context, state) {
+              if (state is StockLoading) return const Center(child: CircularProgressIndicator(color: AppTheme.goldDark));
+              if (state is StockLoaded) {
+                double goldPurchased = 0;
+                double goldSold = 0;
+                for (var entry in state.ledger) {
+                  if (entry.metalType == MetalType.gold) {
+                    if (entry.type == TransactionType.stockIn) {
+                      goldPurchased += entry.weight;
+                    } else if (entry.type == TransactionType.stockOut) {
+                      goldSold += entry.weight;
+                    }
+                  }
+                }
+                double currentBalance = state.summary.totalGold;
+                double openingGold = currentBalance - goldPurchased + goldSold;
+
+                return Column(
+                  children: [
+                    _card("Opening Gold", "${openingGold.toStringAsFixed(2)} gm", Icons.account_balance_wallet),
+                    _card("Gold Purchased", "${goldPurchased.toStringAsFixed(2)} gm", Icons.add_circle_outline),
+                    _card("Gold Sold", "${goldSold.toStringAsFixed(2)} gm", Icons.remove_circle_outline),
+                    _card("Current Balance", "${currentBalance.toStringAsFixed(2)} gm", Icons.inventory_2),
+                  ],
+                );
+              }
+              return const Center(child: Text('Failed to load stock data.'));
+            }
+          ),
         ];
 
       case 'Monthly Sales Report':
         return [
-          _card("Month", "June 2026", Icons.calendar_month),
-          _card("Total Sales", "₹12,50,000", Icons.bar_chart),
-          _card("Gold Sold", "850 gm", Icons.inventory),
-          _card("Transactions", "145", Icons.receipt_long),
+          BlocBuilder<TransactionCubit, TransactionState>(
+            builder: (context, state) {
+              if (state is TransactionLoading) return const Center(child: CircularProgressIndicator(color: AppTheme.goldDark));
+              if (state is TransactionLoaded) {
+                final now = DateTime.now();
+                final monthTx = state.transactions.where((t) => t.createdAt.year == now.year && t.createdAt.month == now.month).toList();
+                
+                double totalSales = 0;
+                double goldSold = 0;
+                int transactions = monthTx.length;
+                
+                for (var t in monthTx) {
+                   if (t.type == TransactionType.stockOut) {
+                       totalSales += (t.amount ?? 0);
+                       if (t.metalType == MetalType.gold) {
+                          goldSold += (t.weight ?? 0);
+                       }
+                   }
+                }
+                
+                return Column(
+                  children: [
+                    _card("Month", "${now.month}/${now.year}", Icons.calendar_month),
+                    _card("Total Sales", "₹${totalSales.toStringAsFixed(2)}", Icons.bar_chart),
+                    _card("Gold Sold", "${goldSold.toStringAsFixed(2)} gm", Icons.inventory),
+                    _card("Transactions", "$transactions", Icons.receipt_long),
+                  ]
+                );
+              }
+              return const Center(child: Text('Failed to load transactions.'));
+            }
+          ),
         ];
 
       case 'Customer Payment History':
@@ -171,14 +305,7 @@ class ReportDetailsScreen extends StatelessWidget {
           _card("Status", "Overdue", Icons.error_outline),
         ];
 
-      case 'Stock Summary Report':
-        return [
-          _card("Opening Stock", "5000 gm", Icons.inventory),
-          _card("Stock Purchased", "450 gm", Icons.add_circle_outline),
-          _card("Stock Sold", "325 gm", Icons.remove_circle_outline),
-          _card("Current Stock", "5125 gm", Icons.inventory_2),
-          _card("Last Updated", "09 Jun 2026", Icons.calendar_month),
-        ];
+
       default:
         return [
           Container(

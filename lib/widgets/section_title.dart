@@ -9,15 +9,10 @@ class SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(title,
-            style:
-                const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-        const Spacer(),
-        Text('See all',
-            style: TextStyle(
-                color: AppTheme.goldDark,
-                fontSize: 12,
-                fontWeight: FontWeight.w600)),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
       ],
     );
   }

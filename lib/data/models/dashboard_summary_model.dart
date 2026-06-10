@@ -1,0 +1,50 @@
+import 'package:equatable/equatable.dart';
+import 'transaction_model.dart';
+
+class DashboardSummaryModel extends Equatable {
+  final double totalReceivables;
+  final double totalPayables;
+  final double goldStock;
+  final double silverStock;
+  final List<TransactionModel> recentTransactions;
+
+  const DashboardSummaryModel({
+    this.totalReceivables = 0.0,
+    this.totalPayables = 0.0,
+    this.goldStock = 0.0,
+    this.silverStock = 0.0,
+    this.recentTransactions = const [],
+  });
+
+  factory DashboardSummaryModel.fromJson(Map<String, dynamic> json) {
+    return DashboardSummaryModel(
+      totalReceivables: (json['totalReceivables'] ?? 0).toDouble(),
+      totalPayables: (json['totalPayables'] ?? 0).toDouble(),
+      goldStock: (json['totalGold'] ?? json['goldStock'] ?? 0).toDouble(),
+      silverStock: (json['totalSilver'] ?? json['silverStock'] ?? 0).toDouble(),
+      recentTransactions: (json['recentTransactions'] as List<dynamic>?)
+              ?.map((e) => TransactionModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'totalReceivables': totalReceivables,
+      'totalPayables': totalPayables,
+      'goldStock': goldStock,
+      'silverStock': silverStock,
+      'recentTransactions': recentTransactions.map((e) => e.toJson()).toList(),
+    };
+  }
+
+  @override
+  List<Object?> get props => [
+        totalReceivables,
+        totalPayables,
+        goldStock,
+        silverStock,
+        recentTransactions,
+      ];
+}
