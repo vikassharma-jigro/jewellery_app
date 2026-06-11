@@ -226,11 +226,10 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
         children: [
           ..._getReportData(),
 
-          const SizedBox(height: 20),
-
-          ElevatedButton.icon(
-            onPressed: () async {
-              if (widget.title == 'Monthly Sales Report') {
+          if (widget.title == 'Monthly Sales Report') ...[
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () async {
                 final state = context.read<ReportsCubit>().state;
                 if (state is MonthlyReportLoaded) {
                   showDialog(
@@ -263,27 +262,19 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
                     ),
                   );
                 }
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Export Feature Coming Soon for this report.',
-                    ),
-                  ),
-                );
-              }
-            },
-            icon: const Icon(Icons.download),
-            label: const Text('Export Report'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.goldDark,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(double.infinity, 55),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+              },
+              icon: const Icon(Icons.download),
+              label: const Text('Export Report'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.goldDark,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 55),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );

@@ -130,66 +130,7 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
       ],
     );
 
-    final buttonsWidget = Row(
-      children: [
-        Expanded(
-          flex: isDesktop ? 0 : 1,
-          child: OutlinedButton.icon(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              foregroundColor: kGold,
-              side: const BorderSide(color: kGold),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            icon: const Icon(Icons.picture_as_pdf_outlined, size: 16),
-            label: const Text(
-              'EXPORT PDF',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          flex: isDesktop ? 0 : 1,
-          child: ElevatedButton.icon(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kGold,
-              foregroundColor: const Color(0xFF241A00),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            icon: const Icon(Icons.table_view_outlined, size: 16),
-            label: const Text(
-              'EXPORT EXCEL',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
-      ],
-    );
-
-    if (isDesktop) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(child: titleWidget),
-          const SizedBox(width: 12),
-          buttonsWidget,
-        ],
-      );
-    } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [titleWidget, const SizedBox(height: 16), buttonsWidget],
-      );
-    }
+    return titleWidget;
   }
 
   Widget _buildFiltersPanel(bool isDesktop) {

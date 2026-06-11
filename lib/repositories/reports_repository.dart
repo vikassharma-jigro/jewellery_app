@@ -17,7 +17,8 @@ class ReportsRepository {
         ApiConstants.dailyTransactionsReport,
         queryParameters: {'date': date},
       );
-      final data = (response.data is Map<String, dynamic> &&
+      final data =
+          (response.data is Map<String, dynamic> &&
               (response.data as Map<String, dynamic>).containsKey('data'))
           ? response.data['data']
           : response.data;
@@ -26,7 +27,8 @@ class ReportsRepository {
       final message = e.response?.data['message'];
       final String errorMessage = message is List
           ? message.join(', ')
-          : (message?.toString() ?? 'Failed to fetch daily transactions report');
+          : (message?.toString() ??
+                'Failed to fetch daily transactions report');
       throw AppException(errorMessage);
     } catch (e) {
       throw AppException(e.toString());
@@ -39,7 +41,8 @@ class ReportsRepository {
         ApiConstants.monthlySalesReport,
         queryParameters: {'month': month},
       );
-      final data = (response.data is Map<String, dynamic> &&
+      final data =
+          (response.data is Map<String, dynamic> &&
               (response.data as Map<String, dynamic>).containsKey('data'))
           ? response.data['data']
           : response.data;
@@ -57,15 +60,27 @@ class ReportsRepository {
 
   Future<String> exportMonthlyReport(String month, String year) async {
     try {
-      final Directory tempDir = await getTemporaryDirectory();
-      final String savePath = '${tempDir.path}/monthly-report-$month-$year.xlsx';
+      Directory? directory;
+      if (Platform.isAndroid) {
+        directory = Directory('/storage/emulated/0/Download');
+        if (!await directory.exists()) {
+          directory = await getExternalStorageDirectory();
+        }
+      } else {
+        directory = await getApplicationDocumentsDirectory();
+      }
+
+      directory ??= await getTemporaryDirectory();
+
+      final String savePath =
+          '${directory.path}/monthly-report-$month-$year-${DateTime.now().millisecondsSinceEpoch}.xlsx';
 
       await _apiService.dio.download(
         ApiConstants.monthlySalesReportExport,
         savePath,
         queryParameters: {'month': month, 'year': year},
       );
-      
+
       return savePath;
     } on DioException catch (e) {
       final message = e.response?.data?['message'];
