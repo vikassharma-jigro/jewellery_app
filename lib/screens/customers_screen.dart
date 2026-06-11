@@ -14,6 +14,8 @@ class CustomersScreen extends StatefulWidget {
 }
 
 class _CustomersScreenState extends State<CustomersScreen> {
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
@@ -22,82 +24,87 @@ class _CustomersScreenState extends State<CustomersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: BlocConsumer<CustomerCubit, CustomerState>(
-        listener: (context, state) {
-          if (state is CustomerOperationSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
-          } else if (state is CustomerError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
-          }
-        },
-        builder: (context, state) {
-          List<CustomerModel> customers = [];
-          
-          if (state is CustomerLoaded) {
-            customers = state.customers;
-          }
+    return Scaffold(
+      backgroundColor: kBg,
+      body: SafeArea(
+        child: BlocConsumer<CustomerCubit, CustomerState>(
+          listener: (context, state) {
+            if (state is CustomerOperationSuccess) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            } else if (state is CustomerError) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+          builder: (context, state) {
+            List<CustomerModel> customers = [];
 
-          return RefreshIndicator(
-            onRefresh: () => context.read<CustomerCubit>().fetchCustomers(),
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
-              children: [
-                Row(
-                  children: [
-                    const Text('Customers',
-                        style:
-                            TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
-                    const Spacer(),
-                    FilledButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const AddCustomerScreen(),
-                          ),
-                        );
-                      },
-                      style: FilledButton.styleFrom(
-                          backgroundColor: AppTheme.gold,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12))),
-                      icon: const Icon(Icons.add, size: 18),
-                      label: const Text('Add'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search by name or mobile',
-                    prefixIcon: const Icon(Icons.search),
-                    hintStyle: const TextStyle(color: AppTheme.muted),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
+            if (state is CustomerLoaded) {
+              customers = state.customers;
+              if (_searchQuery.isNotEmpty) {
+                final query = _searchQuery.toLowerCase();
+                customers = customers.where((c) {
+                  final nameMatch = c.name.toLowerCase().contains(query);
+                  final phoneMatch =
+                      c.phone?.toLowerCase().contains(query) ?? false;
+                  return nameMatch || phoneMatch;
+                }).toList();
+              }
+            }
+
+            return RefreshIndicator(
+              onRefresh: () => context.read<CustomerCubit>().fetchCustomers(),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+                children: [
+                  const Text(
+                    'Customers',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
                   ),
-                ),
-                const SizedBox(height: 16),
-                if (state is CustomerLoading || state is CustomerInitial)
-                  const Center(child: CircularProgressIndicator())
-                else if (customers.isEmpty)
-                  const Center(child: Text('No customers found'))
-                else
-                  ...customers.map((c) => _CustomerCard(customer: c)),
-              ],
-            ),
-          );
+                  const SizedBox(height: 16),
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Search by name or mobile',
+                      prefixIcon: const Icon(Icons.search),
+                      hintStyle: const TextStyle(color: AppTheme.muted),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (state is CustomerLoading || state is CustomerInitial)
+                    const Center(child: CircularProgressIndicator())
+                  else if (customers.isEmpty)
+                    const Center(child: Text('No customers found'))
+                  else
+                    ...customers.map((c) => _CustomerCard(customer: c)),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: kBg,
+        shape: const CircleBorder(),
+        onPressed: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (context) => AddCustomerScreen()));
         },
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -105,15 +112,17 @@ class _CustomersScreenState extends State<CustomersScreen> {
 
 class _CustomerCard extends StatelessWidget {
   final CustomerModel customer;
-  
+
   const _CustomerCard({required this.customer});
 
   @override
   Widget build(BuildContext context) {
-    final stock = '${customer.goldBalance.toStringAsFixed(2)} g (Gold)';
+    final stock =
+        '${customer.goldBalance.toStringAsFixed(2)}g Gold, ${customer.jewelleryBalance.toStringAsFixed(2)}g Jew.';
     final pay = '₹${customer.cashBalance.toStringAsFixed(2)}';
-    final hasDue = customer.cashBalance < 0; // assuming negative balance means due
-    
+    final hasDue =
+        customer.cashBalance < 0; // assuming negative balance means due
+
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -144,37 +153,56 @@ class _CustomerCard extends StatelessWidget {
                 CircleAvatar(
                   radius: 22,
                   backgroundColor: AppTheme.goldLight,
-                  child: Text(customer.name.isNotEmpty ? customer.name[0].toUpperCase() : '?',
-                      style: const TextStyle(
-                          color: AppTheme.goldDark,
-                          fontWeight: FontWeight.w700)),
+                  child: Text(
+                    customer.name.isNotEmpty
+                        ? customer.name[0].toUpperCase()
+                        : '?',
+                    style: const TextStyle(
+                      color: AppTheme.goldDark,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(customer.name,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 15)),
-                      Text(customer.phone ?? 'No phone',
-                          style: const TextStyle(
-                              color: AppTheme.muted, fontSize: 12)),
+                      Text(
+                        customer.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                      Text(
+                        customer.phone ?? 'No phone',
+                        style: const TextStyle(
+                          color: AppTheme.muted,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 if (hasDue)
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
-                        color: const Color(0xFFFDEAE6),
-                        borderRadius: BorderRadius.circular(20)),
-                    child: const Text('Due',
-                        style: TextStyle(
-                            color: AppTheme.danger,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600)),
+                      color: const Color(0xFFFDEAE6),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      'Due',
+                      style: TextStyle(
+                        color: AppTheme.danger,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
               ],
             ),
@@ -184,8 +212,7 @@ class _CustomerCard extends StatelessWidget {
             Row(
               children: [
                 _MiniInfo(label: 'Pending Stock', value: stock),
-                Container(
-                    width: 1, height: 28, color: const Color(0xFFEFE8D2)),
+                Container(width: 1, height: 28, color: const Color(0xFFEFE8D2)),
                 _MiniInfo(label: 'Pending Payment', value: pay),
               ],
             ),
@@ -204,12 +231,15 @@ class _MiniInfo extends StatelessWidget {
     return Expanded(
       child: Column(
         children: [
-          Text(label,
-              style: const TextStyle(color: AppTheme.muted, fontSize: 11)),
+          Text(
+            label,
+            style: const TextStyle(color: AppTheme.muted, fontSize: 11),
+          ),
           const SizedBox(height: 3),
-          Text(value,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 14)),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+          ),
         ],
       ),
     );

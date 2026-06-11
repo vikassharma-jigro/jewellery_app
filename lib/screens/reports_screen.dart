@@ -29,12 +29,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
       ('Customer Ledger Report', Icons.account_balance_wallet_outlined),
       ('Stock Movement Report', Icons.swap_vert_rounded),
       ('Daily Transaction Report', Icons.today_outlined),
-      ('All Customer Outstanding', Icons.people_alt_outlined),
       ('Gold Balance Report', Icons.account_balance_wallet_outlined),
       ('Monthly Sales Report', Icons.bar_chart),
     ];
 
     return Scaffold(
+      backgroundColor: kBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -117,7 +117,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             onTap: () {
                               final customerReports = [
                                 'Customer Ledger Report',
-                                'All Customer Outstanding',
                                 'Customer Payment History',
                                 'Customer Wise Stock Report',
                                 'Customer Due Report',

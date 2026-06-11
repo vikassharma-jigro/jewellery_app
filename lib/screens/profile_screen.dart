@@ -8,7 +8,6 @@ import '../widgets/bottom_nav.dart';
 import '../../core/network/api_endpoints.dart';
 import 'login_screen.dart';
 import '../blocs/auth_cubit.dart';
-import '../blocs/auth_cubit.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -161,9 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           : CrossAxisAlignment.center,
       children: [
         Text(
-          user?.name.isNotEmpty == true
-              ? user!.name
-              : 'No Name Set',
+          user?.name.isNotEmpty == true ? user!.name : 'No Name Set',
           style: const TextStyle(
             fontFamily: 'Playfair Display',
             fontSize: 26,
@@ -517,13 +514,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final authState = context.read<AuthCubit>().state;
     final user = authState is AuthAuthenticated ? authState.user : null;
 
-    final fullNameController = TextEditingController(
-      text: user?.name ?? '',
-    );
+    final fullNameController = TextEditingController(text: user?.name ?? '');
     final businessNameController = TextEditingController(
       text: '', // user?.businessName ?? '',
     );
-    final gstController = TextEditingController(text: ''); // user?.gstNumber ?? '');
+    final gstController = TextEditingController(
+      text: '',
+    ); // user?.gstNumber ?? '');
     final addressController = TextEditingController(
       text: '', // user?.address ?? '',
     );
@@ -591,9 +588,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       : null,
                                 ),
                                 child: pickedImagePath == null
-                                    ? (user?.avatarUrl
-                                                  ?.isNotEmpty ==
-                                              true
+                                    ? (user?.avatarUrl?.isNotEmpty == true
                                           ? ClipOval(
                                               child: Image.network(
                                                 '${ApiEndpoints.baseUrl.replaceAll('/api', '')}${user!.avatarUrl}',
@@ -736,7 +731,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             onPressed: () {
                               // API call not implemented in core yet
-                              print("Update profile triggered");
                               Navigator.pop(context);
                             },
                             child: const Text(

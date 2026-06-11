@@ -16,7 +16,7 @@ class CustomerRepository {
     String? aadhaar,
     String? gst,
     double? goldBalance,
-    double? silverBalance,
+    double? jewelleryBalance,
     double? paymentDue,
   }) async {
     try {
@@ -26,18 +26,24 @@ class CustomerRepository {
           'name': name,
           'mobile': mobile,
           'address': address,
-          if (aadhaar != null) 'aadhaar': aadhaar,
-          if (gst != null) 'gst': gst,
-          if (goldBalance != null) 'goldBalance': goldBalance,
-          if (silverBalance != null) 'silverBalance': silverBalance,
-          if (paymentDue != null) 'paymentDue': paymentDue,
+          'aadhaar': ?aadhaar,
+          'gst': ?gst,
+          'goldBalance': ?goldBalance,
+          'jewelleryBalance': ?jewelleryBalance,
+          'paymentDue': ?paymentDue,
         },
       );
-      final responseData = (response.data is Map<String, dynamic> && (response.data as Map<String, dynamic>).containsKey('data')) ? response.data['data'] : response.data;
+      final responseData =
+          (response.data is Map<String, dynamic> &&
+              (response.data as Map<String, dynamic>).containsKey('data'))
+          ? response.data['data']
+          : response.data;
       return CustomerModel.fromJson(responseData);
     } on DioException catch (e) {
       final message = e.response?.data['message'];
-      final String errorMessage = message is List ? message.join(', ') : (message?.toString() ?? 'Failed to create customer');
+      final String errorMessage = message is List
+          ? message.join(', ')
+          : (message?.toString() ?? 'Failed to create customer');
       throw AppException(errorMessage);
     } catch (e) {
       throw AppException(e.toString());
@@ -47,11 +53,17 @@ class CustomerRepository {
   Future<List<CustomerModel>> getAllCustomers() async {
     try {
       final response = await _apiService.dio.get(ApiConstants.customers);
-      final List data = (response.data is Map<String, dynamic> && (response.data as Map<String, dynamic>).containsKey('data')) ? response.data['data'] : response.data;
+      final List data =
+          (response.data is Map<String, dynamic> &&
+              (response.data as Map<String, dynamic>).containsKey('data'))
+          ? response.data['data']
+          : response.data;
       return data.map((json) => CustomerModel.fromJson(json)).toList();
     } on DioException catch (e) {
       final message = e.response?.data['message'];
-      final String errorMessage = message is List ? message.join(', ') : (message?.toString() ?? 'Failed to fetch customers');
+      final String errorMessage = message is List
+          ? message.join(', ')
+          : (message?.toString() ?? 'Failed to fetch customers');
       throw AppException(errorMessage);
     } catch (e) {
       throw AppException(e.toString());
@@ -60,12 +72,20 @@ class CustomerRepository {
 
   Future<CustomerModel> getCustomerById(String id) async {
     try {
-      final response = await _apiService.dio.get('${ApiConstants.customers}/$id');
-      final responseData = (response.data is Map<String, dynamic> && (response.data as Map<String, dynamic>).containsKey('data')) ? response.data['data'] : response.data;
+      final response = await _apiService.dio.get(
+        '${ApiConstants.customers}/$id',
+      );
+      final responseData =
+          (response.data is Map<String, dynamic> &&
+              (response.data as Map<String, dynamic>).containsKey('data'))
+          ? response.data['data']
+          : response.data;
       return CustomerModel.fromJson(responseData);
     } on DioException catch (e) {
       final message = e.response?.data['message'];
-      final String errorMessage = message is List ? message.join(', ') : (message?.toString() ?? 'Failed to fetch customer');
+      final String errorMessage = message is List
+          ? message.join(', ')
+          : (message?.toString() ?? 'Failed to fetch customer');
       throw AppException(errorMessage);
     } catch (e) {
       throw AppException(e.toString());
@@ -84,18 +104,24 @@ class CustomerRepository {
       final response = await _apiService.dio.patch(
         '${ApiConstants.customers}/$id',
         data: {
-          if (name != null) 'name': name,
-          if (mobile != null) 'mobile': mobile,
-          if (address != null) 'address': address,
-          if (aadhaar != null) 'aadhaar': aadhaar,
-          if (gst != null) 'gst': gst,
+          'name': ?name,
+          'mobile': ?mobile,
+          'address': ?address,
+          'aadhaar': ?aadhaar,
+          'gst': ?gst,
         },
       );
-      final responseData = (response.data is Map<String, dynamic> && (response.data as Map<String, dynamic>).containsKey('data')) ? response.data['data'] : response.data;
+      final responseData =
+          (response.data is Map<String, dynamic> &&
+              (response.data as Map<String, dynamic>).containsKey('data'))
+          ? response.data['data']
+          : response.data;
       return CustomerModel.fromJson(responseData);
     } on DioException catch (e) {
       final message = e.response?.data['message'];
-      final String errorMessage = message is List ? message.join(', ') : (message?.toString() ?? 'Failed to update customer');
+      final String errorMessage = message is List
+          ? message.join(', ')
+          : (message?.toString() ?? 'Failed to update customer');
       throw AppException(errorMessage);
     } catch (e) {
       throw AppException(e.toString());
@@ -107,7 +133,9 @@ class CustomerRepository {
       await _apiService.dio.delete('${ApiConstants.customers}/$id');
     } on DioException catch (e) {
       final message = e.response?.data['message'];
-      final String errorMessage = message is List ? message.join(', ') : (message?.toString() ?? 'Failed to delete customer');
+      final String errorMessage = message is List
+          ? message.join(', ')
+          : (message?.toString() ?? 'Failed to delete customer');
       throw AppException(errorMessage);
     } catch (e) {
       throw AppException(e.toString());

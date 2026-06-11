@@ -5,7 +5,7 @@ class CustomerModel extends Equatable {
   final String name;
   final String? phone;
   final double goldBalance;
-  final double silverBalance;
+  final double jewelleryBalance;
   final double cashBalance;
 
   const CustomerModel({
@@ -13,7 +13,7 @@ class CustomerModel extends Equatable {
     required this.name,
     this.phone,
     this.goldBalance = 0.0,
-    this.silverBalance = 0.0,
+    this.jewelleryBalance = 0.0,
     this.cashBalance = 0.0,
   });
 
@@ -23,7 +23,7 @@ class CustomerModel extends Equatable {
       name: json['name'] ?? '',
       phone: json['mobile'] ?? json['phone'],
       goldBalance: (json['goldBalance'] ?? 0).toDouble(),
-      silverBalance: (json['silverBalance'] ?? 0).toDouble(),
+      jewelleryBalance: (json['jewelleryBalance'] ?? 0).toDouble(),
       cashBalance: (json['paymentDue'] ?? json['cashBalance'] ?? 0).toDouble(),
     );
   }
@@ -34,11 +34,11 @@ class CustomerModel extends Equatable {
       'name': name,
       'phone': phone,
       'goldBalance': goldBalance,
-      'silverBalance': silverBalance,
+      'jewelleryBalance': jewelleryBalance,
       'cashBalance': cashBalance,
     };
   }
 
   @override
-  List<Object?> get props => [id, name, phone, goldBalance, silverBalance, cashBalance];
+  List<Object?> get props => [id, name, phone, goldBalance, jewelleryBalance, cashBalance];
 }

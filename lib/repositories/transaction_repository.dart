@@ -37,13 +37,13 @@ class TransactionRepository {
           'metalType': metalType == MetalType.jewellery
               ? 'JEWELLERY'
               : metalType.name.toUpperCase(),
-          if (weight != null) 'weight': weight,
-          if (amount != null) 'amount': amount,
-          if (remark != null) 'remark': remark,
-          if (grossWeight != null) 'grossWeight': grossWeight,
-          if (stoneWeight != null) 'stoneWeight': stoneWeight,
-          if (wastagePercent != null) 'wastagePercent': wastagePercent,
-          if (goldRate != null) 'goldRate': goldRate,
+          'weight': ?weight,
+          'amount': ?amount,
+          'remark': ?remark,
+          'grossWeight': ?grossWeight,
+          'stoneWeight': ?stoneWeight,
+          'wastagePercent': ?wastagePercent,
+          'goldRate': ?goldRate,
           'currency': currency.name.toUpperCase(),
         },
       );

@@ -5,14 +5,14 @@ class DashboardSummaryModel extends Equatable {
   final double totalReceivables;
   final double totalPayables;
   final double goldStock;
-  final double silverStock;
+  final double jewelleryStock;
   final List<TransactionModel> recentTransactions;
 
   const DashboardSummaryModel({
     this.totalReceivables = 0.0,
     this.totalPayables = 0.0,
     this.goldStock = 0.0,
-    this.silverStock = 0.0,
+    this.jewelleryStock = 0.0,
     this.recentTransactions = const [],
   });
 
@@ -21,7 +21,7 @@ class DashboardSummaryModel extends Equatable {
       totalReceivables: (json['totalReceivables'] ?? 0).toDouble(),
       totalPayables: (json['totalPayables'] ?? 0).toDouble(),
       goldStock: (json['totalGold'] ?? json['goldStock'] ?? 0).toDouble(),
-      silverStock: (json['totalSilver'] ?? json['silverStock'] ?? 0).toDouble(),
+      jewelleryStock: (json['totalJewellery'] ?? json['jewelleryStock'] ?? 0).toDouble(),
       recentTransactions: (json['recentTransactions'] as List<dynamic>?)
               ?.map((e) => TransactionModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -34,7 +34,7 @@ class DashboardSummaryModel extends Equatable {
       'totalReceivables': totalReceivables,
       'totalPayables': totalPayables,
       'goldStock': goldStock,
-      'silverStock': silverStock,
+      'jewelleryStock': jewelleryStock,
       'recentTransactions': recentTransactions.map((e) => e.toJson()).toList(),
     };
   }
@@ -44,7 +44,7 @@ class DashboardSummaryModel extends Equatable {
         totalReceivables,
         totalPayables,
         goldStock,
-        silverStock,
+        jewelleryStock,
         recentTransactions,
       ];
 }

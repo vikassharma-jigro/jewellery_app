@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'api_endpoints.dart';
 import 'dio_interceptors.dart';
@@ -7,7 +8,7 @@ import '../storage/auth_storage.dart';
 class DioClient {
   late final Dio dio;
 
-  DioClient(AuthStorage authStorage) {
+  DioClient(AuthStorage authStorage, BuildContext context) {
     dio = Dio(
       BaseOptions(
         baseUrl: ApiEndpoints.baseUrl,
@@ -22,7 +23,7 @@ class DioClient {
 
     // Add interceptors
     dio.interceptors.addAll([
-      AuthInterceptor(authStorage),
+      AuthInterceptor(authStorage, context),
       PrettyDioLogger(
         requestHeader: true,
         requestBody: true,

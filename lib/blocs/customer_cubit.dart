@@ -30,7 +30,7 @@ class CustomerCubit extends Cubit<CustomerState> {
     String? aadhaar,
     String? gst,
     double? goldBalance,
-    double? silverBalance,
+    double? jewelleryBalance,
     double? paymentDue,
   }) async {
     emit(CustomerLoading());
@@ -42,7 +42,7 @@ class CustomerCubit extends Cubit<CustomerState> {
         aadhaar: aadhaar,
         gst: gst,
         goldBalance: goldBalance,
-        silverBalance: silverBalance,
+        jewelleryBalance: jewelleryBalance,
         paymentDue: paymentDue,
       );
       emit(const CustomerOperationSuccess('Customer created successfully'));

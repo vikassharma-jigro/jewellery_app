@@ -32,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
       },
       builder: (context, state) {
         return Scaffold(
+          backgroundColor: kBg,
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -39,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 24),
-                  Image.asset('assets/images/appLogo.jpeg').center(),
+                  Image.asset('assets/images/appLogo-Photoroom.png').center(),
                   const SizedBox(height: 28),
                   const Text(
                     'Jewellery Manager',

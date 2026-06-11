@@ -18,4 +18,8 @@ class ApiConstants {
 
   static const String stockSummary = '/stock/summary';
   static const String stockLedger = '/stock/ledger';
+
+  static const String dailyTransactionsReport = '/reports/daily-transactions';
+  static const String monthlySalesReport = '/reports/monthly-sales';
+  static const String monthlySalesReportExport = '/reports/monthly/export';
 }

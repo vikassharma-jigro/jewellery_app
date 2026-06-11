@@ -30,7 +30,9 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<TransactionCubit>().fetchTransactionsByCustomer(widget.customerId);
+    context.read<TransactionCubit>().fetchTransactionsByCustomer(
+      widget.customerId,
+    );
   }
 
   @override
@@ -39,8 +41,8 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
       backgroundColor: AppTheme.bg,
       appBar: AppBar(
         title: const Text("Customer Details"),
-        backgroundColor: AppTheme.gold,
-        foregroundColor: Colors.white,
+        backgroundColor: kBg,
+        foregroundColor: kText,
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -60,7 +62,9 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                     radius: 32,
                     backgroundColor: AppTheme.goldLight,
                     child: Text(
-                      widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?',
+                      widget.name.isNotEmpty
+                          ? widget.name[0].toUpperCase()
+                          : '?',
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -79,9 +83,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                   const SizedBox(height: 4),
                   Text(
                     widget.phone,
-                    style: const TextStyle(
-                      color: AppTheme.muted,
-                    ),
+                    style: const TextStyle(color: AppTheme.muted),
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -152,10 +154,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
               children: [
                 Text(
                   "Transaction History",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -164,17 +163,23 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
 
             BlocBuilder<TransactionCubit, TransactionState>(
               builder: (context, state) {
-                if (state is TransactionLoading || state is TransactionInitial) {
+                if (state is TransactionLoading ||
+                    state is TransactionInitial) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is TransactionError) {
-                  return Text('Error: ${state.message}', style: const TextStyle(color: Colors.red));
+                  return Text(
+                    'Error: ${state.message}',
+                    style: const TextStyle(color: Colors.red),
+                  );
                 } else if (state is TransactionLoaded) {
                   if (state.transactions.isEmpty) {
                     return const Text('No transactions yet.');
                   }
-                  
+
                   // Filter transactions for this customer just in case
-                  final txs = state.transactions.where((t) => t.customerId == widget.customerId).toList();
+                  final txs = state.transactions
+                      .where((t) => t.customerId == widget.customerId)
+                      .toList();
                   if (txs.isEmpty && state.transactions.isNotEmpty) {
                     // Loading new data for this customer
                     return const Center(child: CircularProgressIndicator());
@@ -186,24 +191,39 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                       String amount = '';
                       Color color = Colors.black;
 
-                      if (tx.type == TransactionType.paymentIn || tx.type == TransactionType.paymentOut) {
-                        title = tx.type == TransactionType.paymentIn ? 'Payment Received' : 'Payment Sent';
+                      if (tx.type == TransactionType.paymentIn ||
+                          tx.type == TransactionType.paymentOut) {
+                        title = tx.type == TransactionType.paymentIn
+                            ? 'Payment Received'
+                            : 'Payment Sent';
                         amount = '₹${tx.amount?.toStringAsFixed(2) ?? "0.00"}';
-                        color = tx.type == TransactionType.paymentIn ? Colors.blue : Colors.red;
+                        color = tx.type == TransactionType.paymentIn
+                            ? Colors.blue
+                            : Colors.red;
                       } else {
-                        title = tx.type == TransactionType.stockIn ? 'Stock In' : 'Stock Out';
+                        title = tx.type == TransactionType.stockIn
+                            ? 'Stock In'
+                            : 'Stock Out';
                         if (tx.metalType != MetalType.none) {
                           title += ' · ${tx.metalType.name.toUpperCase()}';
                         }
                         amount = '${tx.weight?.toStringAsFixed(2) ?? "0.00"} g';
-                        color = tx.type == TransactionType.stockIn ? Colors.green : Colors.orange;
+                        color = tx.type == TransactionType.stockIn
+                            ? Colors.green
+                            : Colors.orange;
                       }
 
-                      final dateStr = DateFormat('dd MMM yyyy, HH:mm').format(tx.createdAt);
+                      final dateStr = DateFormat(
+                        'dd MMM yyyy, HH:mm',
+                      ).format(tx.createdAt);
 
                       return _historyTile(
                         title,
-                        (tx.type == TransactionType.paymentIn || tx.type == TransactionType.stockIn ? '+' : '-') + amount,
+                        (tx.type == TransactionType.paymentIn ||
+                                    tx.type == TransactionType.stockIn
+                                ? '+'
+                                : '-') +
+                            amount,
                         dateStr,
                         color,
                       );
@@ -219,11 +239,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
     );
   }
 
-  Widget _infoCard(
-      String title,
-      String value,
-      IconData icon,
-      ) {
+  Widget _infoCard(String title, String value, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -237,29 +253,21 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppTheme.muted,
-            ),
+            style: const TextStyle(fontSize: 12, color: AppTheme.muted),
           ),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          )
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 
   Widget _actionButton(
-      BuildContext context,
-      String title,
-      IconData icon,
-      Color color,
-      ) {
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color color,
+  ) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -282,50 +290,33 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 28,
-            ),
+            Icon(icon, color: color, size: 28),
             const SizedBox(height: 8),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
-            )
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _historyTile(
-      String title,
-      String amount,
-      String date,
-      Color color,
-      ) {
+  Widget _historyTile(String title, String amount, String date, Color color) {
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       elevation: 0,
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: color.withOpacity(.15),
-          child: Icon(
-            Icons.history,
-            color: color,
-          ),
+          backgroundColor: color.withValues(alpha: .15),
+          child: Icon(Icons.history, color: color),
         ),
         title: Text(title),
         subtitle: Text(date),
         trailing: Text(
           amount,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: color, fontWeight: FontWeight.bold),
         ),
       ),
     );

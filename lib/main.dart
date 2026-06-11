@@ -8,14 +8,14 @@ import 'repositories/customer_repository.dart';
 import 'repositories/transaction_repository.dart';
 import 'repositories/stock_repository.dart';
 import 'repositories/dashboard_repository.dart';
+import 'repositories/reports_repository.dart';
 
 import 'blocs/auth_cubit.dart';
 import 'blocs/customer_cubit.dart';
 import 'blocs/transaction_cubit.dart';
 import 'blocs/stock_cubit.dart';
 import 'blocs/dashboard_cubit.dart';
-
-import 'screens/login_screen.dart';
+import 'blocs/reports_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +43,9 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(
           create: (context) => DashboardRepository(apiService),
         ),
+        RepositoryProvider(
+          create: (context) => ReportsRepository(apiService),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -64,6 +67,10 @@ class MyApp extends StatelessWidget {
           BlocProvider(
             create: (context) =>
                 DashboardCubit(context.read<DashboardRepository>()),
+          ),
+          BlocProvider(
+            create: (context) =>
+                ReportsCubit(context.read<ReportsRepository>()),
           ),
         ],
         child: MaterialApp(

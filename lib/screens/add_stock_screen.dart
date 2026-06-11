@@ -66,7 +66,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
             const Expanded(child: Center(child: Text("Transaction Entry"))),
           ],
         ),
-        backgroundColor: const Color(0xFFD4AF37),
+        backgroundColor: Colors.transparent,
       ),
       body: BlocConsumer<TransactionCubit, TransactionState>(
         listener: (context, state) {

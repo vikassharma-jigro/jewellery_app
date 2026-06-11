@@ -1,45 +1,225 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:open_filex/open_filex.dart';
 import '../blocs/stock_cubit.dart';
-import '../blocs/transaction_cubit.dart';
+import '../blocs/reports_cubit.dart';
 import '../data/models/transaction_model.dart';
 
 class ReportDetailsScreen extends StatefulWidget {
   final String title;
 
-  const ReportDetailsScreen({
-    super.key,
-    required this.title,
-  });
+  const ReportDetailsScreen({super.key, required this.title});
 
   @override
   State<ReportDetailsScreen> createState() => _ReportDetailsScreenState();
 }
 
 class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
+  DateTime? _selectedDate;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.title == 'Stock Movement Report' || widget.title == 'Stock Summary Report' || widget.title == 'Gold Balance Report') {
+      if (widget.title == 'Stock Movement Report' ||
+          widget.title == 'Stock Summary Report' ||
+          widget.title == 'Gold Balance Report') {
         context.read<StockCubit>().fetchStockData();
       }
-      if (widget.title == 'Daily Transaction Report' || widget.title == 'Monthly Sales Report') {
-        context.read<TransactionCubit>().fetchTransactions();
+      if (widget.title == 'Daily Transaction Report') {
+        context.read<ReportsCubit>().fetchDailyTransactions();
+      } else if (widget.title == 'Monthly Sales Report') {
+        context.read<ReportsCubit>().fetchMonthlySales();
       }
     });
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? picked;
+
+    if (widget.title == 'Monthly Sales Report') {
+      picked = await _showMonthPicker(context, _selectedDate ?? DateTime.now());
+    } else {
+      picked = await showDatePicker(
+        context: context,
+        initialDate: _selectedDate ?? DateTime.now(),
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2101),
+      );
+    }
+
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+      if (widget.title == 'Daily Transaction Report') {
+        String formattedDate =
+            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+        if (context.mounted) {
+          context.read<ReportsCubit>().fetchDailyTransactions(
+            date: formattedDate,
+          );
+        }
+      } else if (widget.title == 'Monthly Sales Report') {
+        String formattedMonth =
+            "${picked.year}-${picked.month.toString().padLeft(2, '0')}";
+        if (context.mounted) {
+          context.read<ReportsCubit>().fetchMonthlySales(month: formattedMonth);
+        }
+      }
+    }
+  }
+
+  Future<DateTime?> _showMonthPicker(
+    BuildContext context,
+    DateTime initialDate,
+  ) async {
+    DateTime tempDate = initialDate;
+    return showDialog<DateTime>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: const Text(
+                'Select Month & Year',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              content: SizedBox(
+                width: 300,
+                height: 350,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios, size: 16),
+                          onPressed: () {
+                            setState(() {
+                              tempDate = DateTime(
+                                tempDate.year - 1,
+                                tempDate.month,
+                              );
+                            });
+                          },
+                        ),
+                        Text(
+                          '${tempDate.year}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.goldDark,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_forward_ios, size: 16),
+                          onPressed: () {
+                            setState(() {
+                              tempDate = DateTime(
+                                tempDate.year + 1,
+                                tempDate.month,
+                              );
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              childAspectRatio: 1.2,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
+                        itemCount: 12,
+                        itemBuilder: (context, index) {
+                          final month = index + 1;
+                          final isSelected = month == tempDate.month;
+                          return InkWell(
+                            onTap: () {
+                              setState(() {
+                                tempDate = DateTime(tempDate.year, month);
+                              });
+                              Navigator.pop(context, tempDate);
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppTheme.goldDark
+                                    : const Color(0xFFF8F6F1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                _getMonthName(month),
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.black87,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return months[month - 1];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF8F6F1),
+      backgroundColor: kBg,
       appBar: AppBar(
         title: Text(widget.title),
-        backgroundColor: AppTheme.goldDark,
-        foregroundColor: Colors.white,
+        backgroundColor: kBg,
+        foregroundColor: kText,
         elevation: 0,
+        actions: [
+          if (widget.title == 'Daily Transaction Report' ||
+              widget.title == 'Monthly Sales Report')
+            IconButton(
+              icon: const Icon(Icons.calendar_month),
+              onPressed: () => _selectDate(context),
+            ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -49,12 +229,49 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
           const SizedBox(height: 20),
 
           ElevatedButton.icon(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Export Feature Coming Soon'),
-                ),
-              );
+            onPressed: () async {
+              if (widget.title == 'Monthly Sales Report') {
+                final state = context.read<ReportsCubit>().state;
+                if (state is MonthlyReportLoaded) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.goldDark,
+                      ),
+                    ),
+                  );
+                  try {
+                    final path = await context
+                        .read<ReportsCubit>()
+                        .exportMonthlyReport(state.report.month);
+                    if (context.mounted) Navigator.pop(context); // Close dialog
+                    await OpenFilex.open(path);
+                  } catch (e) {
+                    if (context.mounted) {
+                      Navigator.pop(context); // Close dialog
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to export: $e')),
+                      );
+                    }
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please wait for the report to load.'),
+                    ),
+                  );
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Export Feature Coming Soon for this report.',
+                    ),
+                  ),
+                );
+              }
             },
             icon: const Icon(Icons.download),
             label: const Text('Export Report'),
@@ -74,7 +291,6 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
 
   List<Widget> _getReportData() {
     switch (widget.title) {
-
       case 'Customer Ledger Report':
         return [
           _card("Customer Name", "Rahul Sharma", Icons.person),
@@ -92,7 +308,9 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
               if (state is StockLoading) {
                 return const Padding(
                   padding: EdgeInsets.all(32.0),
-                  child: Center(child: CircularProgressIndicator(color: AppTheme.goldDark)),
+                  child: Center(
+                    child: CircularProgressIndicator(color: AppTheme.goldDark),
+                  ),
                 );
               }
               if (state is StockLoaded) {
@@ -105,16 +323,36 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
                     stockSold += entry.weight;
                   }
                 }
-                double closingStock = state.summary.totalGold;
+                double closingStock = state.summary.gold.available;
                 double openingStock = closingStock - stockAdded + stockSold;
 
                 return Column(
                   children: [
-                    _card("Opening Stock", "${openingStock.toStringAsFixed(2)} gm", Icons.inventory),
-                    _card("Stock Added", "${stockAdded.toStringAsFixed(2)} gm", Icons.add_circle_outline),
-                    _card("Stock Sold", "${stockSold.toStringAsFixed(2)} gm", Icons.remove_circle_outline),
-                    _card("Closing Stock", "${closingStock.toStringAsFixed(2)} gm", Icons.inventory_2),
-                    _card("Last Updated", DateTime.now().toString().substring(0, 10), Icons.calendar_month),
+                    _card(
+                      "Opening Stock",
+                      "${openingStock.toStringAsFixed(2)} gm",
+                      Icons.inventory,
+                    ),
+                    _card(
+                      "Stock Added",
+                      "${stockAdded.toStringAsFixed(2)} gm",
+                      Icons.add_circle_outline,
+                    ),
+                    _card(
+                      "Stock Sold",
+                      "${stockSold.toStringAsFixed(2)} gm",
+                      Icons.remove_circle_outline,
+                    ),
+                    _card(
+                      "Closing Stock",
+                      "${closingStock.toStringAsFixed(2)} gm",
+                      Icons.inventory_2,
+                    ),
+                    _card(
+                      "Last Updated",
+                      DateTime.now().toString().substring(0, 10),
+                      Icons.calendar_month,
+                    ),
                   ],
                 );
               }
@@ -145,35 +383,56 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
 
       case 'Daily Transaction Report':
         return [
-          BlocBuilder<TransactionCubit, TransactionState>(
+          BlocBuilder<ReportsCubit, ReportsState>(
             builder: (context, state) {
-              if (state is TransactionLoading) return const Center(child: CircularProgressIndicator(color: AppTheme.goldDark));
-              if (state is TransactionLoaded) {
-                final now = DateTime.now();
-                final todayTx = state.transactions.where((t) => t.createdAt.year == now.year && t.createdAt.month == now.month && t.createdAt.day == now.day).toList();
-                
+              if (state is ReportsLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(color: AppTheme.goldDark),
+                );
+              }
+              if (state is DailyReportLoaded) {
                 double todaySale = 0;
                 double todayPurchase = 0;
                 double cashReceived = 0;
-                
-                for (var t in todayTx) {
-                   if (t.type == TransactionType.stockOut) todaySale += (t.amount ?? 0);
-                   else if (t.type == TransactionType.stockIn) todayPurchase += (t.amount ?? 0);
-                   else if (t.type == TransactionType.paymentIn) cashReceived += (t.amount ?? 0);
+
+                for (var t in state.report.transactions) {
+                  if (t.type == TransactionType.stockOut) {
+                    todaySale += (t.amount ?? 0);
+                  } else if (t.type == TransactionType.stockIn) {
+                    todayPurchase += (t.amount ?? 0);
+                  } else if (t.type == TransactionType.paymentIn) {
+                    cashReceived += (t.amount ?? 0);
+                  }
                 }
-                
+
                 return Column(
                   children: [
-                    _card("Today's Sale", "₹${todaySale.toStringAsFixed(2)}", Icons.trending_up),
-                    _card("Today's Purchase", "₹${todayPurchase.toStringAsFixed(2)}", Icons.shopping_cart),
-                    _card("Cash Received", "₹${cashReceived.toStringAsFixed(2)}", Icons.payments),
-                    _card("Total Transactions", "${todayTx.length}", Icons.receipt_long),
-                    _card("Date", now.toString().substring(0, 10), Icons.calendar_month),
-                  ]
+                    _card(
+                      "Today's Sale",
+                      "₹${todaySale.toStringAsFixed(2)}",
+                      Icons.trending_up,
+                    ),
+                    _card(
+                      "Today's Purchase",
+                      "₹${todayPurchase.toStringAsFixed(2)}",
+                      Icons.shopping_cart,
+                    ),
+                    _card(
+                      "Cash Received",
+                      "₹${cashReceived.toStringAsFixed(2)}",
+                      Icons.payments,
+                    ),
+                    _card(
+                      "Total Transactions",
+                      "${state.report.transactions.length}",
+                      Icons.receipt_long,
+                    ),
+                    _card("Date", state.report.date, Icons.calendar_month),
+                  ],
                 );
               }
               return const Center(child: Text('Failed to load transactions.'));
-            }
+            },
           ),
         ];
 
@@ -189,7 +448,11 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
         return [
           BlocBuilder<StockCubit, StockState>(
             builder: (context, state) {
-              if (state is StockLoading) return const Center(child: CircularProgressIndicator(color: AppTheme.goldDark));
+              if (state is StockLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(color: AppTheme.goldDark),
+                );
+              }
               if (state is StockLoaded) {
                 double goldPurchased = 0;
                 double goldSold = 0;
@@ -202,56 +465,72 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
                     }
                   }
                 }
-                double currentBalance = state.summary.totalGold;
+                double currentBalance = state.summary.gold.available;
                 double openingGold = currentBalance - goldPurchased + goldSold;
 
                 return Column(
                   children: [
-                    _card("Opening Gold", "${openingGold.toStringAsFixed(2)} gm", Icons.account_balance_wallet),
-                    _card("Gold Purchased", "${goldPurchased.toStringAsFixed(2)} gm", Icons.add_circle_outline),
-                    _card("Gold Sold", "${goldSold.toStringAsFixed(2)} gm", Icons.remove_circle_outline),
-                    _card("Current Balance", "${currentBalance.toStringAsFixed(2)} gm", Icons.inventory_2),
+                    _card(
+                      "Opening Gold",
+                      "${openingGold.toStringAsFixed(2)} gm",
+                      Icons.account_balance_wallet,
+                    ),
+                    _card(
+                      "Gold Purchased",
+                      "${goldPurchased.toStringAsFixed(2)} gm",
+                      Icons.add_circle_outline,
+                    ),
+                    _card(
+                      "Gold Sold",
+                      "${goldSold.toStringAsFixed(2)} gm",
+                      Icons.remove_circle_outline,
+                    ),
+                    _card(
+                      "Current Balance",
+                      "${currentBalance.toStringAsFixed(2)} gm",
+                      Icons.inventory_2,
+                    ),
                   ],
                 );
               }
               return const Center(child: Text('Failed to load stock data.'));
-            }
+            },
           ),
         ];
 
       case 'Monthly Sales Report':
         return [
-          BlocBuilder<TransactionCubit, TransactionState>(
+          BlocBuilder<ReportsCubit, ReportsState>(
             builder: (context, state) {
-              if (state is TransactionLoading) return const Center(child: CircularProgressIndicator(color: AppTheme.goldDark));
-              if (state is TransactionLoaded) {
-                final now = DateTime.now();
-                final monthTx = state.transactions.where((t) => t.createdAt.year == now.year && t.createdAt.month == now.month).toList();
-                
-                double totalSales = 0;
-                double goldSold = 0;
-                int transactions = monthTx.length;
-                
-                for (var t in monthTx) {
-                   if (t.type == TransactionType.stockOut) {
-                       totalSales += (t.amount ?? 0);
-                       if (t.metalType == MetalType.gold) {
-                          goldSold += (t.weight ?? 0);
-                       }
-                   }
-                }
-                
+              if (state is ReportsLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(color: AppTheme.goldDark),
+                );
+              }
+              if (state is MonthlyReportLoaded) {
                 return Column(
                   children: [
-                    _card("Month", "${now.month}/${now.year}", Icons.calendar_month),
-                    _card("Total Sales", "₹${totalSales.toStringAsFixed(2)}", Icons.bar_chart),
-                    _card("Gold Sold", "${goldSold.toStringAsFixed(2)} gm", Icons.inventory),
-                    _card("Transactions", "$transactions", Icons.receipt_long),
-                  ]
+                    _card("Month", state.report.month, Icons.calendar_month),
+                    _card(
+                      "Total Sales",
+                      "₹${state.report.totalSales.toStringAsFixed(2)}",
+                      Icons.bar_chart,
+                    ),
+                    _card(
+                      "Gold Sold",
+                      "${state.report.totalQuantity.toStringAsFixed(2)} gm",
+                      Icons.inventory,
+                    ),
+                    _card(
+                      "Transactions",
+                      "${state.report.totalTransactions}",
+                      Icons.receipt_long,
+                    ),
+                  ],
                 );
               }
               return const Center(child: Text('Failed to load transactions.'));
-            }
+            },
           ),
         ];
 
@@ -305,7 +584,6 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
           _card("Status", "Overdue", Icons.error_outline),
         ];
 
-
       default:
         return [
           Container(
@@ -317,10 +595,7 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
             child: const Center(
               child: Text(
                 "No Data Available",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -328,22 +603,12 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
     }
   }
 
-  Widget _card(
-      String title,
-      String value,
-      IconData icon,
-      ) {
+  Widget _card(String title, String value, IconData icon) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: AppTheme.goldDark,
-      ),
+      leading: Icon(icon, color: AppTheme.goldDark),
       title: Text(
         title,
-        style: const TextStyle(
-          fontSize: 13,
-          color: AppTheme.muted,
-        ),
+        style: const TextStyle(fontSize: 13, color: AppTheme.muted),
       ),
       subtitle: Padding(
         padding: const EdgeInsets.only(top: 4),

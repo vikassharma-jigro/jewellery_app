@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jewellary_stock/screens/stock_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/section_title.dart';
 import 'add_stock_screen.dart';
 import 'add_customer_screen.dart';
 import '../blocs/dashboard_cubit.dart';
+import '../blocs/stock_cubit.dart';
 import '../data/models/transaction_model.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -20,188 +22,216 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     context.read<DashboardCubit>().fetchDashboardSummary();
+    context.read<StockCubit>().fetchStockData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kBg,
       body: SafeArea(
         child: BlocBuilder<DashboardCubit, DashboardState>(
           builder: (context, state) {
-            if (state is DashboardLoading || state is DashboardInitial) {
-              return const Center(child: CircularProgressIndicator());
-            }
+            return BlocBuilder<StockCubit, StockState>(
+              builder: (context, stockState) {
+                if (state is DashboardLoading || state is DashboardInitial) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-            if (state is DashboardError) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Error: ${state.message}'),
-                    ElevatedButton(
-                      onPressed: () => context
-                          .read<DashboardCubit>()
-                          .fetchDashboardSummary(),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            final summary = (state as DashboardLoaded).summary;
-
-            return RefreshIndicator(
-              onRefresh: () =>
-                  context.read<DashboardCubit>().fetchDashboardSummary(),
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                if (state is DashboardError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const CircleAvatar(
-                          radius: 24,
-                          backgroundColor: AppTheme.goldLight,
-                          child: Text(
-                            'JS',
-                            style: TextStyle(
-                              color: AppTheme.goldDark,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                        Text('Error: ${state.message}'),
+                        ElevatedButton(
+                          onPressed: () => context
+                              .read<DashboardCubit>()
+                              .fetchDashboardSummary(),
+                          child: const Text('Retry'),
                         ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Welcome back',
+                      ],
+                    ),
+                  );
+                }
+
+                final summary = (state as DashboardLoaded).summary;
+
+                double totalIn = 0;
+                double totalOut = 0;
+                if (stockState is StockLoaded) {
+                  for (var l in stockState.ledger) {
+                    if (l.type == TransactionType.stockIn) {
+                      totalIn += l.weight;
+                    } else if (l.type == TransactionType.stockOut) {
+                      totalOut += l.weight;
+                    }
+                  }
+                }
+
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    context.read<DashboardCubit>().fetchDashboardSummary();
+                    context.read<StockCubit>().fetchStockData();
+                  },
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const CircleAvatar(
+                              radius: 24,
+                              backgroundColor: AppTheme.goldLight,
+                              child: Text(
+                                'JS',
                                 style: TextStyle(
-                                  color: AppTheme.muted,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              Text(
-                                'AU Relian',
-                                style: TextStyle(
-                                  fontSize: 18,
+                                  color: AppTheme.goldDark,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Welcome back',
+                                    style: TextStyle(
+                                      color: AppTheme.muted,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  Text(
+                                    'AU Relian',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // IconButton(
+                            //   onPressed: () {},
+                            //   icon: const Stack(
+                            //     children: [
+                            //       Icon(Icons.notifications_outlined),
+                            //       Positioned(
+                            //         right: 0,
+                            //         top: 0,
+                            //         child: CircleAvatar(
+                            //           radius: 4,
+                            //           backgroundColor: AppTheme.danger,
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
+                          ],
                         ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Stack(
-                            children: [
-                              Icon(Icons.notifications_outlined),
-                              Positioned(
-                                right: 0,
-                                top: 0,
-                                child: CircleAvatar(
-                                  radius: 4,
-                                  backgroundColor: AppTheme.danger,
+                        const SizedBox(height: 20),
+                        _HeroBalance(
+                          goldStock: summary.goldStock,
+                          jewelleryStock: summary.jewelleryStock,
+                          totalAvailableStock:
+                              summary.goldStock + summary.jewelleryStock,
+                        ),
+                        const SizedBox(height: 24),
+                        const SectionTitle('Overview'),
+                        const SizedBox(height: 12),
+                        GridView.count(
+                          crossAxisCount: 2,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 1.35,
+                          children: [
+                            StatCard(
+                              icon: Icons.south_west,
+                              label: 'Total Receivables',
+                              value:
+                                  '₹${summary.totalReceivables.toStringAsFixed(2)}',
+                              tint: const Color(0xFFE8F6EF),
+                              iconColor: AppTheme.success,
+                            ),
+                            StatCard(
+                              icon: Icons.north_east,
+                              label: 'Total Payables',
+                              value:
+                                  '₹${summary.totalPayables.toStringAsFixed(2)}',
+                              tint: const Color(0xFFFDEAE6),
+                              iconColor: AppTheme.danger,
+                            ),
+                            StatCard(
+                              icon: Icons.south_west,
+                              label: 'Stock In',
+                              value: '${totalIn.toStringAsFixed(2)} g',
+                              tint: const Color(0xFFFFF6D6),
+                              iconColor: AppTheme.goldDark,
+                            ),
+                            StatCard(
+                              icon: Icons.north_east,
+                              label: 'Stock Out',
+                              value: '${totalOut.toStringAsFixed(2)} g',
+                              tint: const Color(0xFFEDE7FE),
+                              iconColor: const Color(0xFF6E48C9),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        const SectionTitle('Quick Actions'),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            _QuickAction(
+                              icon: Icons.add_box_outlined,
+                              label: 'Stock In',
+                              onTap: () => _go(
+                                context,
+                                const AddStockScreen(
+                                  initialTransactionType:
+                                      TransactionType.stockIn,
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    _HeroBalance(
-                      goldStock: summary.goldStock,
-                      silverStock: summary.silverStock,
-                    ),
-                    const SizedBox(height: 24),
-                    const SectionTitle('Overview'),
-                    const SizedBox(height: 12),
-                    GridView.count(
-                      crossAxisCount: 2,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 1.35,
-                      children: [
-                        StatCard(
-                          icon: Icons.south_west,
-                          label: 'Total Receivables',
-                          value:
-                              '₹${summary.totalReceivables.toStringAsFixed(2)}',
-                          tint: const Color(0xFFE8F6EF),
-                          iconColor: AppTheme.success,
-                        ),
-                        StatCard(
-                          icon: Icons.north_east,
-                          label: 'Total Payables',
-                          value: '₹${summary.totalPayables.toStringAsFixed(2)}',
-                          tint: const Color(0xFFFDEAE6),
-                          iconColor: AppTheme.danger,
-                        ),
-                        StatCard(
-                          icon: Icons.arrow_downward,
-                          label: 'Gold Stock',
-                          value: '${summary.goldStock.toStringAsFixed(2)} g',
-                          tint: const Color(0xFFFFF6D6),
-                          iconColor: AppTheme.goldDark,
-                        ),
-                        StatCard(
-                          icon: Icons.arrow_upward,
-                          label: 'Gold Stock',
-                          value: '${summary.silverStock.toStringAsFixed(2)} g',
-                          tint: const Color(0xFFEDE7FE),
-                          iconColor: const Color(0xFF6E48C9),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    const SectionTitle('Quick Actions'),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        _QuickAction(
-                          icon: Icons.add_box_outlined,
-                          label: 'Stock In',
-                          onTap: () => _go(
-                            context,
-                            const AddStockScreen(
-                              initialTransactionType: TransactionType.stockIn,
                             ),
-                          ),
-                        ),
-                        _QuickAction(
-                          icon: Icons.indeterminate_check_box_outlined,
-                          label: 'Stock Out',
-                          onTap: () => _go(
-                            context,
-                            const AddStockScreen(
-                              initialTransactionType: TransactionType.stockOut,
+                            _QuickAction(
+                              icon: Icons.indeterminate_check_box_outlined,
+                              label: 'Stock Out',
+                              onTap: () => _go(
+                                context,
+                                const AddStockScreen(
+                                  initialTransactionType:
+                                      TransactionType.stockOut,
+                                ),
+                              ),
                             ),
+                            _QuickAction(
+                              icon: Icons.person_add_alt,
+                              label: 'New Customer',
+                              onTap: () =>
+                                  _go(context, const AddCustomerScreen()),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        const SectionTitle('Recent Transactions'),
+                        const SizedBox(height: 12),
+                        if (summary.recentTransactions.isEmpty)
+                          const Text('No recent transactions')
+                        else
+                          ...summary.recentTransactions.map(
+                            (t) => _TxTile(tx: t),
                           ),
-                        ),
-                        _QuickAction(
-                          icon: Icons.person_add_alt,
-                          label: 'New Customer',
-                          onTap: () => _go(context, const AddCustomerScreen()),
-                        ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    const SectionTitle('Recent Transactions'),
-                    const SizedBox(height: 12),
-                    if (summary.recentTransactions.isEmpty)
-                      const Text('No recent transactions')
-                    else
-                      ...summary.recentTransactions.map((t) => _TxTile(tx: t)),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             );
           },
         ),
@@ -215,9 +245,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
 class _HeroBalance extends StatelessWidget {
   final double goldStock;
-  final double silverStock;
+  final double jewelleryStock;
+  final double totalAvailableStock;
 
-  const _HeroBalance({required this.goldStock, required this.silverStock});
+  const _HeroBalance({
+    required this.goldStock,
+    required this.jewelleryStock,
+    required this.totalAvailableStock,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -232,7 +267,7 @@ class _HeroBalance extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.gold.withOpacity(.35),
+            color: AppTheme.gold.withValues(alpha: .35),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -275,26 +310,46 @@ class _HeroBalance extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '${silverStock.toStringAsFixed(2)} g (Jewellery)',
+            '${jewelleryStock.toStringAsFixed(2)} g (Jewellery)',
             style: const TextStyle(
               color: Colors.white70,
               fontSize: 20,
               fontWeight: FontWeight.w600,
             ),
           ),
+          Text(
+            '${totalAvailableStock.toStringAsFixed(2)} g (Total Available Stock)',
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 14),
-          const Row(
+          Row(
             children: [
-              _MiniStat(
-                label: 'Stock In',
-                value: 'View Details',
-                icon: Icons.south_west,
+              InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const StockScreen()),
+                ),
+                child: _MiniStat(
+                  label: 'Stock In',
+                  value: 'View Details',
+                  icon: Icons.south_west,
+                ),
               ),
               SizedBox(width: 24),
-              _MiniStat(
-                label: 'Stock Out',
-                value: 'View Details',
-                icon: Icons.north_east,
+              InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const StockScreen()),
+                ),
+                child: _MiniStat(
+                  label: 'Stock Out',
+                  value: 'View Details',
+                  icon: Icons.north_east,
+                ),
               ),
             ],
           ),
@@ -438,7 +493,7 @@ class _TxTile extends StatelessWidget {
           const CircleAvatar(
             backgroundColor: AppTheme.goldLight,
             child: Text(
-              'C', // TODO: user's initials
+              'C',
               style: TextStyle(
                 color: AppTheme.goldDark,
                 fontWeight: FontWeight.w700,

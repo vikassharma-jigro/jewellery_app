@@ -42,8 +42,8 @@ class _TransactionEntryScreenState extends State<TransactionEntryScreen> {
       backgroundColor: AppTheme.bg,
       appBar: AppBar(
         title: Text(widget.title),
-        backgroundColor: AppTheme.gold,
-        foregroundColor: Colors.white,
+        backgroundColor: kBg,
+        foregroundColor: kText,
       ),
       body: BlocConsumer<TransactionCubit, TransactionState>(
         listener: (context, state) {
@@ -190,7 +190,7 @@ class _TransactionEntryScreenState extends State<TransactionEntryScreen> {
                             onPressed: () {
                               final amountStr = amountController.text.trim();
                               final amountVal = double.tryParse(amountStr);
-                              
+
                               double? weightVal;
                               if (widget.isStock) {
                                 final weightStr = weightController.text.trim();

@@ -19,7 +19,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   final aadhaarController = TextEditingController();
   final gstController = TextEditingController();
   final goldController = TextEditingController();
-  final silverController = TextEditingController();
+  final jewelleryController = TextEditingController();
   final dueController = TextEditingController();
   final notesController = TextEditingController();
 
@@ -31,7 +31,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     aadhaarController.dispose();
     gstController.dispose();
     goldController.dispose();
-    silverController.dispose();
+    jewelleryController.dispose();
     dueController.dispose();
     notesController.dispose();
     super.dispose();
@@ -182,10 +182,10 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
             const SizedBox(height: 16),
 
-            buildFieldTitle("Opening Silver Balance (Gram)"),
+            buildFieldTitle("Opening Jewellery Balance (Gram)"),
             buildTextField(
-              controller: silverController,
-              hint: "Enter silver balance in gram",
+              controller: jewelleryController,
+              hint: "Enter jewellery balance in gram",
               keyboardType: TextInputType.number,
             ),
 
@@ -248,7 +248,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                       aadhaar: aadhaarController.text.trim().isEmpty ? null : aadhaarController.text.trim(),
                       gst: gstController.text.trim().isEmpty ? null : gstController.text.trim(),
                       goldBalance: goldController.text.trim().isEmpty ? null : double.tryParse(goldController.text.trim()),
-                      silverBalance: silverController.text.trim().isEmpty ? null : double.tryParse(silverController.text.trim()),
+                      jewelleryBalance: jewelleryController.text.trim().isEmpty ? null : double.tryParse(jewelleryController.text.trim()),
                       paymentDue: dueController.text.trim().isEmpty ? null : double.tryParse(dueController.text.trim()),
                     );
                   },
