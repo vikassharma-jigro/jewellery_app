@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../repositories/customer_repository.dart';
 import '../data/models/customer_model.dart';
-import '../core/exceptions.dart';
+import '../core/utils/exceptions.dart';
 
 part 'customer_state.dart';
 

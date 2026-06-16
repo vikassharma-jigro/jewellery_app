@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jewellary_stock/blocs/stock_cubit.dart';
 import '../blocs/transaction_cubit.dart';
 import '../data/models/transaction_model.dart';
 
@@ -34,6 +35,8 @@ class _AddStockScreenState extends State<AddStockScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Get the stock type on Initial loading
     stockType = widget.initialTransactionType ?? TransactionType.stockIn;
   }
 
@@ -90,6 +93,8 @@ class _AddStockScreenState extends State<AddStockScreen> {
                 const SizedBox(height: 20),
                 const Text("Transaction Type"),
                 const SizedBox(height: 10),
+
+                /// Drop Down Open For Transection Selection Type
                 DropdownButtonFormField<TransactionType>(
                   initialValue: stockType,
                   decoration: const InputDecoration(
@@ -120,6 +125,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   },
                 ),
 
+                /// Drop Down Opens for selection of metal type
                 if (stockType == TransactionType.stockIn ||
                     stockType == TransactionType.stockOut) ...[
                   const SizedBox(height: 15),
@@ -183,6 +189,8 @@ class _AddStockScreenState extends State<AddStockScreen> {
 
                   const SizedBox(height: 15),
                   const Text("Currency (INR)"),
+
+                  /// Drop Down For currency Selection
                   DropdownButtonFormField<CurrencyType>(
                     initialValue: CurrencyType.inr,
                     decoration: const InputDecoration(
@@ -331,6 +339,8 @@ class _AddStockScreenState extends State<AddStockScreen> {
                           stoneWeight: stoneVal,
                           goldRate: goldRateVal,
                         );
+
+                        context.read<StockCubit>().fetchStockData();
                       },
                       child: const Text(
                         "SAVE",

@@ -9,5 +9,9 @@ class ApiEndpoints {
   // Customer endpoints
   static const String customers = '/customers';
 
-  // You can add more endpoints here
+  // Reports
+  static const String dailyTransactionsReport = '/reports/daily-transactions';
+  static const String monthlySalesReport = '/reports/monthly-sales';
+  static const String monthlySalesReportExport =
+      '/reports/monthly-sales/export';
 }

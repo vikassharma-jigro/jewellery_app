@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jewellary_stock/screens/calculator_screen.dart';
 
-import 'core/api_service.dart';
+import 'core/utils/api_service.dart';
 import 'repositories/auth_repository.dart';
 import 'repositories/customer_repository.dart';
 import 'repositories/transaction_repository.dart';
@@ -43,9 +43,7 @@ class MyApp extends StatelessWidget {
         RepositoryProvider(
           create: (context) => DashboardRepository(apiService),
         ),
-        RepositoryProvider(
-          create: (context) => ReportsRepository(apiService),
-        ),
+        RepositoryProvider(create: (context) => ReportsRepository(apiService)),
       ],
       child: MultiBlocProvider(
         providers: [

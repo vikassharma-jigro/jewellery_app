@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../repositories/auth_repository.dart';
 import '../data/models/user_model.dart';
-import '../core/exceptions.dart';
+import '../core/utils/exceptions.dart';
 
 part 'auth_state.dart';
 
@@ -20,7 +20,11 @@ class AuthCubit extends Cubit<AuthState> {
         // But for simplicity, we just emit authenticated without the full user details
         // Or we could have an endpoint for fetching current user profile.
         // Assuming we just know they are logged in.
-        emit(const AuthAuthenticated(UserModel(id: '', username: 'User', role: '')));
+        emit(
+          const AuthAuthenticated(
+            UserModel(id: '', username: 'User', role: ''),
+          ),
+        );
       } else {
         emit(AuthUnauthenticated());
       }

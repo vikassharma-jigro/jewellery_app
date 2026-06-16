@@ -4,7 +4,7 @@ class AuthStorage {
   final FlutterSecureStorage _storage;
 
   AuthStorage({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   static const String _tokenKey = 'jwt_token';
 

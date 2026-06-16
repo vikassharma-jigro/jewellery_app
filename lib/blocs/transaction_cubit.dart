@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../repositories/transaction_repository.dart';
 import '../data/models/transaction_model.dart';
-import '../core/exceptions.dart';
+import '../core/utils/exceptions.dart';
 
 part 'transaction_state.dart';
 
@@ -26,7 +26,8 @@ class TransactionCubit extends Cubit<TransactionState> {
   Future<void> fetchTransactionsByCustomer(String customerId) async {
     emit(TransactionLoading());
     try {
-      final transactions = await _transactionRepository.getTransactionsByCustomer(customerId);
+      final transactions = await _transactionRepository
+          .getTransactionsByCustomer(customerId);
       emit(TransactionLoaded(transactions));
     } on AppException catch (e) {
       emit(TransactionError(e.message));

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import '../core/api_service.dart';
-import '../core/constants.dart';
-import '../core/exceptions.dart';
+import '../core/utils/api_service.dart';
+import '../core/utils/constants.dart';
+import '../core/utils/exceptions.dart';
 import '../data/models/user_model.dart';
 
 class AuthRepository {
@@ -36,7 +36,9 @@ class AuthRepository {
       return UserModel.fromJson(responseData['user'] ?? {});
     } on DioException catch (e) {
       final message = e.response?.data['message'];
-      final String errorMessage = message is List ? message.join(', ') : (message?.toString() ?? 'Login failed');
+      final String errorMessage = message is List
+          ? message.join(', ')
+          : (message?.toString() ?? 'Login failed');
       throw AppException(errorMessage);
     } catch (e) {
       throw AppException(e.toString());

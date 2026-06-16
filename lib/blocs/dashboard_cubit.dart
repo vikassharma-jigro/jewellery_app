@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../repositories/dashboard_repository.dart';
 import '../data/models/dashboard_summary_model.dart';
-import '../core/exceptions.dart';
+import '../core/utils/exceptions.dart';
 
 part 'dashboard_state.dart';
 
