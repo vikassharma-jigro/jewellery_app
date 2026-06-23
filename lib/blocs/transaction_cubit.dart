@@ -45,8 +45,10 @@ class TransactionCubit extends Cubit<TransactionState> {
     String? remark,
     double? grossWeight,
     double? stoneWeight,
-    double? wastagePercent,
+    double? purityPercent,
     double? goldRate,
+    MakingChargeType? makingChargeType,
+    double? makingChargesValue,
     CurrencyType currency = CurrencyType.inr,
   }) async {
     emit(TransactionLoading());
@@ -60,8 +62,10 @@ class TransactionCubit extends Cubit<TransactionState> {
         remark: remark,
         grossWeight: grossWeight,
         stoneWeight: stoneWeight,
-        wastagePercent: wastagePercent,
+        wastagePercent: purityPercent,
         goldRate: goldRate,
+        makingChargeType: makingChargeType,
+        makingChargesValue: makingChargesValue,
         currency: currency,
       );
       emit(TransactionCreated());

@@ -3,6 +3,7 @@ import 'transaction_model.dart';
 
 class StockLedgerEntryModel extends Equatable {
   final String id;
+  final String? transactionId;
   final TransactionType type;
   final MetalType metalType;
   final double weight;
@@ -12,6 +13,7 @@ class StockLedgerEntryModel extends Equatable {
 
   const StockLedgerEntryModel({
     required this.id,
+    this.transactionId,
     required this.type,
     required this.metalType,
     required this.weight,
@@ -50,6 +52,7 @@ class StockLedgerEntryModel extends Equatable {
 
     return StockLedgerEntryModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
+      transactionId: json['transactionId']?.toString(),
       type: parsedTxType,
       metalType: parsedMetalType,
       weight: (json['weight'] ?? 0).toDouble(),
@@ -78,6 +81,7 @@ class StockLedgerEntryModel extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    transactionId,
     type,
     metalType,
     weight,

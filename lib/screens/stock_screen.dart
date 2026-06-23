@@ -8,6 +8,7 @@ import '../data/models/stock_ledger_entry_model.dart';
 import '../data/models/transaction_model.dart';
 import 'package:intl/intl.dart';
 import '../data/models/stock_summary_model.dart';
+import 'transaction_detail_screen.dart';
 
 class StockScreen extends StatefulWidget {
   const StockScreen({super.key});
@@ -192,61 +193,78 @@ class _StockList extends StatelessWidget {
               const Center(child: Text('No entries found'))
             else
               ...entries.map(
-                (entry) => Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFFEFE8D2)),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: isIn
-                              ? const Color(0xFFE8F6EF)
-                              : const Color(0xFFFDEAE6),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          isIn ? Icons.south_west : Icons.north_east,
-                          color: isIn ? AppTheme.success : AppTheme.danger,
-                        ),
+                (entry) => GestureDetector(
+                  onTap: () {
+                    if (entry.transactionId == null || entry.transactionId!.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Details not available for legacy entries')),
+                      );
+                      return;
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            TransactionDetailScreen(transactionId: entry.transactionId!),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isIn
-                                  ? 'Stock In · ${entry.metalType.name.toUpperCase()}'
-                                  : 'Stock Out · ${entry.metalType.name.toUpperCase()}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFEFE8D2)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: isIn
+                                ? const Color(0xFFE8F6EF)
+                                : const Color(0xFFFDEAE6),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            isIn ? Icons.south_west : Icons.north_east,
+                            color: isIn ? AppTheme.success : AppTheme.danger,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isIn
+                                    ? 'Stock In · ${entry.metalType.name.toUpperCase()}'
+                                    : 'Stock Out · ${entry.metalType.name.toUpperCase()}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${entry.remark ?? "Entry"} · ${DateFormat('dd MMM yyyy').format(entry.createdAt)}',
-                              style: const TextStyle(
-                                color: AppTheme.muted,
-                                fontSize: 12,
+                              const SizedBox(height: 2),
+                              Text(
+                                '${entry.remark ?? "Entry"} · ${DateFormat('dd MMM yyyy').format(entry.createdAt)}',
+                                style: const TextStyle(
+                                  color: AppTheme.muted,
+                                  fontSize: 12,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      Text(
-                        '${isIn ? '+' : '-'}${entry.weight.toStringAsFixed(2)} g',
-                        style: TextStyle(
-                          color: isIn ? AppTheme.success : AppTheme.danger,
-                          fontWeight: FontWeight.w700,
+                        Text(
+                          '${isIn ? '+' : '-'}${entry.weight.toStringAsFixed(2)} g',
+                          style: TextStyle(
+                            color: isIn ? AppTheme.success : AppTheme.danger,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

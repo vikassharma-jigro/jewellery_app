@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jewellary_stock/blocs/stock_cubit.dart';
 import '../blocs/transaction_cubit.dart';
 import '../data/models/transaction_model.dart';
+import '../blocs/customer_cubit.dart';
+import '../data/models/customer_model.dart';
 
 class AddStockScreen extends StatefulWidget {
   final String? customerId;
@@ -26,11 +28,14 @@ class _AddStockScreenState extends State<AddStockScreen> {
   final wastageController = TextEditingController();
   final stoneController = TextEditingController();
   final goldRateController = TextEditingController();
+  final makingChargesController = TextEditingController();
   DateTime? selectedDate;
+  String? selectedCustomerId;
 
   late TransactionType stockType;
   MetalType stockItemType = MetalType.gold;
   CurrencyType currencyType = CurrencyType.inr;
+  MakingChargeType? selectedMakingChargeType;
 
   @override
   void initState() {
@@ -38,6 +43,8 @@ class _AddStockScreenState extends State<AddStockScreen> {
 
     // Get the stock type on Initial loading
     stockType = widget.initialTransactionType ?? TransactionType.stockIn;
+    selectedCustomerId = widget.customerId;
+    context.read<CustomerCubit>().fetchCustomers();
   }
 
   @override
@@ -125,7 +132,45 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   },
                 ),
 
-                /// Drop Down Opens for selection of metal type
+                const SizedBox(height: 15),
+                const Text("Customer"),
+                const SizedBox(height: 10),
+                BlocBuilder<CustomerCubit, CustomerState>(
+                  builder: (context, customerState) {
+                    List<CustomerModel> customers = [];
+                    if (customerState is CustomerLoaded) {
+                      customers = customerState.customers;
+                    }
+
+                    String? dropdownValue = selectedCustomerId;
+                    if (!customers.any((c) => c.id == dropdownValue)) {
+                      dropdownValue = null;
+                    }
+
+                    return DropdownButtonFormField<String>(
+                      initialValue: dropdownValue,
+                      decoration: const InputDecoration(
+                        hintText: "Select Customer",
+                        border: OutlineInputBorder(),
+                      ),
+                      items: customers
+                          .map(
+                            (c) => DropdownMenuItem(
+                              value: c.id,
+                              child: Text(c.name),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedCustomerId = value;
+                        });
+                      },
+                    );
+                  },
+                ),
+
+                /// Stock Details
                 if (stockType == TransactionType.stockIn ||
                     stockType == TransactionType.stockOut) ...[
                   const SizedBox(height: 15),
@@ -166,12 +211,12 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   ),
 
                   const SizedBox(height: 15),
-                  const Text("Wasteage (%)"),
+                  const Text("Purity (%)"),
                   TextFormField(
                     controller: wastageController,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      hintText: "Wastage (%)",
+                      hintText: "Purity (%)",
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -227,6 +272,49 @@ class _AddStockScreenState extends State<AddStockScreen> {
                       border: OutlineInputBorder(),
                     ),
                   ),
+
+                  const SizedBox(height: 15),
+                  const Text("Making Charge Type"),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<MakingChargeType>(
+                    value: selectedMakingChargeType,
+                    decoration: const InputDecoration(
+                      hintText: "Select Making Charge Type",
+                      border: OutlineInputBorder(),
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: MakingChargeType.percentage,
+                        child: Text("Percentage (%)"),
+                      ),
+                      DropdownMenuItem(
+                        value: MakingChargeType.perGram,
+                        child: Text("Per Gram (₹/g)"),
+                      ),
+                      DropdownMenuItem(
+                        value: MakingChargeType.fixed,
+                        child: Text("Fixed Value (₹)"),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedMakingChargeType = value;
+                      });
+                    },
+                  ),
+
+                  if (selectedMakingChargeType != null) ...[
+                    const SizedBox(height: 15),
+                    Text("Making Charges (${selectedMakingChargeType == MakingChargeType.percentage ? '%' : selectedMakingChargeType == MakingChargeType.perGram ? '₹/g' : '₹'})"),
+                    TextFormField(
+                      controller: makingChargesController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: "Making Charges (${selectedMakingChargeType == MakingChargeType.percentage ? '%' : selectedMakingChargeType == MakingChargeType.perGram ? '₹/g' : '₹'})",
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
                 ],
 
                 if (stockType == TransactionType.paymentIn ||
@@ -298,9 +386,8 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         backgroundColor: const Color(0xFFD4AF37),
                       ),
                       onPressed: () {
-                        // In a real app we'd require a customerId here or allow picking one
                         // Defaulting to "GLOBAL" if not provided for global stock operations
-                        final cId = widget.customerId ?? "GLOBAL";
+                        final cId = selectedCustomerId ?? "GLOBAL";
 
                         final weightStr = weightController.text.trim();
                         final amountStr = amountController.text.trim();
@@ -308,6 +395,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         final wastageStr = wastageController.text.trim();
                         final stoneStr = stoneController.text.trim();
                         final goldRateStr = goldRateController.text.trim();
+                        final makingChargesStr = makingChargesController.text.trim();
 
                         double? weightVal = weightStr.isNotEmpty
                             ? double.tryParse(weightStr)
@@ -324,6 +412,16 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         double? goldRateVal = goldRateStr.isNotEmpty
                             ? double.tryParse(goldRateStr)
                             : null;
+                        double? makingChargesVal = makingChargesStr.isNotEmpty
+                            ? double.tryParse(makingChargesStr)
+                            : null;
+
+                        bool hasCalcFields =
+                            wastageVal != null ||
+                            stoneVal != null ||
+                            goldRateVal != null ||
+                            makingChargesVal != null ||
+                            selectedMakingChargeType != null;
 
                         context.read<TransactionCubit>().createTransaction(
                           customerId: cId,
@@ -331,13 +429,16 @@ class _AddStockScreenState extends State<AddStockScreen> {
                           metalType: stockItemType,
                           weight:
                               weightVal, // Pass to standard weight (in case it's not a calculation)
-                          grossWeight:
-                              weightVal, // Also pass as grossWeight for backend auto-calc
+                          grossWeight: hasCalcFields
+                              ? weightVal
+                              : null, // Also pass as grossWeight for backend auto-calc only if calc fields are present
                           amount: amountVal,
                           remark: remarkStr.isEmpty ? null : remarkStr,
-                          wastagePercent: wastageVal,
+                          purityPercent: wastageVal,
                           stoneWeight: stoneVal,
                           goldRate: goldRateVal,
+                          makingChargeType: selectedMakingChargeType,
+                          makingChargesValue: makingChargesVal,
                         );
 
                         context.read<StockCubit>().fetchStockData();

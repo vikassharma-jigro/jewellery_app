@@ -6,6 +6,7 @@ import '../widgets/stat_card.dart';
 import '../widgets/section_title.dart';
 import 'add_stock_screen.dart';
 import 'add_customer_screen.dart';
+import 'transaction_detail_screen.dart';
 import '../blocs/dashboard_cubit.dart';
 import '../blocs/stock_cubit.dart';
 import '../data/models/transaction_model.dart';
@@ -24,6 +25,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     context.read<DashboardCubit>().fetchDashboardSummary();
     context.read<StockCubit>().fetchStockData();
   }
+
+  String selectedRole = 'Member';
 
   @override
   Widget build(BuildContext context) {
@@ -115,22 +118,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ],
                               ),
                             ),
-                            // IconButton(
-                            //   onPressed: () {},
-                            //   icon: const Stack(
-                            //     children: [
-                            //       Icon(Icons.notifications_outlined),
-                            //       Positioned(
-                            //         right: 0,
-                            //         top: 0,
-                            //         child: CircleAvatar(
-                            //           radius: 4,
-                            //           backgroundColor: AppTheme.danger,
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
                           ],
                         ),
                         const SizedBox(height: 20),
@@ -219,14 +206,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        const SectionTitle('Recent Transactions'),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const SectionTitle('Recent Transactions'),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const StockScreen(),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                'View All',
+                                style: TextStyle(color: AppTheme.goldDark),
+                              ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 12),
                         if (summary.recentTransactions.isEmpty)
                           const Text('No recent transactions')
                         else
-                          ...summary.recentTransactions.map(
-                            (t) => _TxTile(tx: t),
-                          ),
+                          ...summary.recentTransactions
+                              .take(5)
+                              .map((t) => _TxTile(tx: t)),
                       ],
                     ),
                   ),
@@ -257,6 +263,7 @@ class _HeroBalance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      isAntiAlias: true,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
@@ -480,44 +487,57 @@ class _TxTile extends StatelessWidget {
         tx.customerName ??
         'Customer (${tx.customerId.length > 4 ? tx.customerId.substring(0, 4) : tx.customerId}...)';
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFEFE8D2)),
-      ),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            backgroundColor: AppTheme.goldLight,
-            child: Text(
-              'C',
-              style: TextStyle(
-                color: AppTheme.goldDark,
-                fontWeight: FontWeight.w700,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TransactionDetailScreen(transactionId: tx.id),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFEFE8D2)),
+        ),
+        child: Row(
+          children: [
+            const CircleAvatar(
+              backgroundColor: AppTheme.goldLight,
+              child: Text(
+                'C',
+                style: TextStyle(
+                  color: AppTheme.goldDark,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                Text(
-                  sub,
-                  style: const TextStyle(color: AppTheme.muted, fontSize: 12),
-                ),
-              ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    sub,
+                    style: const TextStyle(color: AppTheme.muted, fontSize: 12),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Text(
-            amount,
-            style: TextStyle(color: color, fontWeight: FontWeight.w700),
-          ),
-        ],
+            Text(
+              amount,
+              style: TextStyle(color: color, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
       ),
     );
   }

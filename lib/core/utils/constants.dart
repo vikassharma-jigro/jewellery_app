@@ -16,6 +16,8 @@ class ApiConstants {
   static String transactionsByCustomer(String id) =>
       '/transactions/customers/$id';
 
+  static String transactionDetails(String id) => '/transactions/$id';
+
   static const String stockSummary = '/stock/summary';
   static const String stockLedger = '/stock/ledger';
 

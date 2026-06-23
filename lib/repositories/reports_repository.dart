@@ -5,6 +5,7 @@ import '../core/utils/api_service.dart';
 import '../core/utils/constants.dart';
 import '../core/utils/exceptions.dart';
 import '../data/models/report_model.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ReportsRepository {
   final ApiService _apiService;
@@ -61,19 +62,43 @@ class ReportsRepository {
   Future<String> exportMonthlyReport(String month, String year) async {
     try {
       Directory? directory;
+      String savePath = '';
+      String fileName = 'monthly-report-$month-$year-${DateTime.now().millisecondsSinceEpoch}.xlsx';
+
       if (Platform.isAndroid) {
-        directory = Directory('/storage/emulated/0/Download');
-        if (!await directory.exists()) {
-          directory = await getExternalStorageDirectory();
+        // Fallback directory
+        final fallbackDir = await getExternalStorageDirectory();
+        
+        try {
+          var status = await Permission.storage.status;
+          if (!status.isGranted) {
+            await Permission.storage.request();
+          }
+
+          directory = Directory('/storage/emulated/0/Download');
+          if (!await directory.exists()) {
+            await directory.create(recursive: true);
+          }
+          savePath = '${directory.path}/$fileName';
+          
+          // Test if we can write to this directory
+          final testFile = File(savePath);
+          await testFile.writeAsBytes([]);
+          await testFile.delete();
+        } catch (e) {
+          // If permission denied or directory not accessible, use fallback
+          directory = fallbackDir;
+          savePath = '${directory?.path}/$fileName';
         }
       } else {
         directory = await getApplicationDocumentsDirectory();
+        savePath = '${directory.path}/$fileName';
       }
 
-      directory ??= await getTemporaryDirectory();
-
-      final String savePath =
-          '${directory.path}/monthly-report-$month-$year-${DateTime.now().millisecondsSinceEpoch}.xlsx';
+      if (directory == null) {
+        directory = await getTemporaryDirectory();
+        savePath = '${directory.path}/$fileName';
+      }
 
       await _apiService.dio.download(
         ApiConstants.monthlySalesReportExport,

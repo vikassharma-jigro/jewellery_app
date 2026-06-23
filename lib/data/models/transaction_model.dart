@@ -6,6 +6,8 @@ enum MetalType { gold, jewellery, none }
 
 enum CurrencyType { inr, usd, myr }
 
+enum MakingChargeType { percentage, perGram, fixed }
+
 class TransactionModel extends Equatable {
   final String id;
   final String customerId;
@@ -18,13 +20,20 @@ class TransactionModel extends Equatable {
   final double? grossWeight;
   final double? stoneWeight;
   final double? netWeight;
-  final double? wastagePercent;
+  final double? purityPercent;
   final double? wastage;
   final double? finalWeight;
   final double? goldRate;
+  final double? priceSegment;
+  final MakingChargeType? makingChargeType;
+  final double? makingChargeValue;
+  final double? makingCharge;
   final double? totalAmount;
+  final String? adminId;
   final CurrencyType currency;
+  final int? calculationVersion;
   final DateTime createdAt;
+  final DateTime? updatedAt;
 
   const TransactionModel({
     required this.id,
@@ -38,13 +47,20 @@ class TransactionModel extends Equatable {
     this.grossWeight,
     this.stoneWeight,
     this.netWeight,
-    this.wastagePercent,
+    this.purityPercent,
     this.wastage,
     this.finalWeight,
     this.goldRate,
+    this.priceSegment,
+    this.makingChargeType,
+    this.makingChargeValue,
+    this.makingCharge,
     this.totalAmount,
+    this.adminId,
     this.currency = CurrencyType.inr,
+    this.calculationVersion,
     required this.createdAt,
+    this.updatedAt,
   });
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
@@ -73,15 +89,24 @@ class TransactionModel extends Equatable {
       grossWeight: json['grossWeight']?.toDouble(),
       stoneWeight: json['stoneWeight']?.toDouble(),
       netWeight: json['netWeight']?.toDouble(),
-      wastagePercent: json['wastagePercent']?.toDouble(),
+      purityPercent: json['purityPercent']?.toDouble(),
       wastage: json['wastage']?.toDouble(),
       finalWeight: json['finalWeight']?.toDouble(),
       goldRate: json['goldRate']?.toDouble(),
+      priceSegment: json['priceSegment']?.toDouble(),
+      makingChargeType: _parseMakingChargeType(json['makingChargeType']),
+      makingChargeValue: json['makingChargeValue']?.toDouble(),
+      makingCharge: json['makingCharge']?.toDouble(),
       totalAmount: json['totalAmount']?.toDouble(),
+      adminId: json['adminId']?.toString(),
       currency: _parseCurrencyType(json['currency']),
+      calculationVersion: json['calculationVersion'],
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : null,
     );
   }
 
@@ -97,13 +122,20 @@ class TransactionModel extends Equatable {
       'grossWeight': grossWeight,
       'stoneWeight': stoneWeight,
       'netWeight': netWeight,
-      'wastagePercent': wastagePercent,
+      'purityPercent': purityPercent,
       'wastage': wastage,
       'finalWeight': finalWeight,
       'goldRate': goldRate,
+      'priceSegment': priceSegment,
+      'makingChargeType': makingChargeType != null ? _makingChargeTypeToString(makingChargeType!) : null,
+      'makingChargeValue': makingChargeValue,
+      'makingCharge': makingCharge,
       'totalAmount': totalAmount,
+      'adminId': adminId,
       'currency': _currencyTypeToString(currency),
+      'calculationVersion': calculationVersion,
       'createdAt': createdAt.toIso8601String(),
+      if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
     };
   }
 
@@ -182,6 +214,30 @@ class TransactionModel extends Equatable {
     }
   }
 
+  static MakingChargeType? _parseMakingChargeType(String? type) {
+    switch (type) {
+      case 'PERCENTAGE':
+        return MakingChargeType.percentage;
+      case 'PER_GRAM':
+        return MakingChargeType.perGram;
+      case 'FIXED':
+        return MakingChargeType.fixed;
+      default:
+        return null;
+    }
+  }
+
+  static String _makingChargeTypeToString(MakingChargeType type) {
+    switch (type) {
+      case MakingChargeType.percentage:
+        return 'PERCENTAGE';
+      case MakingChargeType.perGram:
+        return 'PER_GRAM';
+      case MakingChargeType.fixed:
+        return 'FIXED';
+    }
+  }
+
   @override
   List<Object?> get props => [
     id,
@@ -195,12 +251,19 @@ class TransactionModel extends Equatable {
     grossWeight,
     stoneWeight,
     netWeight,
-    wastagePercent,
+    purityPercent,
     wastage,
     finalWeight,
     goldRate,
+    priceSegment,
+    makingChargeType,
+    makingChargeValue,
+    makingCharge,
     totalAmount,
+    adminId,
     currency,
+    calculationVersion,
     createdAt,
+    updatedAt,
   ];
 }

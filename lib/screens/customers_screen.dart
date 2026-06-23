@@ -138,89 +138,189 @@ class _CustomerCard extends StatelessWidget {
           ),
         );
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFEFE8D2)),
-        ),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 22,
-                  backgroundColor: AppTheme.goldLight,
-                  child: Text(
-                    customer.name.isNotEmpty
-                        ? customer.name[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                      color: AppTheme.goldDark,
-                      fontWeight: FontWeight.w700,
+      child: InkWell(
+        onLongPress: () {},
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFEFE8D2)),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor: AppTheme.goldLight,
+                    child: Text(
+                      customer.name.isNotEmpty
+                          ? customer.name[0].toUpperCase()
+                          : '?',
+                      style: const TextStyle(
+                        color: AppTheme.goldDark,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        customer.name,
-                        style: const TextStyle(
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          customer.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                        Text(
+                          customer.phone ?? 'No phone',
+                          style: const TextStyle(
+                            color: AppTheme.muted,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (hasDue)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFDEAE6),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Due',
+                        style: TextStyle(
+                          color: AppTheme.danger,
+                          fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          fontSize: 15,
                         ),
                       ),
-                      Text(
-                        customer.phone ?? 'No phone',
-                        style: const TextStyle(
-                          color: AppTheme.muted,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (hasDue)
+                    ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Container(height: 1, color: const Color(0xFFEFE8D2)),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  _MiniInfo(label: 'Pending Stock', value: stock),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFDEAE6),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'Due',
-                      style: TextStyle(
-                        color: AppTheme.danger,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    width: 1,
+                    height: 28,
+                    color: const Color(0xFFEFE8D2),
                   ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Container(height: 1, color: const Color(0xFFEFE8D2)),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _MiniInfo(label: 'Pending Stock', value: stock),
-                Container(width: 1, height: 28, color: const Color(0xFFEFE8D2)),
-                _MiniInfo(label: 'Pending Payment', value: pay),
-              ],
-            ),
-          ],
+                  _MiniInfo(label: 'Pending Payment', value: pay),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  // void _showCustomerActions(BuildContext context, Customer customer) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  //     ),
+  //     builder: (context) {
+  //       return SafeArea(
+  //         child: Padding(
+  //           padding: const EdgeInsets.all(16),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               ListTile(
+  //                 leading: const Icon(Icons.visibility_outlined),
+  //                 title: const Text('View Details'),
+  //                 onTap: () {
+  //                   Navigator.pop(context);
+
+  //                   // open details screen
+  //                   Navigator.push(
+  //                     context,
+  //                     MaterialPageRoute(
+  //                       builder: (_) =>
+  //                           CustomerDetailScreen(customer: customer),
+  //                     ),
+  //                   );
+  //                 },
+  //               ),
+
+  //               ListTile(
+  //                 leading: const Icon(Icons.edit_outlined),
+  //                 title: const Text('Edit Customer'),
+  //                 onTap: () {
+  //                   Navigator.pop(context);
+
+  //                   Navigator.push(
+  //                     context,
+  //                     MaterialPageRoute(
+  //                       builder: (_) =>
+  //                           AddCustomerScreen(customer: customer, isEdit: true),
+  //                     ),
+  //                   );
+  //                 },
+  //               ),
+
+  //               ListTile(
+  //                 leading: const Icon(Icons.delete_outline, color: Colors.red),
+  //                 title: const Text(
+  //                   'Delete Customer',
+  //                   style: TextStyle(color: Colors.red),
+  //                 ),
+  //                 onTap: () {
+  //                   Navigator.pop(context);
+
+  //                   _deleteCustomer(context, customer);
+  //                 },
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
+  // void _deleteCustomer(BuildContext context, Customer customer) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (_) => AlertDialog(
+  //       title: const Text('Delete Customer?'),
+  //       content: Text('Are you sure you want to delete ${customer.name}?'),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () {
+  //             Navigator.pop(context);
+  //           },
+  //           child: const Text('Cancel'),
+  //         ),
+
+  //         ElevatedButton(
+  //           onPressed: () {
+  //             // call your bloc/cubit/api delete here
+
+  //             Navigator.pop(context);
+  //           },
+  //           child: const Text('Delete'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
 
 class _MiniInfo extends StatelessWidget {

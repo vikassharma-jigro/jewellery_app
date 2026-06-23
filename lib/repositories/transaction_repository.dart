@@ -20,6 +20,8 @@ class TransactionRepository {
     double? stoneWeight,
     double? wastagePercent,
     double? goldRate,
+    MakingChargeType? makingChargeType,
+    double? makingChargesValue,
     CurrencyType currency = CurrencyType.inr,
   }) async {
     try {
@@ -37,14 +39,16 @@ class TransactionRepository {
           'metalType': metalType == MetalType.jewellery
               ? 'JEWELLERY'
               : metalType.name.toUpperCase(),
-          'weight': ?weight,
-          'amount': ?amount,
-          'remark': ?remark,
-          'grossWeight': ?grossWeight,
-          'stoneWeight': ?stoneWeight,
-          'wastagePercent': ?wastagePercent,
-          'goldRate': ?goldRate,
           'currency': currency.name.toUpperCase(),
+          if (weight != null) 'weight': weight,
+          if (amount != null) 'amount': amount,
+          if (remark != null) 'remark': remark,
+          if (grossWeight != null) 'grossWeight': grossWeight,
+          if (stoneWeight != null) 'stoneWeight': stoneWeight,
+          if (wastagePercent != null) 'purityPercent': wastagePercent,
+          if (goldRate != null) 'goldRate': goldRate,
+          if (makingChargeType != null) 'makingChargeType': makingChargeType.name.toUpperCase().replaceAll('PERGRAM', 'PER_GRAM'),
+          if (makingChargesValue != null) 'makingChargesValue': makingChargesValue,
         },
       );
       final responseData =
@@ -78,6 +82,26 @@ class TransactionRepository {
       final String errorMessage = message is List
           ? message.join(', ')
           : (message?.toString() ?? 'Failed to fetch transactions');
+      throw AppException(errorMessage);
+    } catch (e) {
+      throw AppException(e.toString());
+    }
+  }
+
+  Future<TransactionModel> getTransactionById(String id) async {
+    try {
+      final response = await _apiService.dio.get(ApiConstants.transactionDetails(id));
+      final responseData =
+          (response.data is Map<String, dynamic> &&
+              (response.data as Map<String, dynamic>).containsKey('data'))
+          ? response.data['data']
+          : response.data;
+      return TransactionModel.fromJson(responseData);
+    } on DioException catch (e) {
+      final message = e.response?.data['message'];
+      final String errorMessage = message is List
+          ? message.join(', ')
+          : (message?.toString() ?? 'Failed to fetch transaction details');
       throw AppException(errorMessage);
     } catch (e) {
       throw AppException(e.toString());

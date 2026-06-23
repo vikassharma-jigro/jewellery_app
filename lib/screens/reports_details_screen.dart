@@ -246,7 +246,22 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
                         .read<ReportsCubit>()
                         .exportMonthlyReport(state.report.month);
                     if (context.mounted) Navigator.pop(context); // Close dialog
-                    await OpenFilex.open(path);
+                    
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Saved to: $path'),
+                          duration: const Duration(seconds: 4),
+                        ),
+                      );
+                    }
+
+                    final result = await OpenFilex.open(path);
+                    if (result.type != ResultType.done && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(result.message)),
+                      );
+                    }
                   } catch (e) {
                     if (context.mounted) {
                       Navigator.pop(context); // Close dialog

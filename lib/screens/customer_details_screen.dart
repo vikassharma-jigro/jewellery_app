@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jewellary_stock/screens/transaction_detail_screen.dart';
 import '../theme/app_theme.dart';
 import 'customer_ledger_screen.dart';
 import '../blocs/transaction_cubit.dart';
@@ -207,7 +208,8 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                         if (tx.metalType != MetalType.none) {
                           title += ' · ${tx.metalType.name.toUpperCase()}';
                         }
-                        amount = '${tx.weight?.toStringAsFixed(2) ?? "0.00"} g';
+                        amount =
+                            '${tx.grossWeight?.toStringAsFixed(2) ?? "0.00"} g';
                         color = tx.type == TransactionType.stockIn
                             ? Colors.green
                             : Colors.orange;
@@ -217,15 +219,26 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                         'dd MMM yyyy, HH:mm',
                       ).format(tx.createdAt);
 
-                      return _historyTile(
-                        title,
-                        (tx.type == TransactionType.paymentIn ||
-                                    tx.type == TransactionType.stockIn
-                                ? '+'
-                                : '-') +
-                            amount,
-                        dateStr,
-                        color,
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  TransactionDetailScreen(transactionId: tx.id),
+                            ),
+                          );
+                        },
+                        child: _historyTile(
+                          title,
+                          (tx.type == TransactionType.paymentIn ||
+                                      tx.type == TransactionType.stockIn
+                                  ? '+'
+                                  : '-') +
+                              amount,
+                          dateStr,
+                          color,
+                        ),
                       );
                     }).toList(),
                   );
@@ -305,6 +318,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
 
   Widget _historyTile(String title, String amount, String date, Color color) {
     return Card(
+      color: kCard,
       margin: const EdgeInsets.only(bottom: 10),
       elevation: 0,
       child: ListTile(
