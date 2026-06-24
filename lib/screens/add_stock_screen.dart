@@ -231,12 +231,25 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   ),
                 ],
 
+                // Metal Jama / Namae: only show Gold Rate for cash settlement
+                if (stockType == TransactionType.metalJama ||
+                    stockType == TransactionType.metalNamae) ...[
+                  const SizedBox(height: 15),
+                  const Text("Gold Rate (₹/g) - for cash settlement"),
+                  TextFormField(
+                    controller: goldRateController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: "Enter Gold Rate (optional)",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+
                 if (stockType == TransactionType.purchase ||
                     stockType == TransactionType.sales ||
                     stockType == TransactionType.purchaseReturn ||
-                    stockType == TransactionType.salesReturn ||
-                    stockType == TransactionType.metalJama ||
-                    stockType == TransactionType.metalNamae) ...[
+                    stockType == TransactionType.salesReturn) ...[
                   const SizedBox(height: 15),
                   const Text("Purity (%)"),
                   TextFormField(
@@ -460,22 +473,32 @@ class _AddStockScreenState extends State<AddStockScreen> {
                             makingChargesVal != null ||
                             selectedMakingChargeType != null;
 
+                        // For Metal Jama/Namae: don't pass grossWeight to avoid
+                        // calculateWeights pipeline which zeroes amount when purityPercent=0.
+                        // Backend will compute settlement as weight * goldRate.
+                        final isMetalSettlement =
+                            stockType == TransactionType.metalJama ||
+                            stockType == TransactionType.metalNamae;
+
                         context.read<TransactionCubit>().createTransaction(
                           customerId: cId,
                           type: stockType,
                           metalType: stockItemType,
-                          weight:
-                              weightVal, // Pass to standard weight (in case it's not a calculation)
-                          grossWeight: hasCalcFields
-                              ? weightVal
-                              : null, // Also pass as grossWeight for backend auto-calc only if calc fields are present
+                          weight: weightVal,
+                          grossWeight: isMetalSettlement
+                              ? null
+                              : (hasCalcFields ? weightVal : null),
                           amount: amountVal,
                           remark: remarkStr.isEmpty ? null : remarkStr,
-                          purityPercent: wastageVal,
-                          stoneWeight: stoneVal,
+                          purityPercent: isMetalSettlement ? null : wastageVal,
+                          stoneWeight: isMetalSettlement ? null : stoneVal,
                           goldRate: goldRateVal,
-                          makingChargeType: selectedMakingChargeType,
-                          makingChargesValue: makingChargesVal,
+                          makingChargeType: isMetalSettlement
+                              ? null
+                              : selectedMakingChargeType,
+                          makingChargesValue: isMetalSettlement
+                              ? null
+                              : makingChargesVal,
                         );
 
                         context.read<StockCubit>().fetchStockData();
