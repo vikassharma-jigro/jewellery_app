@@ -11,26 +11,34 @@ class CustomerRepository {
 
   Future<CustomerModel> createCustomer({
     required String name,
-    required String mobile,
-    required String address,
+    String? mobile,
+    String? address,
     String? aadhaar,
     String? gst,
     double? goldBalance,
+    String? goldBalanceType,
     double? jewelleryBalance,
+    String? jewelleryBalanceType,
     double? paymentDue,
+    String? paymentDueType,
+    String? currency,
   }) async {
     try {
       final response = await _apiService.dio.post(
         ApiConstants.customers,
         data: {
           'name': name,
-          'mobile': mobile,
-          'address': address,
+          'mobile': ?mobile,
+          'address': ?address,
           'aadhaar': ?aadhaar,
           'gst': ?gst,
           'goldBalance': ?goldBalance,
+          'goldBalanceType': ?goldBalanceType,
           'jewelleryBalance': ?jewelleryBalance,
+          'jewelleryBalanceType': ?jewelleryBalanceType,
           'paymentDue': ?paymentDue,
+          'paymentDueType': ?paymentDueType,
+          'currency': ?currency,
         },
       );
       final responseData =
@@ -99,9 +107,10 @@ class CustomerRepository {
     String? address,
     String? aadhaar,
     String? gst,
+    String? amount,
   }) async {
     try {
-      final response = await _apiService.dio.patch(
+      final response = await _apiService.dio.put(
         '${ApiConstants.customers}/$id',
         data: {
           'name': ?name,
@@ -109,6 +118,7 @@ class CustomerRepository {
           'address': ?address,
           'aadhaar': ?aadhaar,
           'gst': ?gst,
+          'amount': ?amount,
         },
       );
       final responseData =

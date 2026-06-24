@@ -192,27 +192,50 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                       String amount = '';
                       Color color = Colors.black;
 
-                      if (tx.type == TransactionType.paymentIn ||
-                          tx.type == TransactionType.paymentOut) {
-                        title = tx.type == TransactionType.paymentIn
+                      if (tx.type == TransactionType.cashJama ||
+                          tx.type == TransactionType.cashNamae) {
+                        title = tx.type == TransactionType.cashJama
                             ? 'Payment Received'
                             : 'Payment Sent';
                         amount = '₹${tx.amount?.toStringAsFixed(2) ?? "0.00"}';
-                        color = tx.type == TransactionType.paymentIn
+                        color = tx.type == TransactionType.cashJama
                             ? Colors.blue
                             : Colors.red;
                       } else {
-                        title = tx.type == TransactionType.stockIn
-                            ? 'Stock In'
-                            : 'Stock Out';
+                        switch (tx.type) {
+                          case TransactionType.purchase:
+                            title = 'Purchase';
+                            color = Colors.green;
+                            break;
+                          case TransactionType.purchaseReturn:
+                            title = 'Purchase Return';
+                            color = Colors.orange;
+                            break;
+                          case TransactionType.sales:
+                            title = 'Sale';
+                            color = Colors.orange;
+                            break;
+                          case TransactionType.salesReturn:
+                            title = 'Sale Return';
+                            color = Colors.green;
+                            break;
+                          case TransactionType.metalJama:
+                            title = 'Metal Jama';
+                            color = Colors.green;
+                            break;
+                          case TransactionType.metalNamae:
+                            title = 'Metal Namae';
+                            color = Colors.orange;
+                            break;
+                          default:
+                            title = 'Stock';
+                            color = Colors.orange;
+                        }
+
                         if (tx.metalType != MetalType.none) {
                           title += ' · ${tx.metalType.name.toUpperCase()}';
                         }
-                        amount =
-                            '${tx.grossWeight?.toStringAsFixed(2) ?? "0.00"} g';
-                        color = tx.type == TransactionType.stockIn
-                            ? Colors.green
-                            : Colors.orange;
+                        amount = '${tx.weight?.toStringAsFixed(2) ?? "0.00"} g';
                       }
 
                       final dateStr = DateFormat(
@@ -231,8 +254,10 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                         },
                         child: _historyTile(
                           title,
-                          (tx.type == TransactionType.paymentIn ||
-                                      tx.type == TransactionType.stockIn
+                          (tx.type == TransactionType.cashJama ||
+                                      tx.type == TransactionType.purchase ||
+                                      tx.type == TransactionType.salesReturn ||
+                                      tx.type == TransactionType.metalJama
                                   ? '+'
                                   : '-') +
                               amount,

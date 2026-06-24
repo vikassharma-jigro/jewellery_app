@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jewellary_stock/blocs/stock_cubit.dart';
+import 'package:jewellary_stock/theme/app_theme.dart';
 import '../blocs/transaction_cubit.dart';
 import '../data/models/transaction_model.dart';
 import '../blocs/customer_cubit.dart';
@@ -42,7 +43,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
     super.initState();
 
     // Get the stock type on Initial loading
-    stockType = widget.initialTransactionType ?? TransactionType.stockIn;
+    stockType = widget.initialTransactionType ?? TransactionType.purchase;
     selectedCustomerId = widget.customerId;
     context.read<CustomerCubit>().fetchCustomers();
   }
@@ -103,26 +104,45 @@ class _AddStockScreenState extends State<AddStockScreen> {
 
                 /// Drop Down Open For Transection Selection Type
                 DropdownButtonFormField<TransactionType>(
+                  dropdownColor: kBg,
+                  enableFeedback: true,
+                  autofocus: true,
                   initialValue: stockType,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                   items: const [
                     DropdownMenuItem(
-                      value: TransactionType.stockIn,
-                      child: Text("Stock In"),
+                      value: TransactionType.purchase,
+                      child: Text("PURCHASE"),
                     ),
                     DropdownMenuItem(
-                      value: TransactionType.stockOut,
-                      child: Text("Stock Out"),
+                      value: TransactionType.purchaseReturn,
+                      child: Text("PURCHASE RETURN"),
                     ),
                     DropdownMenuItem(
-                      value: TransactionType.paymentIn,
-                      child: Text("Payment In"),
+                      value: TransactionType.sales,
+                      child: Text("SALE"),
                     ),
                     DropdownMenuItem(
-                      value: TransactionType.paymentOut,
-                      child: Text("Payment Out"),
+                      value: TransactionType.salesReturn,
+                      child: Text("SALE RETURN"),
+                    ),
+                    DropdownMenuItem(
+                      value: TransactionType.cashJama,
+                      child: Text("CASH JAMA"),
+                    ),
+                    DropdownMenuItem(
+                      value: TransactionType.cashNamae,
+                      child: Text("CASH NAMAE"),
+                    ),
+                    DropdownMenuItem(
+                      value: TransactionType.metalJama,
+                      child: Text("METAL"),
+                    ),
+                    DropdownMenuItem(
+                      value: TransactionType.metalNamae,
+                      child: Text("METAL NAMAE"),
                     ),
                   ],
                   onChanged: (value) {
@@ -171,8 +191,8 @@ class _AddStockScreenState extends State<AddStockScreen> {
                 ),
 
                 /// Stock Details
-                if (stockType == TransactionType.stockIn ||
-                    stockType == TransactionType.stockOut) ...[
+                if (stockType != TransactionType.cashJama &&
+                    stockType != TransactionType.cashNamae) ...[
                   const SizedBox(height: 15),
                   const Text("Metal Type"),
                   const SizedBox(height: 10),
@@ -209,7 +229,14 @@ class _AddStockScreenState extends State<AddStockScreen> {
                       border: OutlineInputBorder(),
                     ),
                   ),
+                ],
 
+                if (stockType == TransactionType.purchase ||
+                    stockType == TransactionType.sales ||
+                    stockType == TransactionType.purchaseReturn ||
+                    stockType == TransactionType.salesReturn ||
+                    stockType == TransactionType.metalJama ||
+                    stockType == TransactionType.metalNamae) ...[
                   const SizedBox(height: 15),
                   const Text("Purity (%)"),
                   TextFormField(
@@ -277,7 +304,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   const Text("Making Charge Type"),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<MakingChargeType>(
-                    value: selectedMakingChargeType,
+                    initialValue: selectedMakingChargeType,
                     decoration: const InputDecoration(
                       hintText: "Select Making Charge Type",
                       border: OutlineInputBorder(),
@@ -293,6 +320,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                       ),
                       DropdownMenuItem(
                         value: MakingChargeType.fixed,
+
                         child: Text("Fixed Value (₹)"),
                       ),
                     ],
@@ -305,32 +333,40 @@ class _AddStockScreenState extends State<AddStockScreen> {
 
                   if (selectedMakingChargeType != null) ...[
                     const SizedBox(height: 15),
-                    Text("Making Charges (${selectedMakingChargeType == MakingChargeType.percentage ? '%' : selectedMakingChargeType == MakingChargeType.perGram ? '₹/g' : '₹'})"),
+                    Text(
+                      "Making Charges (${selectedMakingChargeType == MakingChargeType.percentage
+                          ? '%'
+                          : selectedMakingChargeType == MakingChargeType.perGram
+                          ? '₹/g'
+                          : '₹'})",
+                    ),
                     TextFormField(
                       controller: makingChargesController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        hintText: "Making Charges (${selectedMakingChargeType == MakingChargeType.percentage ? '%' : selectedMakingChargeType == MakingChargeType.perGram ? '₹/g' : '₹'})",
+                        hintText:
+                            "Making Charges (${selectedMakingChargeType == MakingChargeType.percentage
+                                ? '%'
+                                : selectedMakingChargeType == MakingChargeType.perGram
+                                ? '₹/g'
+                                : '₹'})",
                         border: const OutlineInputBorder(),
                       ),
                     ),
                   ],
                 ],
 
-                if (stockType == TransactionType.paymentIn ||
-                    stockType == TransactionType.paymentOut) ...[
-                  const SizedBox(height: 15),
-                  const Text("Amount (₹)"),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: amountController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: "Amount (₹)",
-                      border: OutlineInputBorder(),
-                    ),
+                const SizedBox(height: 15),
+                const Text("Amount (₹)"),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: amountController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    hintText: "Amount (₹)",
+                    border: OutlineInputBorder(),
                   ),
-                ],
+                ),
 
                 const SizedBox(height: 15),
                 const Text("Date"),
@@ -395,7 +431,8 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         final wastageStr = wastageController.text.trim();
                         final stoneStr = stoneController.text.trim();
                         final goldRateStr = goldRateController.text.trim();
-                        final makingChargesStr = makingChargesController.text.trim();
+                        final makingChargesStr = makingChargesController.text
+                            .trim();
 
                         double? weightVal = weightStr.isNotEmpty
                             ? double.tryParse(weightStr)

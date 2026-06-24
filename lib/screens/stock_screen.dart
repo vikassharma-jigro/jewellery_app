@@ -57,10 +57,10 @@ class _StockScreenState extends State<StockScreen>
             final ledger = state.ledger;
 
             final stockInLedger = ledger
-                .where((l) => l.type == TransactionType.stockIn)
+                .where((l) => l.type == TransactionType.purchase)
                 .toList();
             final stockOutLedger = ledger
-                .where((l) => l.type == TransactionType.stockOut)
+                .where((l) => l.type == TransactionType.sales)
                 .toList();
 
             return Column(
@@ -195,17 +195,23 @@ class _StockList extends StatelessWidget {
               ...entries.map(
                 (entry) => GestureDetector(
                   onTap: () {
-                    if (entry.transactionId == null || entry.transactionId!.isEmpty) {
+                    if (entry.transactionId == null ||
+                        entry.transactionId!.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Details not available for legacy entries')),
+                        const SnackBar(
+                          content: Text(
+                            'Details not available for legacy entries',
+                          ),
+                        ),
                       );
                       return;
                     }
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            TransactionDetailScreen(transactionId: entry.transactionId!),
+                        builder: (context) => TransactionDetailScreen(
+                          transactionId: entry.transactionId!,
+                        ),
                       ),
                     );
                   },

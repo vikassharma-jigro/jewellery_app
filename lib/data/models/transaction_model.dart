@@ -1,6 +1,15 @@
 import 'package:equatable/equatable.dart';
 
-enum TransactionType { stockIn, stockOut, paymentIn, paymentOut }
+enum TransactionType {
+  purchase,
+  purchaseReturn,
+  sales,
+  salesReturn,
+  cashJama,
+  cashNamae,
+  metalJama,
+  metalNamae,
+}
 
 enum MetalType { gold, jewellery, none }
 
@@ -114,7 +123,7 @@ class TransactionModel extends Equatable {
     return {
       'id': id,
       'customerId': customerId,
-      'type': _transactionTypeToString(type),
+      'type': transactionTypeToString(type),
       'metalType': _metalTypeToString(metalType),
       'weight': weight,
       'amount': amount,
@@ -127,7 +136,9 @@ class TransactionModel extends Equatable {
       'finalWeight': finalWeight,
       'goldRate': goldRate,
       'priceSegment': priceSegment,
-      'makingChargeType': makingChargeType != null ? _makingChargeTypeToString(makingChargeType!) : null,
+      'makingChargeType': makingChargeType != null
+          ? _makingChargeTypeToString(makingChargeType!)
+          : null,
       'makingChargeValue': makingChargeValue,
       'makingCharge': makingCharge,
       'totalAmount': totalAmount,
@@ -141,29 +152,45 @@ class TransactionModel extends Equatable {
 
   static TransactionType _parseTransactionType(String? type) {
     switch (type) {
-      case 'STOCK_IN':
-        return TransactionType.stockIn;
-      case 'STOCK_OUT':
-        return TransactionType.stockOut;
-      case 'PAYMENT_IN':
-        return TransactionType.paymentIn;
-      case 'PAYMENT_OUT':
-        return TransactionType.paymentOut;
+      case 'PURCHASE':
+        return TransactionType.purchase;
+      case 'PURCHASE_RETURN':
+        return TransactionType.purchaseReturn;
+      case 'SALES':
+        return TransactionType.sales;
+      case 'SALES_RETURN':
+        return TransactionType.salesReturn;
+      case 'CASH_JAMA':
+        return TransactionType.cashJama;
+      case 'CASH_NAMAE':
+        return TransactionType.cashNamae;
+      case 'METAL_JAMA':
+        return TransactionType.metalJama;
+      case 'METAL_NAMAE':
+        return TransactionType.metalNamae;
       default:
-        return TransactionType.paymentIn; // default or throw
+        return TransactionType.cashJama;
     }
   }
 
-  static String _transactionTypeToString(TransactionType type) {
+  static String transactionTypeToString(TransactionType type) {
     switch (type) {
-      case TransactionType.stockIn:
-        return 'STOCK_IN';
-      case TransactionType.stockOut:
-        return 'STOCK_OUT';
-      case TransactionType.paymentIn:
-        return 'PAYMENT_IN';
-      case TransactionType.paymentOut:
-        return 'PAYMENT_OUT';
+      case TransactionType.purchase:
+        return 'PURCHASE';
+      case TransactionType.purchaseReturn:
+        return 'PURCHASE_RETURN';
+      case TransactionType.sales:
+        return 'SALES';
+      case TransactionType.salesReturn:
+        return 'SALES_RETURN';
+      case TransactionType.cashJama:
+        return 'CASH_JAMA';
+      case TransactionType.cashNamae:
+        return 'CASH_NAMAE';
+      case TransactionType.metalJama:
+        return 'METAL_JAMA';
+      case TransactionType.metalNamae:
+        return 'METAL_NAMAE';
     }
   }
 

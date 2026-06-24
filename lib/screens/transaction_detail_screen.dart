@@ -117,19 +117,37 @@ class TransactionDetailScreen extends StatelessWidget {
     Color typeColor;
     String typeText;
     switch (transaction.type) {
-      case TransactionType.stockIn:
-      case TransactionType.paymentIn:
+      case TransactionType.purchase:
         typeColor = Colors.green;
-        typeText = transaction.type == TransactionType.stockIn
-            ? 'STOCK IN'
-            : 'PAYMENT IN';
+        typeText = 'PURCHASE';
         break;
-      case TransactionType.stockOut:
-      case TransactionType.paymentOut:
+      case TransactionType.purchaseReturn:
         typeColor = Colors.red;
-        typeText = transaction.type == TransactionType.stockOut
-            ? 'STOCK OUT'
-            : 'PAYMENT OUT';
+        typeText = 'PURCHASE RETURN';
+        break;
+      case TransactionType.sales:
+        typeColor = Colors.red;
+        typeText = 'SALE';
+        break;
+      case TransactionType.salesReturn:
+        typeColor = Colors.green;
+        typeText = 'SALE RETURN';
+        break;
+      case TransactionType.cashJama:
+        typeColor = Colors.green;
+        typeText = 'CASH JAMA';
+        break;
+      case TransactionType.cashNamae:
+        typeColor = Colors.red;
+        typeText = 'CASH NAMAE';
+        break;
+      case TransactionType.metalJama:
+        typeColor = Colors.green;
+        typeText = 'METAL JAMA';
+        break;
+      case TransactionType.metalNamae:
+        typeColor = Colors.red;
+        typeText = 'METAL NAMAE';
         break;
     }
 

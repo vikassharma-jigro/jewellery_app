@@ -139,7 +139,9 @@ class _CustomerCard extends StatelessWidget {
         );
       },
       child: InkWell(
-        onLongPress: () {},
+        onLongPress: () {
+          _showCustomerActions(context, customer);
+        },
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
@@ -229,98 +231,119 @@ class _CustomerCard extends StatelessWidget {
     );
   }
 
-  // void _showCustomerActions(BuildContext context, Customer customer) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-  //     ),
-  //     builder: (context) {
-  //       return SafeArea(
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(16),
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               ListTile(
-  //                 leading: const Icon(Icons.visibility_outlined),
-  //                 title: const Text('View Details'),
-  //                 onTap: () {
-  //                   Navigator.pop(context);
+  void _showCustomerActions(BuildContext context, CustomerModel customer) {
+    showModalBottomSheet(
+      backgroundColor: kBg,
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.visibility_outlined),
+                  title: const Text('View Details'),
+                  onTap: () {
+                    Navigator.pop(context);
 
-  //                   // open details screen
-  //                   Navigator.push(
-  //                     context,
-  //                     MaterialPageRoute(
-  //                       builder: (_) =>
-  //                           CustomerDetailScreen(customer: customer),
-  //                     ),
-  //                   );
-  //                 },
-  //               ),
+                    // open details screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CustomerDetailsScreen(
+                          customerId: customer.id,
+                          name: customer.name,
+                          phone: customer.phone ?? '',
+                          stock:
+                              '${customer.goldBalance.toStringAsFixed(2)}g Gold, ${customer.jewelleryBalance.toStringAsFixed(2)}g Jew.',
+                          payment:
+                              '₹${customer.cashBalance.toStringAsFixed(2)}',
+                        ),
+                      ),
+                    );
+                  },
+                ),
 
-  //               ListTile(
-  //                 leading: const Icon(Icons.edit_outlined),
-  //                 title: const Text('Edit Customer'),
-  //                 onTap: () {
-  //                   Navigator.pop(context);
+                ListTile(
+                  leading: const Icon(Icons.edit_outlined),
+                  title: const Text('Edit Customer'),
+                  onTap: () {
+                    Navigator.pop(context);
 
-  //                   Navigator.push(
-  //                     context,
-  //                     MaterialPageRoute(
-  //                       builder: (_) =>
-  //                           AddCustomerScreen(customer: customer, isEdit: true),
-  //                     ),
-  //                   );
-  //                 },
-  //               ),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            AddCustomerScreen(customer: customer, isEdit: true),
+                      ),
+                    );
+                  },
+                ),
 
-  //               ListTile(
-  //                 leading: const Icon(Icons.delete_outline, color: Colors.red),
-  //                 title: const Text(
-  //                   'Delete Customer',
-  //                   style: TextStyle(color: Colors.red),
-  //                 ),
-  //                 onTap: () {
-  //                   Navigator.pop(context);
+                ListTile(
+                  leading: const Icon(Icons.delete_outline, color: Colors.red),
+                  title: const Text(
+                    'Delete Customer',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
 
-  //                   _deleteCustomer(context, customer);
-  //                 },
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
+                    _deleteCustomer(context, customer);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-  // void _deleteCustomer(BuildContext context, Customer customer) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (_) => AlertDialog(
-  //       title: const Text('Delete Customer?'),
-  //       content: Text('Are you sure you want to delete ${customer.name}?'),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () {
-  //             Navigator.pop(context);
-  //           },
-  //           child: const Text('Cancel'),
-  //         ),
+  void _deleteCustomer(BuildContext context, CustomerModel customer) {
+    final customerCubit = context.read<CustomerCubit>();
 
-  //         ElevatedButton(
-  //           onPressed: () {
-  //             // call your bloc/cubit/api delete here
+    showDialog(
+      barrierColor: kBg,
+      barrierDismissible: false,
+      barrierLabel: 'Are you sure you want to delete ${customer.name}?',
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: kBg,
+        title: const Text('Delete Customer?'),
+        content: Text('Are you sure you want to delete ${customer.name}?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+            },
 
-  //             Navigator.pop(context);
-  //           },
-  //           child: const Text('Delete'),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+            style: TextButton.styleFrom(foregroundColor: AppTheme.muted),
+            child: const Text('Cancel'),
+          ),
+
+          ElevatedButton(
+            onPressed: () {
+              customerCubit.deleteCustomer(customer.id);
+
+              Navigator.of(dialogContext).pop();
+            },
+
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _MiniInfo extends StatelessWidget {

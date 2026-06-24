@@ -82,6 +82,7 @@ class _TransactionEntryScreenState extends State<TransactionEntryScreen> {
                         const SizedBox(height: 8),
                         DropdownButtonFormField<MetalType>(
                           initialValue: stockItemType,
+                          dropdownColor: kBg,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -219,17 +220,17 @@ class _TransactionEntryScreenState extends State<TransactionEntryScreen> {
                               TransactionType type;
                               if (widget.title.contains("Add Stock")) {
                                 type = TransactionType
-                                    .stockOut; // Giving stock to customer
+                                    .sales; // Giving stock to customer
                               } else if (widget.title.contains(
                                 "Receive Stock",
                               )) {
-                                type = TransactionType.stockIn;
+                                type = TransactionType.purchase;
                               } else if (widget.title.contains("Add Payment")) {
                                 type = TransactionType
-                                    .paymentOut; // Giving money to customer
+                                    .cashNamae; // Giving money to customer
                               } else {
-                                type = TransactionType
-                                    .paymentIn; // Receive Payment
+                                type =
+                                    TransactionType.cashJama; // Receive Payment
                               }
 
                               context

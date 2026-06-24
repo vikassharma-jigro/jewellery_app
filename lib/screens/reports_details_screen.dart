@@ -231,6 +231,7 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
             ElevatedButton.icon(
               onPressed: () async {
                 final state = context.read<ReportsCubit>().state;
+
                 if (state is MonthlyReportLoaded) {
                   showDialog(
                     context: context,
@@ -245,8 +246,8 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
                     final path = await context
                         .read<ReportsCubit>()
                         .exportMonthlyReport(state.report.month);
-                    if (context.mounted) Navigator.pop(context); // Close dialog
-                    
+                    if (context.mounted) Navigator.pop(context);
+
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -258,9 +259,9 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
 
                     final result = await OpenFilex.open(path);
                     if (result.type != ResultType.done && context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(result.message)),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(result.message)));
                     }
                   } catch (e) {
                     if (context.mounted) {
@@ -323,9 +324,9 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
                 double stockAdded = 0;
                 double stockSold = 0;
                 for (var entry in state.ledger) {
-                  if (entry.type == TransactionType.stockIn) {
+                  if (entry.type == TransactionType.purchase) {
                     stockAdded += entry.weight;
-                  } else if (entry.type == TransactionType.stockOut) {
+                  } else if (entry.type == TransactionType.sales) {
                     stockSold += entry.weight;
                   }
                 }
@@ -402,11 +403,11 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
                 double cashReceived = 0;
 
                 for (var t in state.report.transactions) {
-                  if (t.type == TransactionType.stockOut) {
+                  if (t.type == TransactionType.sales) {
                     todaySale += (t.amount ?? 0);
-                  } else if (t.type == TransactionType.stockIn) {
+                  } else if (t.type == TransactionType.purchase) {
                     todayPurchase += (t.amount ?? 0);
-                  } else if (t.type == TransactionType.paymentIn) {
+                  } else if (t.type == TransactionType.cashJama) {
                     cashReceived += (t.amount ?? 0);
                   }
                 }
@@ -464,9 +465,9 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
                 double goldSold = 0;
                 for (var entry in state.ledger) {
                   if (entry.metalType == MetalType.gold) {
-                    if (entry.type == TransactionType.stockIn) {
+                    if (entry.type == TransactionType.purchase) {
                       goldPurchased += entry.weight;
-                    } else if (entry.type == TransactionType.stockOut) {
+                    } else if (entry.type == TransactionType.sales) {
                       goldSold += entry.weight;
                     }
                   }

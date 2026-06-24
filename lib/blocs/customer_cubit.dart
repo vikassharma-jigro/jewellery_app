@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../repositories/customer_repository.dart';
 import '../data/models/customer_model.dart';
+import '../data/models/transaction_model.dart';
 import '../core/utils/exceptions.dart';
 
 part 'customer_state.dart';
@@ -25,13 +26,17 @@ class CustomerCubit extends Cubit<CustomerState> {
 
   Future<void> createCustomer({
     required String name,
-    required String mobile,
-    required String address,
+    String? mobile,
+    String? address,
     String? aadhaar,
     String? gst,
     double? goldBalance,
+    String? goldBalanceType,
     double? jewelleryBalance,
+    String? jewelleryBalanceType,
     double? paymentDue,
+    String? paymentDueType,
+    CurrencyType? currency,
   }) async {
     emit(CustomerLoading());
     try {
@@ -42,8 +47,12 @@ class CustomerCubit extends Cubit<CustomerState> {
         aadhaar: aadhaar,
         gst: gst,
         goldBalance: goldBalance,
+        goldBalanceType: goldBalanceType,
         jewelleryBalance: jewelleryBalance,
+        jewelleryBalanceType: jewelleryBalanceType,
         paymentDue: paymentDue,
+        paymentDueType: paymentDueType,
+        currency: currency?.name.toUpperCase(),
       );
       emit(const CustomerOperationSuccess('Customer created successfully'));
       fetchCustomers();

@@ -35,14 +35,14 @@ class TransactionInfoCard extends StatelessWidget {
                   child: InfoTileWidget(
                     label: 'Gross Weight',
                     value:
-                        '${transaction.grossWeight?.toStringAsFixed(2) ?? '0.00'} g',
+                        '${(transaction.grossWeight ?? transaction.weight)?.toStringAsFixed(2) ?? '0.00'} g',
                   ),
                 ),
                 Expanded(
                   child: InfoTileWidget(
                     label: 'Net Weight',
                     value:
-                        '${transaction.netWeight?.toStringAsFixed(2) ?? '0.00'} g',
+                        '${(transaction.netWeight ?? transaction.weight)?.toStringAsFixed(2) ?? '0.00'} g',
                   ),
                 ),
               ],
@@ -61,7 +61,7 @@ class TransactionInfoCard extends StatelessWidget {
                   child: InfoTileWidget(
                     label: 'Final Weight',
                     value:
-                        '${transaction.finalWeight?.toStringAsFixed(2) ?? '0.00'} g',
+                        '${(transaction.finalWeight ?? transaction.weight)?.toStringAsFixed(2) ?? '0.00'} g',
                   ),
                 ),
               ],

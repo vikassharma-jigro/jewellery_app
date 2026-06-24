@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_theme.dart';
 import '../blocs/customer_cubit.dart';
+import '../data/models/customer_model.dart';
+import '../data/models/transaction_model.dart';
 
 class AddCustomerScreen extends StatefulWidget {
-  const AddCustomerScreen({super.key});
+  final CustomerModel? customer;
+  final bool isEdit;
+
+  const AddCustomerScreen({super.key, this.customer, this.isEdit = false});
 
   @override
   State<AddCustomerScreen> createState() => _AddCustomerScreenState();
@@ -22,6 +28,26 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   final jewelleryController = TextEditingController();
   final dueController = TextEditingController();
   final notesController = TextEditingController();
+
+  CurrencyType selectedCurrency = CurrencyType.inr;
+  String selectedGoldBalanceType = 'NAMAE';
+  String selectedJewelleryBalanceType = 'NAMAE';
+  String selectedPaymentDueType = 'NAMAE';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isEdit && widget.customer != null) {
+      nameController.text = widget.customer!.name;
+      mobileController.text = widget.customer!.phone ?? '';
+      addressController.text = widget.customer!.address ?? '';
+      aadhaarController.text = widget.customer!.aadhaar ?? '';
+      gstController.text = widget.customer!.gst ?? '';
+      goldController.text = widget.customer!.goldBalance.toString();
+      jewelleryController.text = widget.customer!.jewelleryBalance.toString();
+      dueController.text = widget.customer!.cashBalance.toString();
+    }
+  }
 
   @override
   void dispose() {
@@ -56,11 +82,13 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     required String hint,
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
@@ -103,7 +131,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
             Expanded(child: Center(child: const Text("Add Customer"))),
           ],
         ),
-        backgroundColor: AppTheme.gold,
+        backgroundColor: kBg,
       ),
       body: BlocConsumer<CustomerCubit, CustomerState>(
         listener: (context, state) {
@@ -137,6 +165,10 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   controller: mobileController,
                   hint: "Enter mobile number",
                   keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
                 ),
 
                 const SizedBox(height: 16),
@@ -148,49 +180,151 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   maxLines: 3,
                 ),
 
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
 
-                buildFieldTitle("Aadhaar Number"),
-                buildTextField(
-                  controller: aadhaarController,
-                  hint: "Enter Aadhaar number",
-                  keyboardType: TextInputType.number,
-                ),
+                // buildFieldTitle("Aadhaar Number"),
+                // buildTextField(
+                //   controller: aadhaarController,
+                //   hint: "Enter Aadhaar number",
+                //   keyboardType: TextInputType.number,
+                // ),
 
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
 
-                buildFieldTitle("GST Number"),
-                buildTextField(
-                  controller: gstController,
-                  hint: "Enter GST number",
-                ),
+                // buildFieldTitle("GST Number"),
+                // buildTextField(
+                //   controller: gstController,
+                //   hint: "Enter GST number",
+                // ),
+                if (!widget.isEdit) ...[
+                  const SizedBox(height: 16),
 
-                const SizedBox(height: 16),
+                  buildFieldTitle("Opening Gold Balance (Gram)"),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: buildTextField(
+                          controller: goldController,
+                          hint: "Enter gold balance in gram",
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 1,
+                        child: _buildTypeDropdown(
+                          value: selectedGoldBalanceType,
+                          onChanged: (val) {
+                            setState(() {
+                              selectedGoldBalanceType = val!;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
 
-                buildFieldTitle("Opening Gold Balance (Gram)"),
-                buildTextField(
-                  controller: goldController,
-                  hint: "Enter gold balance in gram",
-                  keyboardType: TextInputType.number,
-                ),
+                  const SizedBox(height: 16),
 
-                const SizedBox(height: 16),
+                  buildFieldTitle("Opening Jewellery Balance (Gram)"),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: buildTextField(
+                          controller: jewelleryController,
+                          hint: "Enter jewellery balance in gram",
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 1,
+                        child: _buildTypeDropdown(
+                          value: selectedJewelleryBalanceType,
+                          onChanged: (val) {
+                            setState(() {
+                              selectedJewelleryBalanceType = val!;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
 
-                buildFieldTitle("Opening Jewellery Balance (Gram)"),
-                buildTextField(
-                  controller: jewelleryController,
-                  hint: "Enter jewellery balance in gram",
-                  keyboardType: TextInputType.number,
-                ),
+                  const SizedBox(height: 16),
 
-                const SizedBox(height: 16),
-
-                buildFieldTitle("Opening Payment Due (₹)"),
-                buildTextField(
-                  controller: dueController,
-                  hint: "Enter pending amount",
-                  keyboardType: TextInputType.number,
-                ),
+                  buildFieldTitle("Opening Payment Due (Amount & Currency)"),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: buildTextField(
+                          controller: dueController,
+                          hint: "Enter pending amount",
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 1,
+                        child: _buildTypeDropdown(
+                          value: selectedPaymentDueType,
+                          onChanged: (val) {
+                            setState(() {
+                              selectedPaymentDueType = val!;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 1,
+                        child: DropdownButtonFormField<CurrencyType>(
+                          initialValue: selectedCurrency,
+                          dropdownColor: kBg,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 14,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE6D8A8),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE6D8A8),
+                              ),
+                            ),
+                          ),
+                          items: CurrencyType.values.map((c) {
+                            return DropdownMenuItem(
+                              value: c,
+                              child: Text(c.name.toUpperCase()),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setState(() {
+                                selectedCurrency = val;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
 
                 const SizedBox(height: 16),
 
@@ -218,46 +352,58 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                           );
                           return;
                         }
-                        if (mobileController.text.trim().isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Please enter mobile number"),
-                            ),
+                        if (widget.isEdit && widget.customer != null) {
+                          context.read<CustomerCubit>().updateCustomer(
+                            id: widget.customer!.id,
+                            name: nameController.text.trim(),
+                            mobile: mobileController.text.trim().isEmpty
+                                ? null
+                                : mobileController.text.trim(),
+                            address: addressController.text.trim().isEmpty
+                                ? null
+                                : addressController.text.trim(),
+                            aadhaar: aadhaarController.text.trim().isEmpty
+                                ? null
+                                : aadhaarController.text.trim(),
+                            gst: gstController.text.trim().isEmpty
+                                ? null
+                                : gstController.text.trim(),
                           );
-                          return;
-                        }
-                        if (addressController.text.trim().isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Please enter address"),
-                            ),
+                        } else {
+                          context.read<CustomerCubit>().createCustomer(
+                            name: nameController.text.trim(),
+                            mobile: mobileController.text.trim().isEmpty
+                                ? null
+                                : mobileController.text.trim(),
+                            address: addressController.text.trim().isEmpty
+                                ? null
+                                : addressController.text.trim(),
+                            aadhaar: aadhaarController.text.trim().isEmpty
+                                ? null
+                                : aadhaarController.text.trim(),
+                            gst: gstController.text.trim().isEmpty
+                                ? null
+                                : gstController.text.trim(),
+                            goldBalance: goldController.text.trim().isEmpty
+                                ? null
+                                : double.tryParse(goldController.text.trim()),
+                            goldBalanceType: selectedGoldBalanceType,
+                            jewelleryBalance:
+                                jewelleryController.text.trim().isEmpty
+                                ? null
+                                : double.tryParse(
+                                    jewelleryController.text.trim(),
+                                  ),
+                            jewelleryBalanceType: selectedJewelleryBalanceType,
+                            paymentDue: dueController.text.trim().isEmpty
+                                ? null
+                                : double.tryParse(dueController.text.trim()),
+                            paymentDueType: selectedPaymentDueType,
+                            currency: dueController.text.trim().isEmpty
+                                ? null
+                                : selectedCurrency,
                           );
-                          return;
                         }
-
-                        context.read<CustomerCubit>().createCustomer(
-                          name: nameController.text.trim(),
-                          mobile: mobileController.text.trim(),
-                          address: addressController.text.trim(),
-                          aadhaar: aadhaarController.text.trim().isEmpty
-                              ? null
-                              : aadhaarController.text.trim(),
-                          gst: gstController.text.trim().isEmpty
-                              ? null
-                              : gstController.text.trim(),
-                          goldBalance: goldController.text.trim().isEmpty
-                              ? null
-                              : double.tryParse(goldController.text.trim()),
-                          jewelleryBalance:
-                              jewelleryController.text.trim().isEmpty
-                              ? null
-                              : double.tryParse(
-                                  jewelleryController.text.trim(),
-                                ),
-                          paymentDue: dueController.text.trim().isEmpty
-                              ? null
-                              : double.tryParse(dueController.text.trim()),
-                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.gold,
@@ -265,12 +411,13 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      icon: const Icon(Icons.save),
+                      icon: const Icon(Icons.save, color: Colors.white),
                       label: const Text(
                         "Save Customer",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -282,6 +429,37 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildTypeDropdown({
+    required String value,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      initialValue: value,
+      dropdownColor: kBg,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFFE6D8A8)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFFE6D8A8)),
+        ),
+      ),
+      items: const [
+        DropdownMenuItem(value: 'NAMAE', child: Text('NAMAE')),
+        DropdownMenuItem(value: 'JAMA', child: Text('JAMA')),
+      ],
+      onChanged: onChanged,
     );
   }
 }

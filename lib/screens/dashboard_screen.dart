@@ -10,6 +10,7 @@ import 'transaction_detail_screen.dart';
 import '../blocs/dashboard_cubit.dart';
 import '../blocs/stock_cubit.dart';
 import '../data/models/transaction_model.dart';
+import 'all_transactions_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -64,9 +65,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 double totalOut = 0;
                 if (stockState is StockLoaded) {
                   for (var l in stockState.ledger) {
-                    if (l.type == TransactionType.stockIn) {
+                    if (l.type == TransactionType.purchase) {
                       totalIn += l.weight;
-                    } else if (l.type == TransactionType.stockOut) {
+                    } else if (l.type == TransactionType.sales) {
                       totalOut += l.weight;
                     }
                   }
@@ -182,7 +183,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 context,
                                 const AddStockScreen(
                                   initialTransactionType:
-                                      TransactionType.stockIn,
+                                      TransactionType.purchase,
                                 ),
                               ),
                             ),
@@ -192,8 +193,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               onTap: () => _go(
                                 context,
                                 const AddStockScreen(
-                                  initialTransactionType:
-                                      TransactionType.stockOut,
+                                  initialTransactionType: TransactionType.sales,
                                 ),
                               ),
                             ),
@@ -215,7 +215,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const StockScreen(),
+                                    builder: (context) => const AllTransactionsScreen(),
                                   ),
                                 );
                               },
@@ -460,21 +460,44 @@ class _TxTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isIn =
-        tx.type == TransactionType.paymentIn ||
-        tx.type == TransactionType.stockIn;
+    final isIn = tx.type == TransactionType.cashJama ||
+        tx.type == TransactionType.purchase ||
+        tx.type == TransactionType.salesReturn ||
+        tx.type == TransactionType.metalJama;
+
     final color = isIn ? AppTheme.success : AppTheme.danger;
 
     String sub = '';
     String amount = '';
-    if (tx.type == TransactionType.paymentIn ||
-        tx.type == TransactionType.paymentOut) {
-      sub = tx.type == TransactionType.paymentIn
+    if (tx.type == TransactionType.cashJama ||
+        tx.type == TransactionType.cashNamae) {
+      sub = tx.type == TransactionType.cashJama
           ? 'Payment Received'
           : 'Payment Sent';
       amount = '₹${tx.amount?.toStringAsFixed(2) ?? "0.00"}';
     } else {
-      sub = tx.type == TransactionType.stockIn ? 'Stock In' : 'Stock Out';
+      switch (tx.type) {
+        case TransactionType.purchase:
+          sub = 'Purchase';
+          break;
+        case TransactionType.purchaseReturn:
+          sub = 'Purchase Return';
+          break;
+        case TransactionType.sales:
+          sub = 'Sale';
+          break;
+        case TransactionType.salesReturn:
+          sub = 'Sale Return';
+          break;
+        case TransactionType.metalJama:
+          sub = 'Metal Jama';
+          break;
+        case TransactionType.metalNamae:
+          sub = 'Metal Namae';
+          break;
+        default:
+          sub = 'Stock';
+      }
       if (tx.metalType != MetalType.none) {
         sub += ' · ${tx.metalType.name.toUpperCase()}';
       }

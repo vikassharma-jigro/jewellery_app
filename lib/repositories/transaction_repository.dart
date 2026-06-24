@@ -29,13 +29,7 @@ class TransactionRepository {
         ApiConstants.transactions,
         data: {
           'customerId': customerId,
-          'type': type.name
-              .toUpperCase()
-              .replaceAll('IN', '_IN')
-              .replaceAll(
-                'OUT',
-                '_OUT',
-              ), // Simplistic conversion to enum string
+          'type': TransactionModel.transactionTypeToString(type),
           'metalType': metalType == MetalType.jewellery
               ? 'JEWELLERY'
               : metalType.name.toUpperCase(),

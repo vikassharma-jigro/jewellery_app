@@ -40,14 +40,14 @@ class StockLedgerEntryModel extends Equatable {
     switch (json['type']) {
       case 'STOCK_IN':
       case 'IN':
-        parsedTxType = TransactionType.stockIn;
+        parsedTxType = TransactionType.purchase;
         break;
       case 'STOCK_OUT':
       case 'OUT':
-        parsedTxType = TransactionType.stockOut;
+        parsedTxType = TransactionType.sales;
         break;
       default:
-        parsedTxType = TransactionType.stockIn;
+        parsedTxType = TransactionType.purchase;
     }
 
     return StockLedgerEntryModel(
@@ -67,7 +67,7 @@ class StockLedgerEntryModel extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'type': type == TransactionType.stockIn ? 'STOCK_IN' : 'STOCK_OUT',
+      'type': type == TransactionType.purchase ? 'IN' : 'OUT',
       'metalType': metalType == MetalType.gold
           ? 'GOLD'
           : (metalType == MetalType.jewellery ? 'JEWELLERY' : 'NONE'),
