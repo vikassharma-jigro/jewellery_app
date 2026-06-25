@@ -35,16 +35,20 @@ class TransactionRepository {
               ? 'JEWELLERY'
               : metalType.name.toUpperCase(),
           'currency': currency.name.toUpperCase(),
-          if (weight != null) 'weight': weight,
-          if (amount != null) 'amount': amount,
-          if (remark != null) 'remark': remark,
-          if (grossWeight != null) 'grossWeight': grossWeight,
-          if (stoneWeight != null) 'stoneWeight': stoneWeight,
-          if (wastagePercent != null) 'purityPercent': wastagePercent,
-          if (goldRate != null) 'goldRate': goldRate,
-          if (makingChargeType != null) 'makingChargeType': makingChargeType.name.toUpperCase().replaceAll('PERGRAM', 'PER_GRAM'),
-          if (makingChargesValue != null) 'makingChargesValue': makingChargesValue,
-          if (linkedTransactionId != null) 'linkedTransactionId': linkedTransactionId,
+          'weight': ?weight,
+          'amount': ?amount,
+          'remark': ?remark,
+          'grossWeight': ?grossWeight,
+          'stoneWeight': ?stoneWeight,
+          'purityPercent': ?wastagePercent,
+          'goldRate': ?goldRate,
+          if (makingChargeType != null)
+            'makingChargeType': makingChargeType.name.toUpperCase().replaceAll(
+              'PERGRAM',
+              'PER_GRAM',
+            ),
+          'makingChargesValue': ?makingChargesValue,
+          'linkedTransactionId': ?linkedTransactionId,
         },
       );
       final responseData =
@@ -86,7 +90,9 @@ class TransactionRepository {
 
   Future<TransactionModel> getTransactionById(String id) async {
     try {
-      final response = await _apiService.dio.get(ApiConstants.transactionDetails(id));
+      final response = await _apiService.dio.get(
+        ApiConstants.transactionDetails(id),
+      );
       final responseData =
           (response.data is Map<String, dynamic> &&
               (response.data as Map<String, dynamic>).containsKey('data'))
