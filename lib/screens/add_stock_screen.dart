@@ -82,6 +82,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
       body: BlocConsumer<TransactionCubit, TransactionState>(
         listener: (context, state) {
           if (state is TransactionCreated) {
+            context.read<CustomerCubit>().fetchCustomers();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Transaction Saved Successfully")),
             );
