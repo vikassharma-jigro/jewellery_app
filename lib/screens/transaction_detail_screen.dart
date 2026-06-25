@@ -10,6 +10,7 @@ import '../repositories/transaction_repository.dart';
 import '../repositories/customer_repository.dart';
 import '../widgets/transaction_info_card.dart';
 import '../widgets/pricing_summary_card.dart';
+import 'add_stock_screen.dart';
 
 class TransactionDetailScreen extends StatelessWidget {
   final String transactionId;
@@ -99,8 +100,45 @@ class TransactionDetailScreen extends StatelessWidget {
           PricingSummaryCard(transaction: state.transaction),
           const SizedBox(height: 16),
           _buildMetaInfoCard(context, state.transaction),
+          const SizedBox(height: 24),
+          if (state.transaction.type == TransactionType.sales || state.transaction.type == TransactionType.purchase)
+            _buildReturnButton(context, state.transaction),
           const SizedBox(height: 32),
         ],
+      ),
+    );
+  }
+
+  Widget _buildReturnButton(BuildContext context, TransactionModel transaction) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.assignment_return_outlined, color: Colors.white),
+        label: Text(
+          transaction.type == TransactionType.sales ? "Initiate Sales Return" : "Initiate Purchase Return",
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: transaction.type == TransactionType.sales ? Colors.green : Colors.red,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddStockScreen(
+                customerId: transaction.customerId,
+                initialTransactionType: transaction.type == TransactionType.sales 
+                    ? TransactionType.salesReturn 
+                    : TransactionType.purchaseReturn,
+                initialLinkedTransactionId: transaction.id,
+              ),
+            ),
+          );
+        },
       ),
     );
   }

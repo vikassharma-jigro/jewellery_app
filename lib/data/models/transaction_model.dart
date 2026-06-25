@@ -43,6 +43,7 @@ class TransactionModel extends Equatable {
   final int? calculationVersion;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final String? linkedTransactionId;
 
   const TransactionModel({
     required this.id,
@@ -70,6 +71,7 @@ class TransactionModel extends Equatable {
     this.calculationVersion,
     required this.createdAt,
     this.updatedAt,
+    this.linkedTransactionId,
   });
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
@@ -116,6 +118,7 @@ class TransactionModel extends Equatable {
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'])
           : null,
+      linkedTransactionId: json['linkedTransactionId']?.toString(),
     );
   }
 
@@ -147,6 +150,7 @@ class TransactionModel extends Equatable {
       'calculationVersion': calculationVersion,
       'createdAt': createdAt.toIso8601String(),
       if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
+      'linkedTransactionId': linkedTransactionId,
     };
   }
 
@@ -292,5 +296,6 @@ class TransactionModel extends Equatable {
     calculationVersion,
     createdAt,
     updatedAt,
+    linkedTransactionId,
   ];
 }

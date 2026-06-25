@@ -23,6 +23,7 @@ class TransactionRepository {
     MakingChargeType? makingChargeType,
     double? makingChargesValue,
     CurrencyType currency = CurrencyType.inr,
+    String? linkedTransactionId,
   }) async {
     try {
       final response = await _apiService.dio.post(
@@ -43,6 +44,7 @@ class TransactionRepository {
           if (goldRate != null) 'goldRate': goldRate,
           if (makingChargeType != null) 'makingChargeType': makingChargeType.name.toUpperCase().replaceAll('PERGRAM', 'PER_GRAM'),
           if (makingChargesValue != null) 'makingChargesValue': makingChargesValue,
+          if (linkedTransactionId != null) 'linkedTransactionId': linkedTransactionId,
         },
       );
       final responseData =

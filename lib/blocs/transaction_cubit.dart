@@ -50,6 +50,7 @@ class TransactionCubit extends Cubit<TransactionState> {
     MakingChargeType? makingChargeType,
     double? makingChargesValue,
     CurrencyType currency = CurrencyType.inr,
+    String? linkedTransactionId,
   }) async {
     emit(TransactionLoading());
     try {
@@ -67,6 +68,7 @@ class TransactionCubit extends Cubit<TransactionState> {
         makingChargeType: makingChargeType,
         makingChargesValue: makingChargesValue,
         currency: currency,
+        linkedTransactionId: linkedTransactionId,
       );
       emit(TransactionCreated());
       fetchTransactionsByCustomer(customerId);
