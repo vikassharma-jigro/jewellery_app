@@ -37,8 +37,9 @@ class ReportsCubit extends Cubit<ReportsState> {
 
   Future<String> exportMonthlyReport(String yyyyMM) async {
     final parts = yyyyMM.split('-');
-    if (parts.length != 2)
+    if (parts.length != 2) {
       throw Exception('Invalid month format. Expected YYYY-MM');
+    }
     final year = parts[0];
     final month = parts[1];
     return await _reportsRepository.exportMonthlyReport(month, year);
