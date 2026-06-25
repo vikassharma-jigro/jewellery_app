@@ -5,7 +5,7 @@ import '../theme/app_theme.dart';
 import '../widgets/section_title.dart';
 import 'customer_report_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../blocs/customer_cubit.dart';
+import '../blocs/customer/customer_cubit.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});

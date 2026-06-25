@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jewellary_stock/screens/add_stock_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/section_title.dart';
-import '../blocs/stock_cubit.dart';
+import '../blocs/stock/stock_cubit.dart';
 import '../data/models/stock_ledger_entry_model.dart';
 import '../data/models/transaction_model.dart';
 import 'package:intl/intl.dart';

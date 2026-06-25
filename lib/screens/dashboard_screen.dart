@@ -7,8 +7,8 @@ import '../widgets/section_title.dart';
 import 'add_stock_screen.dart';
 import 'add_customer_screen.dart';
 import 'transaction_detail_screen.dart';
-import '../blocs/dashboard_cubit.dart';
-import '../blocs/stock_cubit.dart';
+import '../blocs/dashboard/dashboard_cubit.dart';
+import '../blocs/stock/stock_cubit.dart';
 import '../data/models/transaction_model.dart';
 import 'all_transactions_screen.dart';
 
@@ -215,7 +215,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const AllTransactionsScreen(),
+                                    builder: (context) =>
+                                        const AllTransactionsScreen(),
                                   ),
                                 );
                               },
@@ -460,7 +461,8 @@ class _TxTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isIn = tx.type == TransactionType.cashJama ||
+    final isIn =
+        tx.type == TransactionType.cashJama ||
         tx.type == TransactionType.purchase ||
         tx.type == TransactionType.salesReturn ||
         tx.type == TransactionType.metalJama;

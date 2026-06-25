@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
-import '../blocs/transaction_cubit.dart';
+import '../blocs/transaction/transaction_cubit.dart';
 
 class StockMovementScreen extends StatefulWidget {
   const StockMovementScreen({super.key});

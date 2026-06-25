@@ -7,7 +7,7 @@ import '../screens/customers_screen.dart';
 import '../screens/category_summary_screen.dart';
 import '../screens/reports_screen.dart';
 import '../screens/profile_screen.dart';
-import '../../blocs/auth_cubit.dart';
+import '../blocs/auth/auth_cubit.dart';
 
 class AppScaffold extends StatelessWidget {
   final Widget body;

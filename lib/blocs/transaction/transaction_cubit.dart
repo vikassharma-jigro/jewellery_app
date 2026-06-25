@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../repositories/transaction_repository.dart';
-import '../data/models/transaction_model.dart';
-import '../core/utils/exceptions.dart';
+import '../../repositories/transaction_repository.dart';
+import '../../data/models/transaction_model.dart';
+import '../../core/utils/exceptions.dart';
 
 part 'transaction_state.dart';
 

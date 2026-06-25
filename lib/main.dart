@@ -10,12 +10,12 @@ import 'repositories/stock_repository.dart';
 import 'repositories/dashboard_repository.dart';
 import 'repositories/reports_repository.dart';
 
-import 'blocs/auth_cubit.dart';
-import 'blocs/customer_cubit.dart';
-import 'blocs/transaction_cubit.dart';
-import 'blocs/stock_cubit.dart';
-import 'blocs/dashboard_cubit.dart';
-import 'blocs/reports_cubit.dart';
+import 'blocs/auth/auth_cubit.dart';
+import 'blocs/customer/customer_cubit.dart';
+import 'blocs/transaction/transaction_cubit.dart';
+import 'blocs/stock/stock_cubit.dart';
+import 'blocs/dashboard/dashboard_cubit.dart';
+import 'blocs/reports/reports_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

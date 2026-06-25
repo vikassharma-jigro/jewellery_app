@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_theme.dart';
-import '../blocs/auth_cubit.dart';
+import '../blocs/auth/auth_cubit.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {

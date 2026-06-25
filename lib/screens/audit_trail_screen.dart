@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
-import '../blocs/audit_cubit.dart';
-import '../blocs/audit_state.dart';
+import '../blocs/audit/audit_cubit.dart';
+import '../blocs/audit/audit_state.dart';
 
 class AuditTrailScreen extends StatefulWidget {
   const AuditTrailScreen({super.key});

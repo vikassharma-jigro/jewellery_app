@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import '../blocs/transaction_cubit.dart';
+import '../blocs/transaction/transaction_cubit.dart';
 import '../data/models/transaction_model.dart';
 import '../theme/app_theme.dart';
 import 'transaction_detail_screen.dart';

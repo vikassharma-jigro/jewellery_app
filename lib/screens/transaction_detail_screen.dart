@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:jewellary_stock/theme/app_theme.dart';
-import '../blocs/transaction_detail_cubit.dart';
-import '../blocs/transaction_detail_state.dart';
+import '../blocs/transactionDetail/transaction_detail_cubit.dart';
+import '../blocs/transactionDetail/transaction_detail_state.dart';
 import '../data/models/transaction_model.dart';
 import '../repositories/transaction_repository.dart';
 import '../repositories/customer_repository.dart';
@@ -101,7 +101,8 @@ class TransactionDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           _buildMetaInfoCard(context, state.transaction),
           const SizedBox(height: 24),
-          if (state.transaction.type == TransactionType.sales || state.transaction.type == TransactionType.purchase)
+          if (state.transaction.type == TransactionType.sales ||
+              state.transaction.type == TransactionType.purchase)
             _buildReturnButton(context, state.transaction),
           const SizedBox(height: 32),
         ],
@@ -109,18 +110,28 @@ class TransactionDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildReturnButton(BuildContext context, TransactionModel transaction) {
+  Widget _buildReturnButton(
+    BuildContext context,
+    TransactionModel transaction,
+  ) {
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: ElevatedButton.icon(
         icon: const Icon(Icons.assignment_return_outlined, color: Colors.white),
         label: Text(
-          transaction.type == TransactionType.sales ? "Initiate Sales Return" : "Initiate Purchase Return",
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          transaction.type == TransactionType.sales
+              ? "Initiate Sales Return"
+              : "Initiate Purchase Return",
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: transaction.type == TransactionType.sales ? Colors.green : Colors.red,
+          backgroundColor: transaction.type == TransactionType.sales
+              ? Colors.green
+              : Colors.red,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -131,8 +142,9 @@ class TransactionDetailScreen extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => AddStockScreen(
                 customerId: transaction.customerId,
-                initialTransactionType: transaction.type == TransactionType.sales 
-                    ? TransactionType.salesReturn 
+                initialTransactionType:
+                    transaction.type == TransactionType.sales
+                    ? TransactionType.salesReturn
                     : TransactionType.purchaseReturn,
                 initialLinkedTransactionId: transaction.id,
               ),

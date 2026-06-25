@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_theme.dart';
-import '../blocs/customer_cubit.dart';
+import '../blocs/customer/customer_cubit.dart';
 import '../data/models/customer_model.dart';
 import '../data/models/transaction_model.dart';
 

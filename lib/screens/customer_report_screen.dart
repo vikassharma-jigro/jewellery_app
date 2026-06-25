@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jewellary_stock/screens/customer_details_screen.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../blocs/customer_cubit.dart';
+import '../blocs/customer/customer_cubit.dart';
 
 class CustomerReportListScreen extends StatelessWidget {
   final String reportType;

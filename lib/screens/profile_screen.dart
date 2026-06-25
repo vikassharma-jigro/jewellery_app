@@ -7,7 +7,7 @@ import '../theme/app_theme.dart';
 import '../widgets/bottom_nav.dart';
 import '../../core/network/api_endpoints.dart';
 import 'login_screen.dart';
-import '../blocs/auth_cubit.dart';
+import '../blocs/auth/auth_cubit.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

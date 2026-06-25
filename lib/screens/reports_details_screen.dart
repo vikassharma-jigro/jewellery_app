@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_filex/open_filex.dart';
-import '../blocs/stock_cubit.dart';
-import '../blocs/reports_cubit.dart';
+import '../blocs/stock/stock_cubit.dart';
+import '../blocs/reports/reports_cubit.dart';
 import '../data/models/transaction_model.dart';
 
 class ReportDetailsScreen extends StatefulWidget {

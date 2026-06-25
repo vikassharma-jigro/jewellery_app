@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
-import '../blocs/market_rate_cubit.dart';
-import '../blocs/market_rate_state.dart';
+import '../blocs/market/market_rate_cubit.dart';
+import '../blocs/market/market_rate_state.dart';
 
 class GoldRateScreen extends StatefulWidget {
   const GoldRateScreen({super.key});

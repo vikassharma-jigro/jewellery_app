@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_theme.dart';
 import 'add_customer_screen.dart';
 import 'customer_details_screen.dart';
-import '../blocs/customer_cubit.dart';
+import '../blocs/customer/customer_cubit.dart';
 import '../data/models/customer_model.dart';
 
 class CustomersScreen extends StatefulWidget {

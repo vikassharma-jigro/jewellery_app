@@ -5,7 +5,7 @@ import '../screens/calculator_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import '../screens/dashboard_screen.dart';
-import '../blocs/auth_cubit.dart';
+import '../blocs/auth/auth_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

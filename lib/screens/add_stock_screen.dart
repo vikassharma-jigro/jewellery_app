@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jewellary_stock/blocs/stock_cubit.dart';
+import 'package:jewellary_stock/blocs/stock/stock_cubit.dart';
 import 'package:jewellary_stock/theme/app_theme.dart';
-import '../blocs/transaction_cubit.dart';
+import '../blocs/transaction/transaction_cubit.dart';
 import '../data/models/transaction_model.dart';
-import '../blocs/customer_cubit.dart';
+import '../blocs/customer/customer_cubit.dart';
 import '../data/models/customer_model.dart';
 
 class AddStockScreen extends StatefulWidget {
@@ -51,7 +51,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
     if (widget.initialLinkedTransactionId != null) {
       linkedTransactionIdController.text = widget.initialLinkedTransactionId!;
     }
-    
+
     weightController.addListener(_calculateAmount);
     goldRateController.addListener(_calculateAmount);
 
@@ -59,7 +59,10 @@ class _AddStockScreenState extends State<AddStockScreen> {
   }
 
   void _calculateAmount() {
-    if (stockType == TransactionType.cashJama || stockType == TransactionType.cashNamae || stockType == TransactionType.metalJama || stockType == TransactionType.metalNamae) {
+    if (stockType == TransactionType.cashJama ||
+        stockType == TransactionType.cashNamae ||
+        stockType == TransactionType.metalJama ||
+        stockType == TransactionType.metalNamae) {
       final weight = double.tryParse(weightController.text.trim());
       final rate = double.tryParse(goldRateController.text.trim());
       if (weight != null && rate != null) {
@@ -220,41 +223,44 @@ class _AddStockScreenState extends State<AddStockScreen> {
                 const SizedBox(height: 15),
                 const Text("Metal Type"),
                 const SizedBox(height: 10),
-                  DropdownButtonFormField<MetalType>(
-                    initialValue: stockItemType,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: MetalType.gold,
-                        child: Text("Gold"),
-                      ),
-                      DropdownMenuItem(
-                        value: MetalType.jewellery,
-                        child: Text("Jewellery"),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        stockItemType = value!;
-                      });
-                    },
+                DropdownButtonFormField<MetalType>(
+                  initialValue: stockItemType,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
                   ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: MetalType.gold,
+                      child: Text("Gold"),
+                    ),
+                    DropdownMenuItem(
+                      value: MetalType.jewellery,
+                      child: Text("Jewellery"),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      stockItemType = value!;
+                    });
+                  },
+                ),
 
-                  const SizedBox(height: 15),
-                  Text((stockType == TransactionType.cashJama || stockType == TransactionType.cashNamae) 
-                      ? "Weight (Gram) - Optional for settlement" 
-                      : "Weight (Gram)"),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: weightController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: "Weight (Gram)",
-                      border: OutlineInputBorder(),
-                    ),
+                const SizedBox(height: 15),
+                Text(
+                  (stockType == TransactionType.cashJama ||
+                          stockType == TransactionType.cashNamae)
+                      ? "Weight (Gram) - Optional for settlement"
+                      : "Weight (Gram)",
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: weightController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    hintText: "Weight (Gram)",
+                    border: OutlineInputBorder(),
                   ),
+                ),
 
                 // Metal Jama / Namae / Cash Jama / Namae: show Gold Rate for settlement
                 if (stockType == TransactionType.metalJama ||
@@ -340,19 +346,22 @@ class _AddStockScreenState extends State<AddStockScreen> {
                     ),
                   ),
 
-                  if (stockType == TransactionType.salesReturn || stockType == TransactionType.purchaseReturn) ...[
+                  if (stockType == TransactionType.salesReturn ||
+                      stockType == TransactionType.purchaseReturn) ...[
                     const SizedBox(height: 15),
                     const Text("Linked Transaction ID (Optional)"),
                     TextFormField(
                       controller: linkedTransactionIdController,
                       decoration: const InputDecoration(
-                        hintText: "Original transaction ID for exact calculations",
+                        hintText:
+                            "Original transaction ID for exact calculations",
                         border: OutlineInputBorder(),
                       ),
                     ),
                   ],
 
-                  if (stockType != TransactionType.salesReturn && stockType != TransactionType.purchaseReturn) ...[
+                  if (stockType != TransactionType.salesReturn &&
+                      stockType != TransactionType.purchaseReturn) ...[
                     const SizedBox(height: 15),
                     const Text("Making Charge Type"),
                     const SizedBox(height: 10),
@@ -484,8 +493,10 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         final wastageStr = wastageController.text.trim();
                         final stoneStr = stoneController.text.trim();
                         final goldRateStr = goldRateController.text.trim();
-                        final makingChargesStr = makingChargesController.text.trim();
-                        final linkedTransactionIdStr = linkedTransactionIdController.text.trim();
+                        final makingChargesStr = makingChargesController.text
+                            .trim();
+                        final linkedTransactionIdStr =
+                            linkedTransactionIdController.text.trim();
 
                         double? weightVal = weightStr.isNotEmpty
                             ? double.tryParse(weightStr)
@@ -541,7 +552,9 @@ class _AddStockScreenState extends State<AddStockScreen> {
                           makingChargesValue: isMetalSettlement
                               ? null
                               : makingChargesVal,
-                          linkedTransactionId: linkedTransactionIdStr.isEmpty ? null : linkedTransactionIdStr,
+                          linkedTransactionId: linkedTransactionIdStr.isEmpty
+                              ? null
+                              : linkedTransactionIdStr,
                         );
 
                         context.read<StockCubit>().fetchStockData();

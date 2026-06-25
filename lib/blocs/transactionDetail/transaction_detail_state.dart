@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import '../data/models/transaction_model.dart';
-import '../data/models/customer_model.dart';
+import '../../data/models/transaction_model.dart';
+import '../../data/models/customer_model.dart';
 
 abstract class TransactionDetailState extends Equatable {
   const TransactionDetailState();
@@ -15,10 +15,7 @@ class TransactionDetailLoaded extends TransactionDetailState {
   final TransactionModel transaction;
   final CustomerModel? customer;
 
-  const TransactionDetailLoaded({
-    required this.transaction,
-    this.customer,
-  });
+  const TransactionDetailLoaded({required this.transaction, this.customer});
 
   TransactionDetailLoaded copyWith({
     TransactionModel? transaction,
