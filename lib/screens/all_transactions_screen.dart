@@ -158,7 +158,7 @@ class _TxTile extends StatelessWidget {
       if (tx.metalType != MetalType.none) {
         sub += ' · ${tx.metalType.name.toUpperCase()}';
       }
-      amount = '${tx.weight?.toStringAsFixed(2) ?? "0.00"} g';
+      amount = '${(tx.finalWeight ?? tx.weight)?.toStringAsFixed(2) ?? "0.00"} g';
     }
 
     amount = (isIn ? '+' : '-') + amount;

@@ -212,13 +212,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             const SectionTitle('Recent Transactions'),
                             TextButton(
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const AllTransactionsScreen(),
-                                  ),
-                                );
+                                _go(context, const AllTransactionsScreen());
                               },
                               child: Text(
                                 'View All',
@@ -246,8 +240,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  void _go(BuildContext c, Widget w) =>
-      Navigator.push(c, MaterialPageRoute(builder: (_) => w));
+  Future<void> _go(BuildContext c, Widget w) async {
+    await Navigator.push(c, MaterialPageRoute(builder: (_) => w));
+    if (c.mounted) {
+      c.read<DashboardCubit>().fetchDashboardSummary();
+      c.read<StockCubit>().fetchStockData();
+    }
+  }
 }
 
 class _HeroBalance extends StatelessWidget {
@@ -340,7 +339,12 @@ class _HeroBalance extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const StockScreen()),
-                ),
+                ).then((_) {
+                  if (context.mounted) {
+                    context.read<DashboardCubit>().fetchDashboardSummary();
+                    context.read<StockCubit>().fetchStockData();
+                  }
+                }),
                 child: _MiniStat(
                   label: 'Stock In',
                   value: 'View Details',
@@ -352,7 +356,12 @@ class _HeroBalance extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const StockScreen()),
-                ),
+                ).then((_) {
+                  if (context.mounted) {
+                    context.read<DashboardCubit>().fetchDashboardSummary();
+                    context.read<StockCubit>().fetchStockData();
+                  }
+                }),
                 child: _MiniStat(
                   label: 'Stock Out',
                   value: 'View Details',
@@ -503,7 +512,7 @@ class _TxTile extends StatelessWidget {
       if (tx.metalType != MetalType.none) {
         sub += ' · ${tx.metalType.name.toUpperCase()}';
       }
-      amount = '${tx.weight?.toStringAsFixed(2) ?? "0.00"} g';
+      amount = '${(tx.finalWeight ?? tx.weight)?.toStringAsFixed(2) ?? "0.00"} g';
     }
 
     amount = (isIn ? '+' : '-') + amount;
@@ -519,7 +528,12 @@ class _TxTile extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => TransactionDetailScreen(transactionId: tx.id),
           ),
-        );
+        ).then((_) {
+          if (context.mounted) {
+            context.read<DashboardCubit>().fetchDashboardSummary();
+            context.read<StockCubit>().fetchStockData();
+          }
+        });
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),

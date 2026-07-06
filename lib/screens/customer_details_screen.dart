@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jewellary_stock/screens/transaction_detail_screen.dart';
 import '../theme/app_theme.dart';
-import 'customer_ledger_screen.dart';
+// import 'customer_ledger_screen.dart';
 import '../blocs/transaction/transaction_cubit.dart';
 import '../data/models/transaction_model.dart';
 import 'package:intl/intl.dart';
@@ -11,7 +11,8 @@ class CustomerDetailsScreen extends StatefulWidget {
   final String customerId;
   final String name;
   final String phone;
-  final String stock;
+  final String goldStock;
+  final String jewelleryStock;
   final String payment;
 
   const CustomerDetailsScreen({
@@ -19,7 +20,8 @@ class CustomerDetailsScreen extends StatefulWidget {
     required this.customerId,
     required this.name,
     required this.phone,
-    required this.stock,
+    required this.goldStock,
+    required this.jewelleryStock,
     required this.payment,
   });
 
@@ -91,15 +93,23 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                     children: [
                       Expanded(
                         child: _infoCard(
-                          "Pending Stock",
-                          widget.stock,
+                          "Gold",
+                          widget.goldStock,
                           Icons.inventory_2_outlined,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: _infoCard(
-                          "Pending Payment",
+                          "Jewellery",
+                          widget.jewelleryStock,
+                          Icons.diamond_outlined,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _infoCard(
+                          "Payment",
                           widget.payment,
                           Icons.currency_rupee,
                         ),
@@ -113,41 +123,40 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
             const SizedBox(height: 20),
 
             /// Actions
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.5,
-              children: [
-                _actionButton(
-                  context,
-                  "Add Stock",
-                  Icons.add_box,
-                  Colors.green,
-                ),
-                _actionButton(
-                  context,
-                  "Receive Stock",
-                  Icons.inventory,
-                  Colors.orange,
-                ),
-                _actionButton(
-                  context,
-                  "Add Payment",
-                  Icons.account_balance_wallet,
-                  Colors.red,
-                ),
-                _actionButton(
-                  context,
-                  "Receive Payment",
-                  Icons.payments,
-                  Colors.blue,
-                ),
-              ],
-            ),
-
+            // GridView.count(
+            //   crossAxisCount: 2,
+            //   shrinkWrap: true,
+            //   physics: const NeverScrollableScrollPhysics(),
+            //   crossAxisSpacing: 12,
+            //   mainAxisSpacing: 12,
+            //   childAspectRatio: 1.5,
+            //   children: [
+            //     _actionButton(
+            //       context,
+            //       "Add Stock",
+            //       Icons.add_box,
+            //       Colors.green,
+            //     ),
+            //     _actionButton(
+            //       context,
+            //       "Receive Stock",
+            //       Icons.inventory,
+            //       Colors.orange,
+            //     ),
+            //     _actionButton(
+            //       context,
+            //       "Add Payment",
+            //       Icons.account_balance_wallet,
+            //       Colors.red,
+            //     ),
+            //     _actionButton(
+            //       context,
+            //       "Receive Payment",
+            //       Icons.payments,
+            //       Colors.blue,
+            //     ),
+            //   ],
+            // ),
             const SizedBox(height: 24),
 
             /// Transaction History
@@ -235,7 +244,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
                         if (tx.metalType != MetalType.none) {
                           title += ' · ${tx.metalType.name.toUpperCase()}';
                         }
-                        amount = '${tx.weight?.toStringAsFixed(2) ?? "0.00"} g';
+                        amount = '${(tx.finalWeight ?? tx.weight)?.toStringAsFixed(2) ?? "0.00"} g';
                       }
 
                       final dateStr = DateFormat(
@@ -300,46 +309,46 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
     );
   }
 
-  Widget _actionButton(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-  ) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => TransactionEntryScreen(
-              title: title,
-              isStock: title.contains("Stock"),
-              customerId: widget.customerId,
-            ),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _actionButton(
+  //   BuildContext context,
+  //   String title,
+  //   IconData icon,
+  //   Color color,
+  // ) {
+  //   return InkWell(
+  //     onTap: () {
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (_) => TransactionEntryScreen(
+  //             title: title,
+  //             isStock: title.contains("Stock"),
+  //             customerId: widget.customerId,
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //     borderRadius: BorderRadius.circular(14),
+  //     child: Container(
+  //       decoration: BoxDecoration(
+  //         color: Colors.white,
+  //         borderRadius: BorderRadius.circular(14),
+  //       ),
+  //       child: Column(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: [
+  //           Icon(icon, color: color, size: 28),
+  //           const SizedBox(height: 8),
+  //           Text(
+  //             title,
+  //             textAlign: TextAlign.center,
+  //             style: const TextStyle(fontWeight: FontWeight.w600),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _historyTile(String title, String amount, String date, Color color) {
     return Card(

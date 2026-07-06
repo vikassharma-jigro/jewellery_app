@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jewellary_stock/screens/calculator_screen.dart';
+import 'package:jewellary_stock/screens/login_screen.dart';
 
 import 'core/utils/api_service.dart';
 import 'repositories/auth_repository.dart';
@@ -78,7 +78,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),
-          home: const CalculatorScreen(),
+          home: const LoginScreen(),
         ),
       ),
     );

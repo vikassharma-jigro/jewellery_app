@@ -33,6 +33,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
   final goldRateController = TextEditingController();
   final makingChargesController = TextEditingController();
   final linkedTransactionIdController = TextEditingController();
+  final purityFinalController = TextEditingController();
   DateTime? selectedDate;
   String? selectedCustomerId;
 
@@ -54,6 +55,9 @@ class _AddStockScreenState extends State<AddStockScreen> {
 
     weightController.addListener(_calculateAmount);
     goldRateController.addListener(_calculateAmount);
+    weightController.addListener(_calculatePurityFinal);
+    wastageController.addListener(_calculatePurityFinal);
+    stoneController.addListener(_calculatePurityFinal);
 
     context.read<CustomerCubit>().fetchCustomers();
   }
@@ -75,6 +79,26 @@ class _AddStockScreenState extends State<AddStockScreen> {
     }
   }
 
+  void _calculatePurityFinal() {
+    final weight = double.tryParse(weightController.text.trim());
+    final wastage = double.tryParse(wastageController.text.trim());
+    final stone = double.tryParse(stoneController.text.trim());
+
+    if (weight != null && wastage != null) {
+      final netWeight = weight - (stone ?? 0);
+      final finalW = netWeight * (wastage / 100);
+
+      final newFinal = finalW.toStringAsFixed(2);
+      if (purityFinalController.text != newFinal) {
+        purityFinalController.text = newFinal;
+      }
+    } else {
+      if (purityFinalController.text.isNotEmpty) {
+        purityFinalController.text = "";
+      }
+    }
+  }
+
   @override
   void dispose() {
     weightController.dispose();
@@ -85,6 +109,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
     stoneController.dispose();
     goldRateController.dispose();
     linkedTransactionIdController.dispose();
+    purityFinalController.dispose();
     super.dispose();
   }
 
@@ -131,7 +156,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                 const Text("Transaction Type"),
                 const SizedBox(height: 10),
 
-                /// Drop Down Open For Transection Selection Type
+                /// Drop Down Open For Transaction Selection Type
                 DropdownButtonFormField<TransactionType>(
                   dropdownColor: kBg,
                   enableFeedback: true,
@@ -302,6 +327,19 @@ class _AddStockScreenState extends State<AddStockScreen> {
                     decoration: const InputDecoration(
                       hintText: "Stone Weight (Gram)",
                       border: OutlineInputBorder(),
+                    ),
+                  ),
+
+                  const SizedBox(height: 15),
+                  const Text("Purity Final (Gram)"),
+                  TextFormField(
+                    controller: purityFinalController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      hintText: "Final Weight",
+                      border: const OutlineInputBorder(),
+                      fillColor: Colors.grey.shade200,
+                      filled: true,
                     ),
                   ),
 
@@ -556,8 +594,6 @@ class _AddStockScreenState extends State<AddStockScreen> {
                               ? null
                               : linkedTransactionIdStr,
                         );
-
-                        context.read<StockCubit>().fetchStockData();
                       },
                       child: const Text(
                         "SAVE",

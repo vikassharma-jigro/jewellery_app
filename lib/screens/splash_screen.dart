@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jewellary_stock/screens/login_screen.dart';
 import '../screens/calculator_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
@@ -42,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
     } else if (state is AuthUnauthenticated || state is AuthError) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const CalculatorScreen()),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
     }
   }

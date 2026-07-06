@@ -132,7 +132,8 @@ class _CustomerCard extends StatelessWidget {
               customerId: customer.id,
               name: customer.name,
               phone: customer.phone ?? '',
-              stock: stock,
+              goldStock: '${customer.goldBalance.toStringAsFixed(2)}g',
+              jewelleryStock: '${customer.jewelleryBalance.toStringAsFixed(2)}g',
               payment: pay,
             ),
           ),
@@ -259,8 +260,8 @@ class _CustomerCard extends StatelessWidget {
                           customerId: customer.id,
                           name: customer.name,
                           phone: customer.phone ?? '',
-                          stock:
-                              '${customer.goldBalance.toStringAsFixed(2)}g Gold, ${customer.jewelleryBalance.toStringAsFixed(2)}g Jew.',
+                          goldStock: '${customer.goldBalance.toStringAsFixed(2)}g',
+                          jewelleryStock: '${customer.jewelleryBalance.toStringAsFixed(2)}g',
                           payment:
                               '₹${customer.cashBalance.toStringAsFixed(2)}',
                         ),
