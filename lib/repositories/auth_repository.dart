@@ -1,13 +1,27 @@
+import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../core/utils/api_service.dart';
 import '../core/utils/constants.dart';
 import '../core/utils/exceptions.dart';
+import '../core/utils/navigator_key.dart';
+import '../screens/login_screen.dart';
 import '../data/models/user_model.dart';
 
 class AuthRepository {
   final ApiService _apiService;
 
-  AuthRepository(this._apiService);
+  void Function()? onUnauthorizedCallback;
+
+  AuthRepository(this._apiService) {
+    _apiService.onUnauthorized = () async {
+      await logout();
+      onUnauthorizedCallback?.call();
+      navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    };
+  }
 
   Future<UserModel> login(String userId, String password) async {
     try {

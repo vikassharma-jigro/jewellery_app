@@ -25,6 +25,11 @@ class TransactionRepository {
     CurrencyType currency = CurrencyType.inr,
     String? linkedTransactionId,
   }) async {
+    if (customerId.trim().isEmpty || customerId == 'GLOBAL') {
+      throw AppException(
+        'Customer selection is required. Cannot save entry without selecting a customer.',
+      );
+    }
     try {
       final response = await _apiService.dio.post(
         ApiConstants.transactions,

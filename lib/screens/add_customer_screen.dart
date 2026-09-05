@@ -204,16 +204,16 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        flex: 2,
+                        flex: 3,
                         child: buildTextField(
                           controller: goldController,
-                          hint: "Enter gold balance in gram",
+                          hint: "Enter gold balance",
                           keyboardType: TextInputType.number,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       Expanded(
-                        flex: 1,
+                        flex: 2,
                         child: _buildTypeDropdown(
                           value: selectedGoldBalanceType,
                           onChanged: (val) {
@@ -233,16 +233,16 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        flex: 2,
+                        flex: 3,
                         child: buildTextField(
                           controller: jewelleryController,
-                          hint: "Enter jewellery balance in gram",
+                          hint: "Enter jewellery balance",
                           keyboardType: TextInputType.number,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       Expanded(
-                        flex: 1,
+                        flex: 2,
                         child: _buildTypeDropdown(
                           value: selectedJewelleryBalanceType,
                           onChanged: (val) {
@@ -262,16 +262,16 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        flex: 1,
+                        flex: 4,
                         child: buildTextField(
                           controller: dueController,
-                          hint: "Enter pending amount",
+                          hint: "Enter amount",
                           keyboardType: TextInputType.number,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 6),
                       Expanded(
-                        flex: 1,
+                        flex: 3,
                         child: _buildTypeDropdown(
                           value: selectedPaymentDueType,
                           onChanged: (val) {
@@ -281,18 +281,20 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 6),
                       Expanded(
-                        flex: 1,
+                        flex: 3,
                         child: DropdownButtonFormField<CurrencyType>(
                           initialValue: selectedCurrency,
+                          isExpanded: true,
                           dropdownColor: kBg,
+                          icon: const Icon(Icons.arrow_drop_down, size: 20),
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
                             contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 14,
+                              horizontal: 8,
+                              vertical: 12,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
@@ -310,7 +312,11 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                           items: CurrencyType.values.map((c) {
                             return DropdownMenuItem(
                               value: c,
-                              child: Text(c.name.toUpperCase()),
+                              child: Text(
+                                c.name.toUpperCase(),
+                                style: const TextStyle(fontSize: 13),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             );
                           }).toList(),
                           onChanged: (val) {
@@ -438,13 +444,15 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   }) {
     return DropdownButtonFormField<String>(
       initialValue: value,
+      isExpanded: true,
       dropdownColor: kBg,
+      icon: const Icon(Icons.arrow_drop_down, size: 20),
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 14,
+          horizontal: 8,
+          vertical: 12,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -456,8 +464,22 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
         ),
       ),
       items: const [
-        DropdownMenuItem(value: 'NAMAE', child: Text('NAMAE')),
-        DropdownMenuItem(value: 'JAMA', child: Text('JAMA')),
+        DropdownMenuItem(
+          value: 'NAMAE',
+          child: Text(
+            'NAMAE',
+            style: TextStyle(fontSize: 13),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        DropdownMenuItem(
+          value: 'JAMA',
+          child: Text(
+            'JAMA',
+            style: TextStyle(fontSize: 13),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
       onChanged: onChanged,
     );

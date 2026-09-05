@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jewellary_stock/screens/login_screen.dart';
-import '../screens/calculator_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
 import '../screens/dashboard_screen.dart';

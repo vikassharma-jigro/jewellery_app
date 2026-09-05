@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jewellary_stock/blocs/stock/stock_cubit.dart';
 import 'package:jewellary_stock/theme/app_theme.dart';
 import '../blocs/transaction/transaction_cubit.dart';
 import '../data/models/transaction_model.dart';
@@ -82,7 +81,9 @@ class _AddStockScreenState extends State<AddStockScreen> {
   void _calculatePurityFinal() {
     final weight = double.tryParse(weightController.text.trim());
     final wastage = double.tryParse(wastageController.text.trim());
-    final stone = double.tryParse(stoneController.text.trim());
+    final stone = stockItemType == MetalType.jewellery
+        ? double.tryParse(stoneController.text.trim())
+        : null;
 
     if (weight != null && wastage != null) {
       final netWeight = weight - (stone ?? 0);
@@ -108,6 +109,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
     wastageController.dispose();
     stoneController.dispose();
     goldRateController.dispose();
+    makingChargesController.dispose();
     linkedTransactionIdController.dispose();
     purityFinalController.dispose();
     super.dispose();
@@ -202,6 +204,12 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   onChanged: (value) {
                     setState(() {
                       stockType = value!;
+                      if (stockType != TransactionType.cashJama &&
+                          stockType != TransactionType.cashNamae &&
+                          stockType != TransactionType.metalJama &&
+                          stockType != TransactionType.metalNamae) {
+                        amountController.clear();
+                      }
                     });
                   },
                 ),
@@ -266,6 +274,12 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   onChanged: (value) {
                     setState(() {
                       stockItemType = value!;
+                      if (stockItemType == MetalType.gold) {
+                        stoneController.clear();
+                        makingChargesController.clear();
+                        selectedMakingChargeType = null;
+                      }
+                      _calculatePurityFinal();
                     });
                   },
                 ),
@@ -319,16 +333,18 @@ class _AddStockScreenState extends State<AddStockScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 15),
-                  const Text("Stone (Gram)"),
-                  TextFormField(
-                    controller: stoneController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: "Stone Weight (Gram)",
-                      border: OutlineInputBorder(),
+                  if (stockItemType == MetalType.jewellery) ...[
+                    const SizedBox(height: 15),
+                    const Text("Stone (Gram)"),
+                    TextFormField(
+                      controller: stoneController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        hintText: "Stone Weight (Gram)",
+                        border: OutlineInputBorder(),
+                      ),
                     ),
-                  ),
+                  ],
 
                   const SizedBox(height: 15),
                   const Text("Purity Final (Gram)"),
@@ -374,7 +390,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   ),
 
                   const SizedBox(height: 15),
-                  const Text("Gold Rate"),
+                  const Text("Gold Rate(gm)"),
                   TextFormField(
                     controller: goldRateController,
                     keyboardType: TextInputType.number,
@@ -399,7 +415,8 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   ],
 
                   if (stockType != TransactionType.salesReturn &&
-                      stockType != TransactionType.purchaseReturn) ...[
+                      stockType != TransactionType.purchaseReturn &&
+                      stockItemType == MetalType.jewellery) ...[
                     const SizedBox(height: 15),
                     const Text("Making Charge Type"),
                     const SizedBox(height: 10),
@@ -456,17 +473,22 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   ],
                 ],
 
-                const SizedBox(height: 15),
-                const Text("Amount (₹)"),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: amountController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    hintText: "Amount (₹)",
-                    border: OutlineInputBorder(),
+                if (stockType == TransactionType.cashJama ||
+                    stockType == TransactionType.cashNamae ||
+                    stockType == TransactionType.metalJama ||
+                    stockType == TransactionType.metalNamae) ...[
+                  const SizedBox(height: 15),
+                  const Text("Amount (₹)"),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: amountController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: "Amount (₹)",
+                      border: OutlineInputBorder(),
+                    ),
                   ),
-                ),
+                ],
 
                 const SizedBox(height: 15),
                 const Text("Date"),
@@ -522,8 +544,21 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         backgroundColor: const Color(0xFFD4AF37),
                       ),
                       onPressed: () {
-                        // Defaulting to "GLOBAL" if not provided for global stock operations
-                        final cId = selectedCustomerId ?? "GLOBAL";
+                        if (selectedCustomerId == null ||
+                            selectedCustomerId!.trim().isEmpty ||
+                            selectedCustomerId == "GLOBAL") {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Customer selection is required. Cannot save entry without selecting a customer.',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        final cId = selectedCustomerId!;
 
                         final weightStr = weightController.text.trim();
                         final amountStr = amountController.text.trim();
@@ -536,40 +571,45 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         final linkedTransactionIdStr =
                             linkedTransactionIdController.text.trim();
 
+                        final isMetalSettlement =
+                            stockType == TransactionType.metalJama ||
+                            stockType == TransactionType.metalNamae ||
+                            stockType == TransactionType.cashJama ||
+                            stockType == TransactionType.cashNamae;
+
                         double? weightVal = weightStr.isNotEmpty
                             ? double.tryParse(weightStr)
                             : null;
-                        double? amountVal = amountStr.isNotEmpty
+                        double? amountVal = (isMetalSettlement && amountStr.isNotEmpty)
                             ? double.tryParse(amountStr)
                             : null;
                         double? wastageVal = wastageStr.isNotEmpty
                             ? double.tryParse(wastageStr)
                             : null;
-                        double? stoneVal = stoneStr.isNotEmpty
-                            ? double.tryParse(stoneStr)
-                            : null;
+                        double? stoneVal =
+                            (stockItemType == MetalType.jewellery &&
+                                    stoneStr.isNotEmpty)
+                                ? double.tryParse(stoneStr)
+                                : null;
                         double? goldRateVal = goldRateStr.isNotEmpty
                             ? double.tryParse(goldRateStr)
                             : null;
-                        double? makingChargesVal = makingChargesStr.isNotEmpty
-                            ? double.tryParse(makingChargesStr)
-                            : null;
+                        double? makingChargesVal =
+                            (stockItemType == MetalType.jewellery &&
+                                    makingChargesStr.isNotEmpty)
+                                ? double.tryParse(makingChargesStr)
+                                : null;
+                        MakingChargeType? makingChargeTypeVal =
+                            (stockItemType == MetalType.jewellery)
+                                ? selectedMakingChargeType
+                                : null;
 
                         bool hasCalcFields =
                             wastageVal != null ||
                             stoneVal != null ||
                             goldRateVal != null ||
                             makingChargesVal != null ||
-                            selectedMakingChargeType != null;
-
-                        // For Metal Jama/Namae: don't pass grossWeight to avoid
-                        // calculateWeights pipeline which zeroes amount when purityPercent=0.
-                        // Backend will compute settlement as weight * goldRate.
-                        final isMetalSettlement =
-                            stockType == TransactionType.metalJama ||
-                            stockType == TransactionType.metalNamae ||
-                            stockType == TransactionType.cashJama ||
-                            stockType == TransactionType.cashNamae;
+                            makingChargeTypeVal != null;
 
                         context.read<TransactionCubit>().createTransaction(
                           customerId: cId,
@@ -586,7 +626,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                           goldRate: goldRateVal,
                           makingChargeType: isMetalSettlement
                               ? null
-                              : selectedMakingChargeType,
+                              : makingChargeTypeVal,
                           makingChargesValue: isMetalSettlement
                               ? null
                               : makingChargesVal,

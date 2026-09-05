@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:jewellary_stock/screens/login_screen.dart';
+import 'package:jewellary_stock/screens/splash_screen.dart';
 
 import 'core/utils/api_service.dart';
+import 'core/utils/navigator_key.dart';
 import 'repositories/auth_repository.dart';
 import 'repositories/customer_repository.dart';
 import 'repositories/transaction_repository.dart';
@@ -72,13 +73,14 @@ class MyApp extends StatelessWidget {
           ),
         ],
         child: MaterialApp(
+          navigatorKey: navigatorKey,
           title: 'Jewellery App',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),
-          home: const LoginScreen(),
+          home: const SplashScreen(),
         ),
       ),
     );

@@ -7,6 +7,8 @@ class ApiService {
   late final Dio dio;
   final FlutterSecureStorage secureStorage;
 
+  void Function()? onUnauthorized;
+
   static final ApiService _instance = ApiService._internal();
 
   factory ApiService() {
@@ -35,7 +37,7 @@ class ApiService {
           return handler.next(options);
         },
         onError: (DioException e, handler) async {
-          if (e.response?.statusCode == 401) {
+          if (e.response?.statusCode == 401 && !e.requestOptions.path.contains('/auth/login')) {
             final refreshToken = await secureStorage.read(key: 'refresh_token');
             if (refreshToken != null) {
               try {
@@ -63,7 +65,12 @@ class ApiService {
               } catch (refreshError) {
                 await secureStorage.delete(key: 'access_token');
                 await secureStorage.delete(key: 'refresh_token');
+                onUnauthorized?.call();
               }
+            } else {
+              await secureStorage.delete(key: 'access_token');
+              await secureStorage.delete(key: 'refresh_token');
+              onUnauthorized?.call();
             }
           }
           return handler.next(e);

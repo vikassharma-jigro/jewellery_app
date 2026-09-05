@@ -90,7 +90,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               radius: 24,
                               backgroundColor: AppTheme.goldLight,
                               child: Text(
-                                'JS',
+                                'AR',
                                 style: TextStyle(
                                   color: AppTheme.goldDark,
                                   fontWeight: FontWeight.w700,
@@ -336,15 +336,18 @@ class _HeroBalance extends StatelessWidget {
           Row(
             children: [
               InkWell(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const StockScreen()),
-                ).then((_) {
-                  if (context.mounted) {
-                    context.read<DashboardCubit>().fetchDashboardSummary();
-                    context.read<StockCubit>().fetchStockData();
-                  }
-                }),
+                onTap: () =>
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StockScreen(),
+                      ),
+                    ).then((_) {
+                      if (context.mounted) {
+                        context.read<DashboardCubit>().fetchDashboardSummary();
+                        context.read<StockCubit>().fetchStockData();
+                      }
+                    }),
                 child: _MiniStat(
                   label: 'Stock In',
                   value: 'View Details',
@@ -353,15 +356,18 @@ class _HeroBalance extends StatelessWidget {
               ),
               SizedBox(width: 24),
               InkWell(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const StockScreen()),
-                ).then((_) {
-                  if (context.mounted) {
-                    context.read<DashboardCubit>().fetchDashboardSummary();
-                    context.read<StockCubit>().fetchStockData();
-                  }
-                }),
+                onTap: () =>
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StockScreen(),
+                      ),
+                    ).then((_) {
+                      if (context.mounted) {
+                        context.read<DashboardCubit>().fetchDashboardSummary();
+                        context.read<StockCubit>().fetchStockData();
+                      }
+                    }),
                 child: _MiniStat(
                   label: 'Stock Out',
                   value: 'View Details',
@@ -512,7 +518,8 @@ class _TxTile extends StatelessWidget {
       if (tx.metalType != MetalType.none) {
         sub += ' · ${tx.metalType.name.toUpperCase()}';
       }
-      amount = '${(tx.finalWeight ?? tx.weight)?.toStringAsFixed(2) ?? "0.00"} g';
+      amount =
+          '${(tx.finalWeight ?? tx.weight)?.toStringAsFixed(2) ?? "0.00"} g';
     }
 
     amount = (isIn ? '+' : '-') + amount;
