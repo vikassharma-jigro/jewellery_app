@@ -580,7 +580,8 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         double? weightVal = weightStr.isNotEmpty
                             ? double.tryParse(weightStr)
                             : null;
-                        double? amountVal = (isMetalSettlement && amountStr.isNotEmpty)
+                        double? amountVal =
+                            (isMetalSettlement && amountStr.isNotEmpty)
                             ? double.tryParse(amountStr)
                             : null;
                         double? wastageVal = wastageStr.isNotEmpty
@@ -588,21 +589,21 @@ class _AddStockScreenState extends State<AddStockScreen> {
                             : null;
                         double? stoneVal =
                             (stockItemType == MetalType.jewellery &&
-                                    stoneStr.isNotEmpty)
-                                ? double.tryParse(stoneStr)
-                                : null;
+                                stoneStr.isNotEmpty)
+                            ? double.tryParse(stoneStr)
+                            : null;
                         double? goldRateVal = goldRateStr.isNotEmpty
                             ? double.tryParse(goldRateStr)
                             : null;
                         double? makingChargesVal =
                             (stockItemType == MetalType.jewellery &&
-                                    makingChargesStr.isNotEmpty)
-                                ? double.tryParse(makingChargesStr)
-                                : null;
+                                makingChargesStr.isNotEmpty)
+                            ? double.tryParse(makingChargesStr)
+                            : null;
                         MakingChargeType? makingChargeTypeVal =
                             (stockItemType == MetalType.jewellery)
-                                ? selectedMakingChargeType
-                                : null;
+                            ? selectedMakingChargeType
+                            : null;
 
                         bool hasCalcFields =
                             wastageVal != null ||

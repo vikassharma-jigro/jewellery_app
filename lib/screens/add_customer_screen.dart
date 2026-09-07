@@ -63,15 +63,25 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
     super.dispose();
   }
 
-  Widget buildFieldTitle(String title) {
+  Widget buildFieldTitle(String title, String required) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        title,
-        style: const TextStyle(
-          color: AppTheme.goldDark,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: title,
+              style: const TextStyle(
+                color: AppTheme.goldDark,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            TextSpan(
+              text: required,
+              style: TextStyle(color: Colors.red),
+            ),
+          ],
         ),
       ),
     );
@@ -152,7 +162,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                buildFieldTitle("Customer Name"),
+                buildFieldTitle("Customer Name", ' *'),
                 buildTextField(
                   controller: nameController,
                   hint: "Enter customer name",
@@ -160,7 +170,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
                 const SizedBox(height: 16),
 
-                buildFieldTitle("Mobile Number"),
+                buildFieldTitle("Mobile Number", ''),
                 buildTextField(
                   controller: mobileController,
                   hint: "Enter mobile number",
@@ -173,7 +183,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
                 const SizedBox(height: 16),
 
-                buildFieldTitle("Address"),
+                buildFieldTitle("Address", ''),
                 buildTextField(
                   controller: addressController,
                   hint: "Enter full address",
@@ -199,7 +209,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 if (!widget.isEdit) ...[
                   const SizedBox(height: 16),
 
-                  buildFieldTitle("Opening Gold Balance (Gram)"),
+                  buildFieldTitle("Opening Gold Balance (Gram)", ''),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -228,7 +238,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
                   const SizedBox(height: 16),
 
-                  buildFieldTitle("Opening Jewellery Balance (Gram)"),
+                  buildFieldTitle("Opening Jewellery Balance (Gram)", ''),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -257,7 +267,10 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
                   const SizedBox(height: 16),
 
-                  buildFieldTitle("Opening Payment Due (Amount & Currency)"),
+                  buildFieldTitle(
+                    "Opening Payment Due (Amount & Currency)",
+                    '',
+                  ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -334,7 +347,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
                 const SizedBox(height: 16),
 
-                buildFieldTitle("Notes"),
+                buildFieldTitle("Notes", ''),
                 buildTextField(
                   controller: notesController,
                   hint: "Enter remarks",
@@ -450,10 +463,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 12,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFFE6D8A8)),
