@@ -40,7 +40,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 24),
-                  Image.asset('assets/images/appLogo-Photoroom.png').center(),
+                  Image.asset(
+                      'assets/images/appLogo-Photoroom.png',
+                  height: 200,
+                    width:200,
+                    fit:BoxFit.cover,
+                  ).center(),
                   const SizedBox(height: 28),
                   const Text(
                     'Jewellery Manager',
@@ -96,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   //     ),
                   //   ),
                   // ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 28),
                   if (state is AuthLoading)
                     const Center(child: CircularProgressIndicator())
                   else
@@ -122,11 +127,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Text('Sign In'),
                     ),
                   const SizedBox(height: 24),
-                  const Text(
+                /*  const Text(
                     'Secure access · Encrypted data',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppTheme.muted, fontSize: 12),
-                  ),
+                  ),*/
                 ],
               ),
             ),

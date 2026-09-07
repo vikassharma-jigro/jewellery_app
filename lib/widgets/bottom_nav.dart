@@ -183,7 +183,7 @@ class AppScaffold extends StatelessWidget {
                         Icons.account_balance_wallet_rounded,
                         'Ledger',
                       ),
-                      _navItem(context, 4, Icons.person_rounded, 'Profile'),
+                    //  _navItem(context, 4, Icons.person_rounded, 'Profile'),
                     ],
                   ),
                 ),
