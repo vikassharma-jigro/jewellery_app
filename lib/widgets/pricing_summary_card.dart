@@ -7,13 +7,35 @@ class PricingSummaryCard extends StatelessWidget {
   final TransactionModel transaction;
 
   const PricingSummaryCard({super.key, required this.transaction});
-
   String _formatCurrency(double amount) {
-    final format = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 2,
-    );
+    late NumberFormat format;
+
+    switch (transaction.currency) {
+      case CurrencyType.inr:
+        format = NumberFormat.currency(
+          locale: 'en_IN',
+          symbol: '₹',
+          decimalDigits: 2,
+        );
+        break;
+
+      case CurrencyType.usd:
+        format = NumberFormat.currency(
+          locale: 'en_US',
+          symbol: '\$',
+          decimalDigits: 2,
+        );
+        break;
+
+      case CurrencyType.myr:
+        format = NumberFormat.currency(
+          locale: 'ms_MY',
+          symbol: '\$',
+          decimalDigits: 2,
+        );
+        break;
+    }
+
     return format.format(amount);
   }
 

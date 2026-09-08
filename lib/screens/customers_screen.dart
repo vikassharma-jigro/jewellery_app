@@ -306,35 +306,54 @@ class _CustomerCard extends StatelessWidget {
     );
   }
 
-  void _deleteCustomer(BuildContext context, CustomerModel customer) {
+  void _deleteCustomer(
+      BuildContext context,
+      CustomerModel customer,
+      ) {
     final customerCubit = context.read<CustomerCubit>();
 
     showDialog(
-      barrierColor: kBg,
       barrierDismissible: false,
-      barrierLabel: 'Are you sure you want to delete ${customer.name}?',
+      barrierLabel:
+      'Are you sure you want to delete ${customer.name}?',
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: kBg,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+
+        //rounded rectangular border
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(
+            color: Color(0xFFE6D8A8),
+            width: 1,
+          ),
+        ),
+        //slight elevation
+        elevation: 1,
+
         title: const Text('Delete Customer?'),
-        content: Text('Are you sure you want to delete ${customer.name}?'),
+
+        content: Text(
+          'Are you sure you want to delete ${customer.name}?',
+        ),
+
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
             },
-
-            style: TextButton.styleFrom(foregroundColor: AppTheme.muted),
+            style: TextButton.styleFrom(
+              foregroundColor: AppTheme.muted,
+            ),
             child: const Text('Cancel'),
           ),
 
           ElevatedButton(
             onPressed: () {
               customerCubit.deleteCustomer(customer.id);
-
               Navigator.of(dialogContext).pop();
             },
-
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
