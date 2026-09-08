@@ -33,6 +33,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
   final makingChargesController = TextEditingController();
   final linkedTransactionIdController = TextEditingController();
   final purityFinalController = TextEditingController();
+
   DateTime? selectedDate;
   String? selectedCustomerId;
 
@@ -45,15 +46,19 @@ class _AddStockScreenState extends State<AddStockScreen> {
   void initState() {
     super.initState();
 
-    // Get the stock type on Initial loading
-    stockType = widget.initialTransactionType ?? TransactionType.purchase;
+    stockType =
+        widget.initialTransactionType ?? TransactionType.purchase;
+
     selectedCustomerId = widget.customerId;
+
     if (widget.initialLinkedTransactionId != null) {
-      linkedTransactionIdController.text = widget.initialLinkedTransactionId!;
+      linkedTransactionIdController.text =
+      widget.initialLinkedTransactionId!;
     }
 
     weightController.addListener(_calculateAmount);
     goldRateController.addListener(_calculateAmount);
+
     weightController.addListener(_calculatePurityFinal);
     wastageController.addListener(_calculatePurityFinal);
     stoneController.addListener(_calculatePurityFinal);
@@ -61,16 +66,25 @@ class _AddStockScreenState extends State<AddStockScreen> {
     context.read<CustomerCubit>().fetchCustomers();
   }
 
+  // ---------------- CALCULATIONS ----------------
+
   void _calculateAmount() {
     if (stockType == TransactionType.cashJama ||
         stockType == TransactionType.cashNamae ||
         stockType == TransactionType.metalJama ||
         stockType == TransactionType.metalNamae) {
-      final weight = double.tryParse(weightController.text.trim());
-      final rate = double.tryParse(goldRateController.text.trim());
+      final weight = double.tryParse(
+        weightController.text.trim(),
+      );
+
+      final rate = double.tryParse(
+        goldRateController.text.trim(),
+      );
+
       if (weight != null && rate != null) {
-        // Prevent cursor jumping if user is typing
-        final newAmount = (weight * rate).toStringAsFixed(2);
+        final newAmount =
+        (weight * rate).toStringAsFixed(2);
+
         if (amountController.text != newAmount) {
           amountController.text = newAmount;
         }
@@ -79,17 +93,29 @@ class _AddStockScreenState extends State<AddStockScreen> {
   }
 
   void _calculatePurityFinal() {
-    final weight = double.tryParse(weightController.text.trim());
-    final wastage = double.tryParse(wastageController.text.trim());
-    final stone = stockItemType == MetalType.jewellery
-        ? double.tryParse(stoneController.text.trim())
+    final weight = double.tryParse(
+      weightController.text.trim(),
+    );
+
+    final wastage = double.tryParse(
+      wastageController.text.trim(),
+    );
+
+    final stone =
+    stockItemType == MetalType.jewellery
+        ? double.tryParse(
+      stoneController.text.trim(),
+    )
         : null;
 
     if (weight != null && wastage != null) {
       final netWeight = weight - (stone ?? 0);
-      final finalW = netWeight * (wastage / 100);
+      final finalW =
+          netWeight * (wastage / 100);
 
-      final newFinal = finalW.toStringAsFixed(2);
+      final newFinal =
+      finalW.toStringAsFixed(2);
+
       if (purityFinalController.text != newFinal) {
         purityFinalController.text = newFinal;
       }
@@ -98,6 +124,97 @@ class _AddStockScreenState extends State<AddStockScreen> {
         purityFinalController.text = "";
       }
     }
+  }
+
+  // ---------------- COMMON TEXT FIELD UI ----------------
+
+  Widget buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    TextInputType keyboardType =
+        TextInputType.text,
+    int maxLines = 1,
+    bool readOnly = false,
+    Widget? suffixIcon,
+    VoidCallback? onTap,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      readOnly: readOnly,
+      onTap: onTap,
+      decoration: InputDecoration(
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
+        suffixIcon: suffixIcon,
+
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(
+            color: Color(0xFFE6D8A8),
+          ),
+        ),
+
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(
+            color: Color(0xFFE6D8A8),
+          ),
+        ),
+
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(
+            color: AppTheme.gold,
+            width: 1.5,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------- COMMON DROPDOWN UI ----------------
+
+  InputDecoration dropdownDecoration({
+    String? hintText,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 14,
+      ),
+
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: Color(0xFFE6D8A8),
+        ),
+      ),
+
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: Color(0xFFE6D8A8),
+        ),
+      ),
+
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: AppTheme.gold,
+          width: 1.5,
+        ),
+      ),
+    );
   }
 
   @override
@@ -112,155 +229,265 @@ class _AddStockScreenState extends State<AddStockScreen> {
     makingChargesController.dispose();
     linkedTransactionIdController.dispose();
     purityFinalController.dispose();
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF8F5F0),
+      backgroundColor: kBg,
+
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        elevation: 0,
+        backgroundColor: kBg,
+
         title: Row(
           children: [
             InkWell(
               onTap: () {
                 Navigator.pop(context);
               },
-              child: const Icon(Icons.arrow_back_ios),
+              child: const Icon(
+                Icons.arrow_back_ios,
+              ),
             ),
-            const Expanded(child: Center(child: Text("Transaction Entry"))),
+
+            const Expanded(
+              child: Center(
+                child: Text(
+                  "Transaction Entry",
+                ),
+              ),
+            ),
           ],
         ),
-        backgroundColor: Colors.transparent,
       ),
+
       body: BlocConsumer<TransactionCubit, TransactionState>(
         listener: (context, state) {
           if (state is TransactionCreated) {
-            context.read<CustomerCubit>().fetchCustomers();
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Transaction Saved Successfully")),
+            context
+                .read<CustomerCubit>()
+                .fetchCustomers();
+
+            ScaffoldMessenger.of(context)
+                .showSnackBar(
+              const SnackBar(
+                content: Text(
+                  "Transaction Saved Successfully",
+                ),
+              ),
             );
+
             Navigator.pop(context);
           } else if (state is TransactionError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context)
+                .showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+              ),
+            );
           }
         },
+
         builder: (context, state) {
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.all(16),
+
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
+
               children: [
                 const SizedBox(height: 20),
-                const Text("Transaction Type"),
-                const SizedBox(height: 10),
 
-                /// Drop Down Open For Transaction Selection Type
-                DropdownButtonFormField<TransactionType>(
-                  dropdownColor: kBg,
-                  enableFeedback: true,
-                  autofocus: true,
-                  initialValue: stockType,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
+                const Text(
+                  "Transaction Type",
+                  style: TextStyle(
+                    color: AppTheme.goldDark,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // ---------------- TRANSACTION TYPE ----------------
+
+                DropdownButtonFormField<TransactionType>(
+                  initialValue: stockType,
+                  isExpanded: true,
+                  dropdownColor: Colors.white,
+
+                  decoration:
+                  dropdownDecoration(),
+
                   items: const [
                     DropdownMenuItem(
-                      value: TransactionType.purchase,
+                      value:
+                      TransactionType.purchase,
                       child: Text("PURCHASE"),
                     ),
                     DropdownMenuItem(
-                      value: TransactionType.purchaseReturn,
-                      child: Text("PURCHASE RETURN"),
+                      value:
+                      TransactionType.purchaseReturn,
+                      child:
+                      Text("PURCHASE RETURN"),
                     ),
                     DropdownMenuItem(
-                      value: TransactionType.sales,
+                      value:
+                      TransactionType.sales,
                       child: Text("SALE"),
                     ),
                     DropdownMenuItem(
-                      value: TransactionType.salesReturn,
-                      child: Text("SALE RETURN"),
+                      value:
+                      TransactionType.salesReturn,
+                      child:
+                      Text("SALE RETURN"),
                     ),
                     DropdownMenuItem(
-                      value: TransactionType.cashJama,
+                      value:
+                      TransactionType.cashJama,
                       child: Text("CASH JAMA"),
                     ),
                     DropdownMenuItem(
-                      value: TransactionType.cashNamae,
+                      value:
+                      TransactionType.cashNamae,
                       child: Text("CASH NAMAE"),
                     ),
                     DropdownMenuItem(
-                      value: TransactionType.metalJama,
+                      value:
+                      TransactionType.metalJama,
                       child: Text("METAL"),
                     ),
                     DropdownMenuItem(
-                      value: TransactionType.metalNamae,
+                      value:
+                      TransactionType.metalNamae,
                       child: Text("METAL NAMAE"),
                     ),
                   ],
+
                   onChanged: (value) {
                     setState(() {
                       stockType = value!;
-                      if (stockType != TransactionType.cashJama &&
-                          stockType != TransactionType.cashNamae &&
-                          stockType != TransactionType.metalJama &&
-                          stockType != TransactionType.metalNamae) {
+
+                      if (stockType !=
+                          TransactionType
+                              .cashJama &&
+                          stockType !=
+                              TransactionType
+                                  .cashNamae &&
+                          stockType !=
+                              TransactionType
+                                  .metalJama &&
+                          stockType !=
+                              TransactionType
+                                  .metalNamae) {
                         amountController.clear();
                       }
                     });
                   },
                 ),
 
-                const SizedBox(height: 15),
-                const Text("Customer"),
-                const SizedBox(height: 10),
-                BlocBuilder<CustomerCubit, CustomerState>(
-                  builder: (context, customerState) {
-                    List<CustomerModel> customers = [];
-                    if (customerState is CustomerLoaded) {
-                      customers = customerState.customers;
+                const SizedBox(height: 16),
+
+                // ---------------- CUSTOMER ----------------
+
+                const Text(
+                  "Customer",
+                  style: TextStyle(
+                    color: AppTheme.goldDark,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                BlocBuilder<CustomerCubit,
+                    CustomerState>(
+                  builder:
+                      (context, customerState) {
+                    List<CustomerModel> customers =
+                    [];
+
+                    if (customerState
+                    is CustomerLoaded) {
+                      customers =
+                          customerState.customers;
                     }
 
-                    String? dropdownValue = selectedCustomerId;
-                    if (!customers.any((c) => c.id == dropdownValue)) {
+                    String? dropdownValue =
+                        selectedCustomerId;
+
+                    if (!customers.any(
+                          (c) => c.id == dropdownValue,
+                    )) {
                       dropdownValue = null;
                     }
 
-                    return DropdownButtonFormField<String>(
+                    return DropdownButtonFormField<
+                        String>(
                       initialValue: dropdownValue,
-                      decoration: const InputDecoration(
-                        hintText: "Select Customer",
-                        border: OutlineInputBorder(),
+                      isExpanded: true,
+                      dropdownColor: Colors.white,
+
+                      decoration:
+                      dropdownDecoration(
+                        hintText:
+                        "Select Customer",
                       ),
+
                       items: customers
                           .map(
-                            (c) => DropdownMenuItem(
+                            (c) =>
+                            DropdownMenuItem(
                               value: c.id,
-                              child: Text(c.name),
+                              child: Text(
+                                c.name,
+                                overflow:
+                                TextOverflow
+                                    .ellipsis,
+                              ),
                             ),
-                          )
+                      )
                           .toList(),
+
                       onChanged: (value) {
                         setState(() {
-                          selectedCustomerId = value;
+                          selectedCustomerId =
+                              value;
                         });
                       },
                     );
                   },
                 ),
 
-                /// Stock Details
-                const SizedBox(height: 15),
-                const Text("Metal Type"),
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
+
+                // ---------------- METAL TYPE ----------------
+
+                const Text(
+                  "Metal Type",
+                  style: TextStyle(
+                    color: AppTheme.goldDark,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
                 DropdownButtonFormField<MetalType>(
                   initialValue: stockItemType,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
+                  isExpanded: true,
+                  dropdownColor: Colors.white,
+
+                  decoration:
+                  dropdownDecoration(),
+
                   items: const [
                     DropdownMenuItem(
                       value: MetalType.gold,
@@ -268,383 +495,733 @@ class _AddStockScreenState extends State<AddStockScreen> {
                     ),
                     DropdownMenuItem(
                       value: MetalType.jewellery,
-                      child: Text("Jewellery"),
+                      child:
+                      Text("Jewellery"),
                     ),
                   ],
+
                   onChanged: (value) {
                     setState(() {
                       stockItemType = value!;
-                      if (stockItemType == MetalType.gold) {
+
+                      if (stockItemType ==
+                          MetalType.gold) {
                         stoneController.clear();
-                        makingChargesController.clear();
-                        selectedMakingChargeType = null;
+                        makingChargesController
+                            .clear();
+                        selectedMakingChargeType =
+                        null;
                       }
+
                       _calculatePurityFinal();
                     });
                   },
                 ),
 
-                const SizedBox(height: 15),
+                const SizedBox(height: 16),
+
+                // ---------------- WEIGHT ----------------
+
                 Text(
-                  (stockType == TransactionType.cashJama ||
-                          stockType == TransactionType.cashNamae)
+                  (stockType ==
+                      TransactionType
+                          .cashJama ||
+                      stockType ==
+                          TransactionType
+                              .cashNamae)
                       ? "Weight (Gram) - Optional for settlement"
                       : "Weight (Gram)",
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: weightController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    hintText: "Weight (Gram)",
-                    border: OutlineInputBorder(),
+                  style: const TextStyle(
+                    color: AppTheme.goldDark,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
 
-                // Metal Jama / Namae / Cash Jama / Namae: show Gold Rate for settlement
-                if (stockType == TransactionType.metalJama ||
-                    stockType == TransactionType.metalNamae ||
-                    stockType == TransactionType.cashJama ||
-                    stockType == TransactionType.cashNamae) ...[
-                  const SizedBox(height: 15),
-                  const Text("Gold Rate (₹/g) - for settlement"),
-                  TextFormField(
-                    controller: goldRateController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: "Enter Gold Rate (optional)",
-                      border: OutlineInputBorder(),
+                const SizedBox(height: 8),
+
+                buildTextField(
+                  controller: weightController,
+                  hint: "Weight (Gram)",
+                  keyboardType:
+                  TextInputType.number,
+                ),
+
+                // ---------------- SETTLEMENT GOLD RATE ----------------
+
+                if (stockType ==
+                    TransactionType
+                        .metalJama ||
+                    stockType ==
+                        TransactionType
+                            .metalNamae ||
+                    stockType ==
+                        TransactionType
+                            .cashJama ||
+                    stockType ==
+                        TransactionType
+                            .cashNamae) ...[
+                  const SizedBox(height: 16),
+
+                  const Text(
+                    "Gold Rate (₹/g) - for settlement",
+                    style: TextStyle(
+                      color: AppTheme.goldDark,
+                      fontSize: 14,
+                      fontWeight:
+                      FontWeight.w600,
                     ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  buildTextField(
+                    controller:
+                    goldRateController,
+                    hint:
+                    "Enter Gold Rate (optional)",
+                    keyboardType:
+                    TextInputType.number,
                   ),
                 ],
 
-                if (stockType == TransactionType.purchase ||
-                    stockType == TransactionType.sales ||
-                    stockType == TransactionType.purchaseReturn ||
-                    stockType == TransactionType.salesReturn) ...[
-                  const SizedBox(height: 15),
-                  const Text("Purity (%)"),
-                  TextFormField(
-                    controller: wastageController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: "Purity (%)",
-                      border: OutlineInputBorder(),
+                // ---------------- PURCHASE / SALES ----------------
+
+                if (stockType ==
+                    TransactionType
+                        .purchase ||
+                    stockType ==
+                        TransactionType
+                            .sales ||
+                    stockType ==
+                        TransactionType
+                            .purchaseReturn ||
+                    stockType ==
+                        TransactionType
+                            .salesReturn) ...[
+                  const SizedBox(height: 16),
+
+                  const Text(
+                    "Purity (%)",
+                    style: TextStyle(
+                      color: AppTheme.goldDark,
+                      fontSize: 14,
+                      fontWeight:
+                      FontWeight.w600,
                     ),
                   ),
 
-                  if (stockItemType == MetalType.jewellery) ...[
-                    const SizedBox(height: 15),
-                    const Text("Stone (Gram)"),
-                    TextFormField(
-                      controller: stoneController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        hintText: "Stone Weight (Gram)",
-                        border: OutlineInputBorder(),
+                  const SizedBox(height: 8),
+
+                  buildTextField(
+                    controller:
+                    wastageController,
+                    hint: "Purity (%)",
+                    keyboardType:
+                    TextInputType.number,
+                  ),
+
+                  // ---------------- STONE ----------------
+
+                  if (stockItemType ==
+                      MetalType.jewellery) ...[
+                    const SizedBox(height: 16),
+
+                    const Text(
+                      "Stone (Gram)",
+                      style: TextStyle(
+                        color:
+                        AppTheme.goldDark,
+                        fontSize: 14,
+                        fontWeight:
+                        FontWeight.w600,
                       ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    buildTextField(
+                      controller:
+                      stoneController,
+                      hint:
+                      "Stone Weight (Gram)",
+                      keyboardType:
+                      TextInputType.number,
                     ),
                   ],
 
-                  const SizedBox(height: 15),
-                  const Text("Purity Final (Gram)"),
-                  TextFormField(
-                    controller: purityFinalController,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      hintText: "Final Weight",
-                      border: const OutlineInputBorder(),
-                      fillColor: Colors.grey.shade200,
-                      filled: true,
+                  // ---------------- PURITY FINAL ----------------
+
+                  const SizedBox(height: 16),
+
+                  const Text(
+                    "Purity Final (Gram)",
+                    style: TextStyle(
+                      color: AppTheme.goldDark,
+                      fontSize: 14,
+                      fontWeight:
+                      FontWeight.w600,
                     ),
                   ),
 
-                  const SizedBox(height: 15),
-                  const Text("Currency (INR)"),
+                  const SizedBox(height: 8),
 
-                  /// Drop Down For currency Selection
-                  DropdownButtonFormField<CurrencyType>(
-                    initialValue: CurrencyType.inr,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                  buildTextField(
+                    controller:
+                    purityFinalController,
+                    hint: "Final Weight",
+                    readOnly: true,
+                  ),
+
+                  // ---------------- CURRENCY ----------------
+
+                  const SizedBox(height: 16),
+
+                  const Text(
+                    "Currency (INR)",
+                    style: TextStyle(
+                      color: AppTheme.goldDark,
+                      fontSize: 14,
+                      fontWeight:
+                      FontWeight.w600,
                     ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  DropdownButtonFormField<CurrencyType>(
+                    initialValue:
+                    CurrencyType.inr,
+                    isExpanded: true,
+                    dropdownColor: Colors.white,
+
+                    decoration:
+                    dropdownDecoration(),
+
                     items: const [
                       DropdownMenuItem(
-                        value: CurrencyType.inr,
+                        value:
+                        CurrencyType.inr,
                         child: Text("INR"),
                       ),
                       DropdownMenuItem(
-                        value: CurrencyType.usd,
+                        value:
+                        CurrencyType.usd,
                         child: Text("USD"),
                       ),
                       DropdownMenuItem(
-                        value: CurrencyType.myr,
+                        value:
+                        CurrencyType.myr,
                         child: Text("MYR"),
                       ),
                     ],
+
                     onChanged: (value) {
                       setState(() {
-                        currencyType = value!;
+                        currencyType =
+                        value!;
                       });
                     },
                   ),
 
-                  const SizedBox(height: 15),
-                  const Text("Gold Rate(gm)"),
-                  TextFormField(
-                    controller: goldRateController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: "Gold Rate",
-                      border: OutlineInputBorder(),
+                  // ---------------- GOLD RATE ----------------
+
+                  const SizedBox(height: 16),
+
+                  const Text(
+                    "Gold Rate(gm)",
+                    style: TextStyle(
+                      color: AppTheme.goldDark,
+                      fontSize: 14,
+                      fontWeight:
+                      FontWeight.w600,
                     ),
                   ),
 
-                  if (stockType == TransactionType.salesReturn ||
-                      stockType == TransactionType.purchaseReturn) ...[
-                    const SizedBox(height: 15),
-                    const Text("Linked Transaction ID (Optional)"),
-                    TextFormField(
-                      controller: linkedTransactionIdController,
-                      decoration: const InputDecoration(
-                        hintText:
-                            "Original transaction ID for exact calculations",
-                        border: OutlineInputBorder(),
+                  const SizedBox(height: 8),
+
+                  buildTextField(
+                    controller:
+                    goldRateController,
+                    hint: "Gold Rate",
+                    keyboardType:
+                    TextInputType.number,
+                  ),
+
+                  // ---------------- LINKED TRANSACTION ----------------
+
+                  if (stockType ==
+                      TransactionType
+                          .salesReturn ||
+                      stockType ==
+                          TransactionType
+                              .purchaseReturn) ...[
+                    const SizedBox(height: 16),
+
+                    const Text(
+                      "Linked Transaction ID (Optional)",
+                      style: TextStyle(
+                        color:
+                        AppTheme.goldDark,
+                        fontSize: 14,
+                        fontWeight:
+                        FontWeight.w600,
                       ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    buildTextField(
+                      controller:
+                      linkedTransactionIdController,
+                      hint:
+                      "Original transaction ID for exact calculations",
                     ),
                   ],
 
-                  if (stockType != TransactionType.salesReturn &&
-                      stockType != TransactionType.purchaseReturn &&
-                      stockItemType == MetalType.jewellery) ...[
-                    const SizedBox(height: 15),
-                    const Text("Making Charge Type"),
-                    const SizedBox(height: 10),
-                    DropdownButtonFormField<MakingChargeType>(
-                      initialValue: selectedMakingChargeType,
-                      decoration: const InputDecoration(
-                        hintText: "Select Making Charge Type",
-                        border: OutlineInputBorder(),
+                  // ---------------- MAKING CHARGES ----------------
+
+                  if (stockType !=
+                      TransactionType
+                          .salesReturn &&
+                      stockType !=
+                          TransactionType
+                              .purchaseReturn &&
+                      stockItemType ==
+                          MetalType.jewellery) ...[
+                    const SizedBox(height: 16),
+
+                    const Text(
+                      "Making Charge Type",
+                      style: TextStyle(
+                        color:
+                        AppTheme.goldDark,
+                        fontSize: 14,
+                        fontWeight:
+                        FontWeight.w600,
                       ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    DropdownButtonFormField<
+                        MakingChargeType>(
+                      initialValue:
+                      selectedMakingChargeType,
+                      isExpanded: true,
+                      dropdownColor:
+                      Colors.white,
+
+                      decoration:
+                      dropdownDecoration(
+                        hintText:
+                        "Select Making Charge Type",
+                      ),
+
                       items: const [
                         DropdownMenuItem(
-                          value: MakingChargeType.percentage,
-                          child: Text("Percentage (%)"),
+                          value:
+                          MakingChargeType
+                              .percentage,
+                          child: Text(
+                            "Percentage (%)",
+                          ),
                         ),
                         DropdownMenuItem(
-                          value: MakingChargeType.perGram,
-                          child: Text("Per Gram (₹/g)"),
+                          value:
+                          MakingChargeType
+                              .perGram,
+                          child: Text(
+                            "Per Gram (₹/g)",
+                          ),
                         ),
                         DropdownMenuItem(
-                          value: MakingChargeType.fixed,
-                          child: Text("Fixed Value (₹)"),
+                          value:
+                          MakingChargeType
+                              .fixed,
+                          child: Text(
+                            "Fixed Value (₹)",
+                          ),
                         ),
                       ],
+
                       onChanged: (value) {
                         setState(() {
-                          selectedMakingChargeType = value;
+                          selectedMakingChargeType =
+                              value;
                         });
                       },
                     ),
 
-                    if (selectedMakingChargeType != null) ...[
-                      const SizedBox(height: 15),
+                    if (selectedMakingChargeType !=
+                        null) ...[
+                      const SizedBox(height: 16),
+
                       Text(
                         "Making Charges (${selectedMakingChargeType == MakingChargeType.percentage
                             ? '%'
-                            : selectedMakingChargeType == MakingChargeType.perGram
+                            : selectedMakingChargeType ==
+                            MakingChargeType.perGram
                             ? '₹/g'
                             : '₹'})",
-                      ),
-                      TextFormField(
-                        controller: makingChargesController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText:
-                              "Making Charges (${selectedMakingChargeType == MakingChargeType.percentage
-                                  ? '%'
-                                  : selectedMakingChargeType == MakingChargeType.perGram
-                                  ? '₹/g'
-                                  : '₹'})",
-                          border: const OutlineInputBorder(),
+                        style: const TextStyle(
+                          color:
+                          AppTheme.goldDark,
+                          fontSize: 14,
+                          fontWeight:
+                          FontWeight.w600,
                         ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      buildTextField(
+                        controller:
+                        makingChargesController,
+                        hint:
+                        "Making Charges",
+                        keyboardType:
+                        TextInputType.number,
                       ),
                     ],
                   ],
                 ],
 
-                if (stockType == TransactionType.cashJama ||
-                    stockType == TransactionType.cashNamae ||
-                    stockType == TransactionType.metalJama ||
-                    stockType == TransactionType.metalNamae) ...[
-                  const SizedBox(height: 15),
-                  const Text("Amount (₹)"),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: amountController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: "Amount (₹)",
-                      border: OutlineInputBorder(),
+                // ---------------- AMOUNT ----------------
+
+                if (stockType ==
+                    TransactionType
+                        .cashJama ||
+                    stockType ==
+                        TransactionType
+                            .cashNamae ||
+                    stockType ==
+                        TransactionType
+                            .metalJama ||
+                    stockType ==
+                        TransactionType
+                            .metalNamae) ...[
+                  const SizedBox(height: 16),
+
+                  const Text(
+                    "Amount (₹)",
+                    style: TextStyle(
+                      color: AppTheme.goldDark,
+                      fontSize: 14,
+                      fontWeight:
+                      FontWeight.w600,
                     ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  buildTextField(
+                    controller:
+                    amountController,
+                    hint: "Amount (₹)",
+                    keyboardType:
+                    TextInputType.number,
                   ),
                 ],
 
-                const SizedBox(height: 15),
-                const Text("Date"),
-                const SizedBox(height: 10),
-                TextFormField(
+                // ---------------- DATE ----------------
+
+                const SizedBox(height: 16),
+
+                const Text(
+                  "Date",
+                  style: TextStyle(
+                    color: AppTheme.goldDark,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                buildTextField(
                   controller: dateController,
+                  hint: "Date",
                   readOnly: true,
-                  decoration: const InputDecoration(
-                    hintText: "Date",
-                    border: OutlineInputBorder(),
-                    suffixIcon: Icon(Icons.calendar_month),
+                  suffixIcon: const Icon(
+                    Icons.calendar_month,
                   ),
                   onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
+                    DateTime? pickedDate =
+                    await showDatePicker(
                       context: context,
                       initialDate: DateTime.now(),
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2050),
+                      firstDate:
+                      DateTime(2020),
+                      lastDate:
+                      DateTime(2050),
                     );
 
                     if (pickedDate != null) {
                       setState(() {
-                        selectedDate = pickedDate;
+                        selectedDate =
+                            pickedDate;
+
                         dateController.text =
-                            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+                        "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
                       });
                     }
                   },
                 ),
 
-                const SizedBox(height: 15),
-                const Text("Remark"),
-                const SizedBox(height: 15),
-                TextFormField(
-                  controller: remarkController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    hintText: "Remark",
-                    border: OutlineInputBorder(),
+                // ---------------- REMARKS ----------------
+
+                const SizedBox(height: 16),
+
+                const Text(
+                  "Remarks",
+                  style: TextStyle(
+                    color: AppTheme.goldDark,
+                    fontSize: 14,
+                    fontWeight:
+                    FontWeight.w600,
                   ),
                 ),
 
-                const SizedBox(height: 25),
+                const SizedBox(height: 8),
+
+                buildTextField(
+                  controller: remarkController,
+                  hint: "Remarks",
+                  maxLines: 3,
+                ),
+
+                const SizedBox(height: 30),
+
+                // ---------------- SAVE ----------------
 
                 if (state is TransactionLoading)
-                  const Center(child: CircularProgressIndicator())
+                  const Center(
+                    child:
+                    CircularProgressIndicator(),
+                  )
                 else
                   SizedBox(
                     width: double.infinity,
-                    height: 50,
+                    height: 55,
+
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFD4AF37),
+                      style:
+                      ElevatedButton.styleFrom(
+                        backgroundColor:
+                        AppTheme.gold,
+                        shape:
+                        RoundedRectangleBorder(
+                          borderRadius:
+                          BorderRadius.circular(
+                            14,
+                          ),
+                        ),
                       ),
+
                       onPressed: () {
-                        if (selectedCustomerId == null ||
-                            selectedCustomerId!.trim().isEmpty ||
-                            selectedCustomerId == "GLOBAL") {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                        if (selectedCustomerId ==
+                            null ||
+                            selectedCustomerId!
+                                .trim()
+                                .isEmpty ||
+                            selectedCustomerId ==
+                                "GLOBAL") {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(
                             const SnackBar(
                               content: Text(
                                 'Customer selection is required. Cannot save entry without selecting a customer.',
                               ),
-                              backgroundColor: Colors.red,
+                              backgroundColor:
+                              Colors.red,
                             ),
                           );
+
                           return;
                         }
 
-                        final cId = selectedCustomerId!;
+                        final cId =
+                        selectedCustomerId!;
 
-                        final weightStr = weightController.text.trim();
-                        final amountStr = amountController.text.trim();
-                        final remarkStr = remarkController.text.trim();
-                        final wastageStr = wastageController.text.trim();
-                        final stoneStr = stoneController.text.trim();
-                        final goldRateStr = goldRateController.text.trim();
-                        final makingChargesStr = makingChargesController.text
+                        final weightStr =
+                        weightController.text
                             .trim();
+
+                        final amountStr =
+                        amountController.text
+                            .trim();
+
+                        final remarkStr =
+                        remarkController.text
+                            .trim();
+
+                        final wastageStr =
+                        wastageController.text
+                            .trim();
+
+                        final stoneStr =
+                        stoneController.text
+                            .trim();
+
+                        final goldRateStr =
+                        goldRateController.text
+                            .trim();
+
+                        final makingChargesStr =
+                        makingChargesController
+                            .text
+                            .trim();
+
                         final linkedTransactionIdStr =
-                            linkedTransactionIdController.text.trim();
+                        linkedTransactionIdController
+                            .text
+                            .trim();
 
                         final isMetalSettlement =
-                            stockType == TransactionType.metalJama ||
-                            stockType == TransactionType.metalNamae ||
-                            stockType == TransactionType.cashJama ||
-                            stockType == TransactionType.cashNamae;
+                            stockType ==
+                                TransactionType
+                                    .metalJama ||
+                                stockType ==
+                                    TransactionType
+                                        .metalNamae ||
+                                stockType ==
+                                    TransactionType
+                                        .cashJama ||
+                                stockType ==
+                                    TransactionType
+                                        .cashNamae;
 
-                        double? weightVal = weightStr.isNotEmpty
-                            ? double.tryParse(weightStr)
+                        double? weightVal =
+                        weightStr.isNotEmpty
+                            ? double.tryParse(
+                          weightStr,
+                        )
                             : null;
+
                         double? amountVal =
-                            (isMetalSettlement && amountStr.isNotEmpty)
-                            ? double.tryParse(amountStr)
+                        (isMetalSettlement &&
+                            amountStr
+                                .isNotEmpty)
+                            ? double.tryParse(
+                          amountStr,
+                        )
                             : null;
-                        double? wastageVal = wastageStr.isNotEmpty
-                            ? double.tryParse(wastageStr)
+
+                        double? wastageVal =
+                        wastageStr.isNotEmpty
+                            ? double.tryParse(
+                          wastageStr,
+                        )
                             : null;
+
                         double? stoneVal =
-                            (stockItemType == MetalType.jewellery &&
-                                stoneStr.isNotEmpty)
-                            ? double.tryParse(stoneStr)
+                        (stockItemType ==
+                            MetalType
+                                .jewellery &&
+                            stoneStr
+                                .isNotEmpty)
+                            ? double.tryParse(
+                          stoneStr,
+                        )
                             : null;
-                        double? goldRateVal = goldRateStr.isNotEmpty
-                            ? double.tryParse(goldRateStr)
+
+                        double? goldRateVal =
+                        goldRateStr.isNotEmpty
+                            ? double.tryParse(
+                          goldRateStr,
+                        )
                             : null;
-                        double? makingChargesVal =
-                            (stockItemType == MetalType.jewellery &&
-                                makingChargesStr.isNotEmpty)
-                            ? double.tryParse(makingChargesStr)
+
+                        double?
+                        makingChargesVal =
+                        (stockItemType ==
+                            MetalType
+                                .jewellery &&
+                            makingChargesStr
+                                .isNotEmpty)
+                            ? double.tryParse(
+                          makingChargesStr,
+                        )
                             : null;
-                        MakingChargeType? makingChargeTypeVal =
-                            (stockItemType == MetalType.jewellery)
+
+                        MakingChargeType?
+                        makingChargeTypeVal =
+                        (stockItemType ==
+                            MetalType
+                                .jewellery)
                             ? selectedMakingChargeType
                             : null;
 
                         bool hasCalcFields =
                             wastageVal != null ||
-                            stoneVal != null ||
-                            goldRateVal != null ||
-                            makingChargesVal != null ||
-                            makingChargeTypeVal != null;
+                                stoneVal != null ||
+                                goldRateVal != null ||
+                                makingChargesVal !=
+                                    null ||
+                                makingChargeTypeVal !=
+                                    null;
 
-                        context.read<TransactionCubit>().createTransaction(
+                        context
+                            .read<
+                            TransactionCubit>()
+                            .createTransaction(
                           customerId: cId,
                           type: stockType,
-                          metalType: stockItemType,
+                          metalType:
+                          stockItemType,
                           weight: weightVal,
-                          grossWeight: isMetalSettlement
+                          grossWeight:
+                          isMetalSettlement
                               ? null
-                              : (hasCalcFields ? weightVal : null),
+                              : (hasCalcFields
+                              ? weightVal
+                              : null),
                           amount: amountVal,
-                          remark: remarkStr.isEmpty ? null : remarkStr,
-                          purityPercent: isMetalSettlement ? null : wastageVal,
-                          stoneWeight: isMetalSettlement ? null : stoneVal,
-                          goldRate: goldRateVal,
-                          makingChargeType: isMetalSettlement
+                          remark:
+                          remarkStr.isEmpty
+                              ? null
+                              : remarkStr,
+                          purityPercent:
+                          isMetalSettlement
+                              ? null
+                              : wastageVal,
+                          stoneWeight:
+                          isMetalSettlement
+                              ? null
+                              : stoneVal,
+                          goldRate:
+                          goldRateVal,
+                          makingChargeType:
+                          isMetalSettlement
                               ? null
                               : makingChargeTypeVal,
-                          makingChargesValue: isMetalSettlement
+                          makingChargesValue:
+                          isMetalSettlement
                               ? null
                               : makingChargesVal,
-                          linkedTransactionId: linkedTransactionIdStr.isEmpty
+                          linkedTransactionId:
+                          linkedTransactionIdStr
+                              .isEmpty
                               ? null
                               : linkedTransactionIdStr,
                         );
                       },
+
                       child: const Text(
                         "SAVE",
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          fontWeight:
+                          FontWeight.bold,
+                          fontSize: 16,
                         ),
                       ),
                     ),
                   ),
+
+                const SizedBox(height: 30),
               ],
             ),
           );

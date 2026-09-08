@@ -177,6 +177,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Row(
                           children: [
                             _QuickAction(
+                              tint :  AppTheme.success,
                               icon: Icons.add_box_outlined,
                               label: 'Stock In',
                               onTap: () => _go(
@@ -188,6 +189,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                             _QuickAction(
+                              tint : AppTheme.danger,
                               icon: Icons.indeterminate_check_box_outlined,
                               label: 'Stock Out',
                               onTap: () => _go(
@@ -198,6 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             ),
                             _QuickAction(
+                              tint:AppTheme.goldDark,
                               icon: Icons.person_add_alt,
                               label: 'New Customer',
                               onTap: () =>
@@ -422,10 +425,12 @@ class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final Color tint;
   const _QuickAction({
     required this.icon,
     required this.label,
     required this.onTap,
+    required this.tint,
   });
 
   @override
@@ -448,10 +453,10 @@ class _QuickAction extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppTheme.goldLight,
+                    color:Color(0xFFFAF9F6),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, color: AppTheme.goldDark),
+                  child: Icon(icon, color: tint),
                 ),
                 const SizedBox(height: 8),
                 Text(
