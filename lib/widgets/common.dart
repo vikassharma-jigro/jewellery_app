@@ -101,7 +101,7 @@ class BrandHeader extends StatelessWidget {
       ),
       const SizedBox(height: 12),
       Text(
-        'SORELIAN LEDGER',
+        'AURELIAN LEDGER',
         style: TextStyle(
           color: kGold,
           fontSize: 18,

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jewellary_stock/screens/home_screen.dart';
 import 'package:jewellary_stock/screens/login_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
@@ -37,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (state is AuthAuthenticated) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } else if (state is AuthUnauthenticated || state is AuthError) {
       Navigator.pushReplacement(
