@@ -99,6 +99,8 @@ class TransactionDetailScreen extends StatelessWidget {
           const SizedBox(height: 16),
           PricingSummaryCard(transaction: state.transaction),
           const SizedBox(height: 16),
+          _buildRemarkCard(context,state.transaction),
+          const SizedBox(height: 16),
           _buildMetaInfoCard(context, state.transaction),
           const SizedBox(height: 24),
           if (state.transaction.type == TransactionType.sales ||
@@ -156,11 +158,33 @@ class TransactionDetailScreen extends StatelessWidget {
   }
 
   Widget _buildHeaderCard(BuildContext context, TransactionModel transaction) {
-    final formatCurrency = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
+    late NumberFormat formatCurrency;
+
+    switch (transaction.currency) {
+      case CurrencyType.inr:
+        formatCurrency = NumberFormat.currency(
+          locale: 'en_IN',
+          symbol: '₹',
+          decimalDigits: 0,
+        );
+        break;
+
+      case CurrencyType.usd:
+        formatCurrency = NumberFormat.currency(
+          locale: 'en_US',
+          symbol: '\$',
+          decimalDigits: 2,
+        );
+        break;
+
+      case CurrencyType.myr:
+        formatCurrency = NumberFormat.currency(
+          locale: 'ms_MY',
+          symbol: '\$',
+          decimalDigits: 2,
+        );
+        break;
+    }
     final dateFormat = DateFormat('dd MMM yyyy, h:mm a');
 
     // Type Badge setup
@@ -327,7 +351,7 @@ class TransactionDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      dateFormat.format(transaction.createdAt),
+                        dateFormat.format(transaction.createdAt.toLocal()),
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -462,12 +486,12 @@ class TransactionDetailScreen extends StatelessWidget {
               ),
             _buildMetaRow(
               'Created At',
-              dateFormat.format(transaction.createdAt),
+              dateFormat.format(transaction.createdAt.toLocal()),
             ),
             if (transaction.updatedAt != null)
               _buildMetaRow(
                 'Updated At',
-                dateFormat.format(transaction.updatedAt!),
+                dateFormat.format(transaction.updatedAt!.toLocal()),
               ),
           ],
         ),
@@ -497,5 +521,48 @@ class TransactionDetailScreen extends StatelessWidget {
   String _getLast8Chars(String id) {
     if (id.length <= 8) return id;
     return id.substring(id.length - 8);
+  }
+
+
+  //------------REMARK CARD-------------------
+
+  Widget _buildRemarkCard(BuildContext context,TransactionModel transaction,
+      ) {
+    if (transaction.remark == null ||
+        transaction.remark!.trim().isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      color: kCard,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Remarks',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              transaction.remark!,
+              style: const TextStyle(
+                color: Colors.black54,
+                fontWeight: FontWeight.w500,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

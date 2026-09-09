@@ -249,7 +249,7 @@ class _CustomerDetailsScreenState extends State<CustomerDetailsScreen> {
 
                       final dateStr = DateFormat(
                         'dd MMM yyyy, HH:mm',
-                      ).format(tx.createdAt);
+                      ).format(tx.createdAt.toLocal());
 
                       return InkWell(
                         onTap: () {

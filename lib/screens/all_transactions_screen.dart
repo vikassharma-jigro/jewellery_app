@@ -25,7 +25,7 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
   ) {
     final Map<String, List<TransactionModel>> grouped = {};
     for (var tx in transactions) {
-      final dateStr = DateFormat('dd MMM yyyy').format(tx.createdAt);
+      final dateStr = DateFormat('dd MMM yyyy').format(tx.createdAt.toLocal());
       if (!grouped.containsKey(dateStr)) {
         grouped[dateStr] = [];
       }
