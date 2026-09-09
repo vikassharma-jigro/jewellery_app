@@ -5,7 +5,6 @@ import 'package:jewellary_stock/screens/home_screen.dart';
 import 'package:jewellary_stock/screens/login_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common.dart';
-import '../screens/dashboard_screen.dart';
 import '../blocs/auth/auth_cubit.dart';
 
 class SplashScreen extends StatefulWidget {

@@ -47,14 +47,12 @@ class _AddStockScreenState extends State<AddStockScreen> {
   void initState() {
     super.initState();
 
-    stockType =
-        widget.initialTransactionType ?? TransactionType.purchase;
+    stockType = widget.initialTransactionType ?? TransactionType.purchase;
 
     selectedCustomerId = widget.customerId;
 
     if (widget.initialLinkedTransactionId != null) {
-      linkedTransactionIdController.text =
-      widget.initialLinkedTransactionId!;
+      linkedTransactionIdController.text = widget.initialLinkedTransactionId!;
     }
 
     weightController.addListener(_calculateAmount);
@@ -74,17 +72,12 @@ class _AddStockScreenState extends State<AddStockScreen> {
         stockType == TransactionType.cashNamae ||
         stockType == TransactionType.metalJama ||
         stockType == TransactionType.metalNamae) {
-      final weight = double.tryParse(
-        weightController.text.trim(),
-      );
+      final weight = double.tryParse(weightController.text.trim());
 
-      final rate = double.tryParse(
-        goldRateController.text.trim(),
-      );
+      final rate = double.tryParse(goldRateController.text.trim());
 
       if (weight != null && rate != null) {
-        final newAmount =
-        (weight * rate).toStringAsFixed(2);
+        final newAmount = (weight * rate).toStringAsFixed(2);
 
         if (amountController.text != newAmount) {
           amountController.text = newAmount;
@@ -94,28 +87,19 @@ class _AddStockScreenState extends State<AddStockScreen> {
   }
 
   void _calculatePurityFinal() {
-    final weight = double.tryParse(
-      weightController.text.trim(),
-    );
+    final weight = double.tryParse(weightController.text.trim());
 
-    final wastage = double.tryParse(
-      wastageController.text.trim(),
-    );
+    final wastage = double.tryParse(wastageController.text.trim());
 
-    final stone =
-    stockItemType == MetalType.jewellery
-        ? double.tryParse(
-      stoneController.text.trim(),
-    )
+    final stone = stockItemType == MetalType.jewellery
+        ? double.tryParse(stoneController.text.trim())
         : null;
 
     if (weight != null && wastage != null) {
       final netWeight = weight - (stone ?? 0);
-      final finalW =
-          netWeight * (wastage / 100);
+      final finalW = netWeight * (wastage / 100);
 
-      final newFinal =
-      finalW.toStringAsFixed(2);
+      final newFinal = finalW.toStringAsFixed(2);
 
       if (purityFinalController.text != newFinal) {
         purityFinalController.text = newFinal;
@@ -132,8 +116,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
   Widget buildTextField({
     required TextEditingController controller,
     required String hint,
-    TextInputType keyboardType =
-        TextInputType.text,
+    TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
     bool readOnly = false,
     Widget? suffixIcon,
@@ -159,24 +142,17 @@ class _AddStockScreenState extends State<AddStockScreen> {
 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: Color(0xFFE6D8A8),
-          ),
+          borderSide: const BorderSide(color: Color(0xFFE6D8A8)),
         ),
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: Color(0xFFE6D8A8),
-          ),
+          borderSide: const BorderSide(color: Color(0xFFE6D8A8)),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: AppTheme.gold,
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: AppTheme.gold, width: 1.5),
         ),
       ),
     );
@@ -187,8 +163,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
   Widget buildTextFieldRemarks({
     required TextEditingController controller,
     required String hint,
-    TextInputType keyboardType =
-        TextInputType.text,
+    TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
     int? maxlength,
     bool readOnly = false,
@@ -216,66 +191,44 @@ class _AddStockScreenState extends State<AddStockScreen> {
 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: Color(0xFFE6D8A8),
-          ),
+          borderSide: const BorderSide(color: Color(0xFFE6D8A8)),
         ),
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: Color(0xFFE6D8A8),
-          ),
+          borderSide: const BorderSide(color: Color(0xFFE6D8A8)),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: AppTheme.gold,
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: AppTheme.gold, width: 1.5),
         ),
       ),
     );
   }
 
-
-
-
   // ---------------- COMMON DROPDOWN UI ----------------
 
-  InputDecoration dropdownDecoration({
-    String? hintText,
-  }) {
+  InputDecoration dropdownDecoration({String? hintText}) {
     return InputDecoration(
       hintText: hintText,
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 14,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
 
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: Color(0xFFE6D8A8),
-        ),
+        borderSide: const BorderSide(color: Color(0xFFE6D8A8)),
       ),
 
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: Color(0xFFE6D8A8),
-        ),
+        borderSide: const BorderSide(color: Color(0xFFE6D8A8)),
       ),
 
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: AppTheme.gold,
-          width: 1.5,
-        ),
+        borderSide: const BorderSide(color: AppTheme.gold, width: 1.5),
       ),
     );
   }
@@ -295,7 +248,6 @@ class _AddStockScreenState extends State<AddStockScreen> {
 
     super.dispose();
   }
-
 
   //--------------FOR THE HEADING AND ASTERISK--------------
   Widget buildFieldTitle(String title, String required) {
@@ -338,18 +290,10 @@ class _AddStockScreenState extends State<AddStockScreen> {
               onTap: () {
                 Navigator.pop(context);
               },
-              child: const Icon(
-                Icons.arrow_back_ios,
-              ),
+              child: const Icon(Icons.arrow_back_ios),
             ),
 
-            const Expanded(
-              child: Center(
-                child: Text(
-                  "Transaction Entry",
-                ),
-              ),
-            ),
+            const Expanded(child: Center(child: Text("Transaction Entry"))),
           ],
         ),
       ),
@@ -357,27 +301,17 @@ class _AddStockScreenState extends State<AddStockScreen> {
       body: BlocConsumer<TransactionCubit, TransactionState>(
         listener: (context, state) {
           if (state is TransactionCreated) {
-            context
-                .read<CustomerCubit>()
-                .fetchCustomers();
+            context.read<CustomerCubit>().fetchCustomers();
 
-            ScaffoldMessenger.of(context)
-                .showSnackBar(
-              const SnackBar(
-                content: Text(
-                  "Transaction Saved Successfully",
-                ),
-              ),
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Transaction Saved Successfully")),
             );
 
             Navigator.pop(context);
           } else if (state is TransactionError) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-              ),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
 
@@ -386,68 +320,54 @@ class _AddStockScreenState extends State<AddStockScreen> {
             padding: const EdgeInsets.all(16),
 
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
                 const SizedBox(height: 20),
-
 
                 buildFieldTitle("Transaction Type", ' *'),
 
                 const SizedBox(height: 8),
 
                 // ---------------- TRANSACTION TYPE ----------------
-
                 DropdownButtonFormField<TransactionType>(
                   initialValue: stockType,
                   isExpanded: true,
                   dropdownColor: Colors.white,
 
-                  decoration:
-                  dropdownDecoration(),
+                  decoration: dropdownDecoration(),
 
                   items: const [
                     DropdownMenuItem(
-                      value:
-                      TransactionType.purchase,
+                      value: TransactionType.purchase,
                       child: Text("PURCHASE"),
                     ),
                     DropdownMenuItem(
-                      value:
-                      TransactionType.purchaseReturn,
-                      child:
-                      Text("PURCHASE RETURN"),
+                      value: TransactionType.purchaseReturn,
+                      child: Text("PURCHASE RETURN"),
                     ),
                     DropdownMenuItem(
-                      value:
-                      TransactionType.sales,
+                      value: TransactionType.sales,
                       child: Text("SALE"),
                     ),
                     DropdownMenuItem(
-                      value:
-                      TransactionType.salesReturn,
-                      child:
-                      Text("SALE RETURN"),
+                      value: TransactionType.salesReturn,
+                      child: Text("SALE RETURN"),
                     ),
                     DropdownMenuItem(
-                      value:
-                      TransactionType.cashJama,
+                      value: TransactionType.cashJama,
                       child: Text("CASH JAMA"),
                     ),
                     DropdownMenuItem(
-                      value:
-                      TransactionType.cashNamae,
+                      value: TransactionType.cashNamae,
                       child: Text("CASH NAMAE"),
                     ),
                     DropdownMenuItem(
-                      value:
-                      TransactionType.metalJama,
+                      value: TransactionType.metalJama,
                       child: Text("METAL"),
                     ),
                     DropdownMenuItem(
-                      value:
-                      TransactionType.metalNamae,
+                      value: TransactionType.metalNamae,
                       child: Text("METAL NAMAE"),
                     ),
                   ],
@@ -456,18 +376,10 @@ class _AddStockScreenState extends State<AddStockScreen> {
                     setState(() {
                       stockType = value!;
 
-                      if (stockType !=
-                          TransactionType
-                              .cashJama &&
-                          stockType !=
-                              TransactionType
-                                  .cashNamae &&
-                          stockType !=
-                              TransactionType
-                                  .metalJama &&
-                          stockType !=
-                              TransactionType
-                                  .metalNamae) {
+                      if (stockType != TransactionType.cashJama &&
+                          stockType != TransactionType.cashNamae &&
+                          stockType != TransactionType.metalJama &&
+                          stockType != TransactionType.metalNamae) {
                         amountController.clear();
                       }
                     });
@@ -477,64 +389,48 @@ class _AddStockScreenState extends State<AddStockScreen> {
                 const SizedBox(height: 16),
 
                 // ---------------- CUSTOMER ----------------
-
                 buildFieldTitle("Customer", ' *'),
 
                 const SizedBox(height: 8),
 
-                BlocBuilder<CustomerCubit,
-                    CustomerState>(
-                  builder:
-                      (context, customerState) {
-                    List<CustomerModel> customers =
-                    [];
+                BlocBuilder<CustomerCubit, CustomerState>(
+                  builder: (context, customerState) {
+                    List<CustomerModel> customers = [];
 
-                    if (customerState
-                    is CustomerLoaded) {
-                      customers =
-                          customerState.customers;
+                    if (customerState is CustomerLoaded) {
+                      customers = customerState.customers;
                     }
 
-                    String? dropdownValue =
-                        selectedCustomerId;
+                    String? dropdownValue = selectedCustomerId;
 
-                    if (!customers.any(
-                          (c) => c.id == dropdownValue,
-                    )) {
+                    if (!customers.any((c) => c.id == dropdownValue)) {
                       dropdownValue = null;
                     }
 
-                    return DropdownButtonFormField<
-                        String>(
+                    return DropdownButtonFormField<String>(
                       initialValue: dropdownValue,
                       isExpanded: true,
                       dropdownColor: Colors.white,
 
-                      decoration:
-                      dropdownDecoration(
-                        hintText:
-                        "Select Customer",
+                      decoration: dropdownDecoration(
+                        hintText: "Select Customer",
                       ),
 
                       items: customers
                           .map(
-                            (c) =>
-                            DropdownMenuItem(
+                            (c) => DropdownMenuItem(
                               value: c.id,
                               child: Text(
                                 c.name,
-                                overflow:
-                                TextOverflow
-                                    .ellipsis,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                      )
+                          )
                           .toList(),
 
                       onChanged: (value) {
                         setState(() {
-                          selectedCustomerId =
-                              value;
+                          selectedCustomerId = value;
                         });
                       },
                     );
@@ -553,8 +449,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   isExpanded: true,
                   dropdownColor: Colors.white,
 
-                  decoration:
-                  dropdownDecoration(),
+                  decoration: dropdownDecoration(),
 
                   items: const [
                     DropdownMenuItem(
@@ -563,8 +458,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                     ),
                     DropdownMenuItem(
                       value: MetalType.jewellery,
-                      child:
-                      Text("Jewellery"),
+                      child: Text("Jewellery"),
                     ),
                   ],
 
@@ -572,13 +466,10 @@ class _AddStockScreenState extends State<AddStockScreen> {
                     setState(() {
                       stockItemType = value!;
 
-                      if (stockItemType ==
-                          MetalType.gold) {
+                      if (stockItemType == MetalType.gold) {
                         stoneController.clear();
-                        makingChargesController
-                            .clear();
-                        selectedMakingChargeType =
-                        null;
+                        makingChargesController.clear();
+                        selectedMakingChargeType = null;
                       }
 
                       _calculatePurityFinal();
@@ -589,14 +480,9 @@ class _AddStockScreenState extends State<AddStockScreen> {
                 const SizedBox(height: 16),
 
                 // ---------------- WEIGHT ----------------
-
                 Text(
-                  (stockType ==
-                      TransactionType
-                          .cashJama ||
-                      stockType ==
-                          TransactionType
-                              .cashNamae)
+                  (stockType == TransactionType.cashJama ||
+                          stockType == TransactionType.cashNamae)
                       ? "Weight (Gram) - Optional for settlement"
                       : "Weight (Gram) *",
                   style: const TextStyle(
@@ -611,24 +497,14 @@ class _AddStockScreenState extends State<AddStockScreen> {
                 buildTextField(
                   controller: weightController,
                   hint: "0.0gm",
-                  keyboardType:
-                  TextInputType.number,
+                  keyboardType: TextInputType.number,
                 ),
 
                 // ---------------- SETTLEMENT GOLD RATE ----------------
-
-                if (stockType ==
-                    TransactionType
-                        .metalJama ||
-                    stockType ==
-                        TransactionType
-                            .metalNamae ||
-                    stockType ==
-                        TransactionType
-                            .cashJama ||
-                    stockType ==
-                        TransactionType
-                            .cashNamae) ...[
+                if (stockType == TransactionType.metalJama ||
+                    stockType == TransactionType.metalNamae ||
+                    stockType == TransactionType.cashJama ||
+                    stockType == TransactionType.cashNamae) ...[
                   const SizedBox(height: 16),
 
                   const Text(
@@ -636,37 +512,24 @@ class _AddStockScreenState extends State<AddStockScreen> {
                     style: TextStyle(
                       color: AppTheme.goldDark,
                       fontSize: 14,
-                      fontWeight:
-                      FontWeight.w600,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
 
                   const SizedBox(height: 8),
 
                   buildTextField(
-                    controller:
-                    goldRateController,
-                    hint:
-                    "Enter Gold Rate (optional)",
-                    keyboardType:
-                    TextInputType.number,
+                    controller: goldRateController,
+                    hint: "Enter Gold Rate (optional)",
+                    keyboardType: TextInputType.number,
                   ),
                 ],
 
                 // ---------------- PURCHASE / SALES ----------------
-
-                if (stockType ==
-                    TransactionType
-                        .purchase ||
-                    stockType ==
-                        TransactionType
-                            .sales ||
-                    stockType ==
-                        TransactionType
-                            .purchaseReturn ||
-                    stockType ==
-                        TransactionType
-                            .salesReturn) ...[
+                if (stockType == TransactionType.purchase ||
+                    stockType == TransactionType.sales ||
+                    stockType == TransactionType.purchaseReturn ||
+                    stockType == TransactionType.salesReturn) ...[
                   const SizedBox(height: 16),
 
                   buildFieldTitle("Purity (%)", ' *'),
@@ -674,44 +537,34 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   const SizedBox(height: 8),
 
                   buildTextField(
-                    controller:
-                    wastageController,
+                    controller: wastageController,
                     hint: "0%",
-                    keyboardType:
-                    TextInputType.number,
+                    keyboardType: TextInputType.number,
                   ),
 
                   // ---------------- STONE ----------------
-
-                  if (stockItemType ==
-                      MetalType.jewellery) ...[
+                  if (stockItemType == MetalType.jewellery) ...[
                     const SizedBox(height: 16),
 
                     const Text(
                       "Stone (Gram)",
                       style: TextStyle(
-                        color:
-                        AppTheme.goldDark,
+                        color: AppTheme.goldDark,
                         fontSize: 14,
-                        fontWeight:
-                        FontWeight.w600,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
 
                     const SizedBox(height: 8),
 
                     buildTextField(
-                      controller:
-                      stoneController,
-                      hint:
-                      "0.0gm",
-                      keyboardType:
-                      TextInputType.number,
+                      controller: stoneController,
+                      hint: "0.0gm",
+                      keyboardType: TextInputType.number,
                     ),
                   ],
 
                   // ---------------- PURITY FINAL ----------------
-
                   const SizedBox(height: 16),
 
                   buildFieldTitle("Purity Final (Gram)", ' *'),
@@ -719,14 +572,12 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   const SizedBox(height: 8),
 
                   buildTextField(
-                    controller:
-                    purityFinalController,
+                    controller: purityFinalController,
                     hint: "0.0gm",
                     readOnly: true,
                   ),
 
                   // ---------------- CURRENCY ----------------
-
                   const SizedBox(height: 16),
 
                   const Text(
@@ -734,50 +585,42 @@ class _AddStockScreenState extends State<AddStockScreen> {
                     style: TextStyle(
                       color: AppTheme.goldDark,
                       fontSize: 14,
-                      fontWeight:
-                      FontWeight.w600,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
 
                   const SizedBox(height: 8),
 
                   DropdownButtonFormField<CurrencyType>(
-                    initialValue:
-                    currencyType,
+                    initialValue: currencyType,
                     isExpanded: true,
                     dropdownColor: Colors.white,
 
-                    decoration:
-                    dropdownDecoration(),
+                    decoration: dropdownDecoration(),
 
                     items: const [
                       DropdownMenuItem(
-                        value:
-                        CurrencyType.inr,
+                        value: CurrencyType.inr,
                         child: Text("INR"),
                       ),
                       DropdownMenuItem(
-                        value:
-                        CurrencyType.usd,
+                        value: CurrencyType.usd,
                         child: Text("USD"),
                       ),
                       DropdownMenuItem(
-                        value:
-                        CurrencyType.myr,
+                        value: CurrencyType.myr,
                         child: Text("MYR"),
                       ),
                     ],
 
                     onChanged: (value) {
                       setState(() {
-                        currencyType =
-                        value!;
+                        currencyType = value!;
                       });
                     },
                   ),
 
                   // ---------------- GOLD RATE ----------------
-
                   const SizedBox(height: 16),
 
                   buildFieldTitle("Gold Rate (gm)", ' *'),
@@ -785,166 +628,113 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   const SizedBox(height: 8),
 
                   buildTextField(
-                    controller:
-                    goldRateController,
-                    hint: "0.0gm",
-                    keyboardType:
-                    TextInputType.number,
+                    controller: goldRateController,
+                    hint: "rate/gm",
+                    keyboardType: TextInputType.number,
                   ),
 
                   // ---------------- LINKED TRANSACTION ----------------
-
-                  if (stockType ==
-                      TransactionType
-                          .salesReturn ||
-                      stockType ==
-                          TransactionType
-                              .purchaseReturn) ...[
+                  if (stockType == TransactionType.salesReturn ||
+                      stockType == TransactionType.purchaseReturn) ...[
                     const SizedBox(height: 16),
 
                     const Text(
                       "Linked Transaction ID (Optional)",
                       style: TextStyle(
-                        color:
-                        AppTheme.goldDark,
+                        color: AppTheme.goldDark,
                         fontSize: 14,
-                        fontWeight:
-                        FontWeight.w600,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
 
                     const SizedBox(height: 8),
 
                     buildTextField(
-                      controller:
-                      linkedTransactionIdController,
-                      hint:
-                      "Original transaction ID for exact calculations",
+                      controller: linkedTransactionIdController,
+                      hint: "Original transaction ID for exact calculations",
                     ),
                   ],
 
                   // ---------------- MAKING CHARGES ----------------
-
-                  if (stockType !=
-                      TransactionType
-                          .salesReturn &&
-                      stockType !=
-                          TransactionType
-                              .purchaseReturn &&
-                      stockItemType ==
-                          MetalType.jewellery) ...[
+                  if (stockType != TransactionType.salesReturn &&
+                      stockType != TransactionType.purchaseReturn &&
+                      stockItemType == MetalType.jewellery) ...[
                     const SizedBox(height: 16),
 
                     const Text(
                       "Making Charge Type",
                       style: TextStyle(
-                        color:
-                        AppTheme.goldDark,
+                        color: AppTheme.goldDark,
                         fontSize: 14,
-                        fontWeight:
-                        FontWeight.w600,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
 
                     const SizedBox(height: 8),
 
-                    DropdownButtonFormField<
-                        MakingChargeType>(
-                      initialValue:
-                      selectedMakingChargeType,
+                    DropdownButtonFormField<MakingChargeType>(
+                      initialValue: selectedMakingChargeType,
                       isExpanded: true,
-                      dropdownColor:
-                      Colors.white,
+                      dropdownColor: Colors.white,
 
-                      decoration:
-                      dropdownDecoration(
-                        hintText:
-                        "Select Making Charge Type",
+                      decoration: dropdownDecoration(
+                        hintText: "Select Making Charge Type",
                       ),
 
                       items: const [
                         DropdownMenuItem(
-                          value:
-                          MakingChargeType
-                              .percentage,
-                          child: Text(
-                            "Percentage (%)",
-                          ),
+                          value: MakingChargeType.percentage,
+                          child: Text("Percentage (%)"),
                         ),
                         DropdownMenuItem(
-                          value:
-                          MakingChargeType
-                              .perGram,
-                          child: Text(
-                            "Per Gram (₹/g)",
-                          ),
+                          value: MakingChargeType.perGram,
+                          child: Text("Per Gram (₹/g)"),
                         ),
                         DropdownMenuItem(
-                          value:
-                          MakingChargeType
-                              .fixed,
-                          child: Text(
-                            "Fixed Value (₹)",
-                          ),
+                          value: MakingChargeType.fixed,
+                          child: Text("Fixed Value (₹)"),
                         ),
                       ],
 
                       onChanged: (value) {
                         setState(() {
-                          selectedMakingChargeType =
-                              value;
+                          selectedMakingChargeType = value;
                         });
                       },
                     ),
 
-                    if (selectedMakingChargeType !=
-                        null) ...[
+                    if (selectedMakingChargeType != null) ...[
                       const SizedBox(height: 16),
 
                       Text(
                         "Making Charges (${selectedMakingChargeType == MakingChargeType.percentage
                             ? '%'
-                            : selectedMakingChargeType ==
-                            MakingChargeType.perGram
+                            : selectedMakingChargeType == MakingChargeType.perGram
                             ? '₹/g'
                             : '₹'})",
                         style: const TextStyle(
-                          color:
-                          AppTheme.goldDark,
+                          color: AppTheme.goldDark,
                           fontSize: 14,
-                          fontWeight:
-                          FontWeight.w600,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
 
                       const SizedBox(height: 8),
 
                       buildTextField(
-                        controller:
-                        makingChargesController,
-                        hint:
-                        "Making Charges",
-                        keyboardType:
-                        TextInputType.number,
+                        controller: makingChargesController,
+                        hint: "Making Charges",
+                        keyboardType: TextInputType.number,
                       ),
                     ],
                   ],
                 ],
 
                 // ---------------- AMOUNT ----------------
-
-                if (stockType ==
-                    TransactionType
-                        .cashJama ||
-                    stockType ==
-                        TransactionType
-                            .cashNamae ||
-                    stockType ==
-                        TransactionType
-                            .metalJama ||
-                    stockType ==
-                        TransactionType
-                            .metalNamae) ...[
+                if (stockType == TransactionType.cashJama ||
+                    stockType == TransactionType.cashNamae ||
+                    stockType == TransactionType.metalJama ||
+                    stockType == TransactionType.metalNamae) ...[
                   const SizedBox(height: 16),
 
                   const Text(
@@ -952,24 +742,20 @@ class _AddStockScreenState extends State<AddStockScreen> {
                     style: TextStyle(
                       color: AppTheme.goldDark,
                       fontSize: 14,
-                      fontWeight:
-                      FontWeight.w600,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
 
                   const SizedBox(height: 8),
 
                   buildTextField(
-                    controller:
-                    amountController,
+                    controller: amountController,
                     hint: "Amount (₹)",
-                    keyboardType:
-                    TextInputType.number,
+                    keyboardType: TextInputType.number,
                   ),
                 ],
 
                 // ---------------- DATE ----------------
-
                 const SizedBox(height: 16),
 
                 const Text(
@@ -987,34 +773,27 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   controller: dateController,
                   hint: "Date",
                   readOnly: true,
-                  suffixIcon: const Icon(
-                    Icons.calendar_month,
-                  ),
+                  suffixIcon: const Icon(Icons.calendar_month),
                   onTap: () async {
-                    DateTime? pickedDate =
-                    await showDatePicker(
+                    DateTime? pickedDate = await showDatePicker(
                       context: context,
                       initialDate: DateTime.now(),
-                      firstDate:
-                      DateTime(2020),
-                      lastDate:
-                      DateTime(2050),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2050),
                     );
 
                     if (pickedDate != null) {
                       setState(() {
-                        selectedDate =
-                            pickedDate;
+                        selectedDate = pickedDate;
 
                         dateController.text =
-                        "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+                            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
                       });
                     }
                   },
                 ),
 
                 // ---------------- REMARKS ----------------
-
                 const SizedBox(height: 16),
 
                 const Text(
@@ -1022,8 +801,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                   style: TextStyle(
                     color: AppTheme.goldDark,
                     fontSize: 14,
-                    fontWeight:
-                    FontWeight.w600,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
 
@@ -1032,37 +810,25 @@ class _AddStockScreenState extends State<AddStockScreen> {
                 buildTextFieldRemarks(
                   controller: remarkController,
                   hint: "Remarks",
-                  inputformatters: [
-                    LengthLimitingTextInputFormatter(100)
-                  ],
+                  inputformatters: [LengthLimitingTextInputFormatter(100)],
                   maxLines: 3,
                 ),
 
                 const SizedBox(height: 30),
 
                 // ---------------- SAVE ----------------
-
                 if (state is TransactionLoading)
-                  const Center(
-                    child:
-                    CircularProgressIndicator(),
-                  )
+                  const Center(child: CircularProgressIndicator())
                 else
                   SizedBox(
                     width: double.infinity,
                     height: 55,
 
                     child: ElevatedButton(
-                      style:
-                      ElevatedButton.styleFrom(
-                        backgroundColor:
-                        AppTheme.gold,
-                        shape:
-                        RoundedRectangleBorder(
-                          borderRadius:
-                          BorderRadius.circular(
-                            14,
-                          ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.gold,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
 
@@ -1074,9 +840,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                             selectedCustomerId == "GLOBAL") {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                'Customer selection is required.',
-                              ),
+                              content: Text('Customer selection is required.'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -1086,15 +850,13 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         // Weight is required except for CASH JAMA / CASH NAMAE
                         final isCashSettlement =
                             stockType == TransactionType.cashJama ||
-                                stockType == TransactionType.cashNamae;
+                            stockType == TransactionType.cashNamae;
 
                         if (!isCashSettlement &&
                             weightController.text.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                'Weight (Gram) is required.',
-                              ),
+                              content: Text('Weight (Gram) is required.'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -1105,17 +867,15 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         // Purchase / Sale / Purchase Return / Sale Return
                         final requiresPurchaseSaleFields =
                             stockType == TransactionType.purchase ||
-                                stockType == TransactionType.sales ||
-                                stockType == TransactionType.purchaseReturn ||
-                                stockType == TransactionType.salesReturn;
+                            stockType == TransactionType.sales ||
+                            stockType == TransactionType.purchaseReturn ||
+                            stockType == TransactionType.salesReturn;
 
                         if (requiresPurchaseSaleFields &&
                             wastageController.text.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                'Purity (%) is required.',
-                              ),
+                              content: Text('Purity (%) is required.'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -1126,9 +886,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                             goldRateController.text.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                'Gold Rate is required.',
-                              ),
+                              content: Text('Gold Rate is required.'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -1139,122 +897,95 @@ class _AddStockScreenState extends State<AddStockScreen> {
 
                         final cId = selectedCustomerId!;
 
-                        final weightStr =
-                        weightController.text.trim();
+                        final weightStr = weightController.text.trim();
 
-                        final amountStr =
-                        amountController.text.trim();
+                        final amountStr = amountController.text.trim();
 
-                        final remarkStr =
-                        remarkController.text.trim();
+                        final remarkStr = remarkController.text.trim();
 
-                        final wastageStr =
-                        wastageController.text.trim();
+                        final wastageStr = wastageController.text.trim();
 
-                        final stoneStr =
-                        stoneController.text.trim();
+                        final stoneStr = stoneController.text.trim();
 
-                        final goldRateStr =
-                        goldRateController.text.trim();
+                        final goldRateStr = goldRateController.text.trim();
 
-                        final makingChargesStr =
-                        makingChargesController.text.trim();
+                        final makingChargesStr = makingChargesController.text
+                            .trim();
 
                         final linkedTransactionIdStr =
-                        linkedTransactionIdController.text.trim();
+                            linkedTransactionIdController.text.trim();
 
                         final isMetalSettlement =
                             stockType == TransactionType.metalJama ||
-                                stockType == TransactionType.metalNamae ||
-                                stockType == TransactionType.cashJama ||
-                                stockType == TransactionType.cashNamae;
+                            stockType == TransactionType.metalNamae ||
+                            stockType == TransactionType.cashJama ||
+                            stockType == TransactionType.cashNamae;
 
-                        double? weightVal =
-                        weightStr.isNotEmpty
+                        double? weightVal = weightStr.isNotEmpty
                             ? double.tryParse(weightStr)
                             : null;
 
                         double? amountVal =
-                        (isMetalSettlement &&
-                            amountStr.isNotEmpty)
+                            (isMetalSettlement && amountStr.isNotEmpty)
                             ? double.tryParse(amountStr)
                             : null;
 
-                        double? wastageVal =
-                        wastageStr.isNotEmpty
+                        double? wastageVal = wastageStr.isNotEmpty
                             ? double.tryParse(wastageStr)
                             : null;
 
                         double? stoneVal =
-                        (stockItemType == MetalType.jewellery &&
-                            stoneStr.isNotEmpty)
+                            (stockItemType == MetalType.jewellery &&
+                                stoneStr.isNotEmpty)
                             ? double.tryParse(stoneStr)
                             : null;
 
-                        double? goldRateVal =
-                        goldRateStr.isNotEmpty
+                        double? goldRateVal = goldRateStr.isNotEmpty
                             ? double.tryParse(goldRateStr)
                             : null;
 
                         double? makingChargesVal =
-                        (stockItemType == MetalType.jewellery &&
-                            makingChargesStr.isNotEmpty)
+                            (stockItemType == MetalType.jewellery &&
+                                makingChargesStr.isNotEmpty)
                             ? double.tryParse(makingChargesStr)
                             : null;
 
                         MakingChargeType? makingChargeTypeVal =
-                        (stockItemType == MetalType.jewellery)
+                            (stockItemType == MetalType.jewellery)
                             ? selectedMakingChargeType
                             : null;
 
                         bool hasCalcFields =
                             wastageVal != null ||
-                                stoneVal != null ||
-                                goldRateVal != null ||
-                                makingChargesVal != null ||
-                                makingChargeTypeVal != null;
+                            stoneVal != null ||
+                            goldRateVal != null ||
+                            makingChargesVal != null ||
+                            makingChargeTypeVal != null;
 
                         context.read<TransactionCubit>().createTransaction(
-
                           customerId: cId,
                           type: stockType,
                           metalType: stockItemType,
                           weight: weightVal,
-                          grossWeight:
-                          isMetalSettlement
+                          grossWeight: isMetalSettlement
                               ? null
-                              : (hasCalcFields
-                              ? weightVal
-                              : null),
+                              : (hasCalcFields ? weightVal : null),
                           amount: amountVal,
-                          remark:
-                          remarkStr.isEmpty
-                              ? null
-                              : remarkStr,
-                          purityPercent:
-                          isMetalSettlement
-                              ? null
-                              : wastageVal,
-                          stoneWeight:
-                          isMetalSettlement
-                              ? null
-                              : stoneVal,
+                          remark: remarkStr.isEmpty ? null : remarkStr,
+                          purityPercent: isMetalSettlement ? null : wastageVal,
+                          stoneWeight: isMetalSettlement ? null : stoneVal,
                           goldRate: goldRateVal,
-                          makingChargeType:
-                          isMetalSettlement
+                          makingChargeType: isMetalSettlement
                               ? null
                               : makingChargeTypeVal,
-                          makingChargesValue:
-                          isMetalSettlement
+                          makingChargesValue: isMetalSettlement
                               ? null
                               : makingChargesVal,
-                          linkedTransactionId:
-                          linkedTransactionIdStr.isEmpty
+                          linkedTransactionId: linkedTransactionIdStr.isEmpty
                               ? null
                               : linkedTransactionIdStr,
 
                           currency: currencyType,
-
                         );
                       },
 
@@ -1262,8 +993,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                         "SAVE",
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight:
-                          FontWeight.bold,
+                          fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
                       ),
