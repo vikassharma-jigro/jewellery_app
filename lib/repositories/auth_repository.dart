@@ -60,12 +60,32 @@ class AuthRepository {
   }
 
   Future<void> logout() async {
-    await _apiService.secureStorage.delete(key: 'access_token');
-    await _apiService.secureStorage.delete(key: 'refresh_token');
+    try {
+      await _apiService.secureStorage.write(key: 'access_token', value: '');
+      await _apiService.secureStorage.delete(key: 'access_token');
+    } catch (e) {
+      debugPrint('Error deleting access_token: $e');
+    }
+    try {
+      await _apiService.secureStorage.write(key: 'refresh_token', value: '');
+      await _apiService.secureStorage.delete(key: 'refresh_token');
+    } catch (e) {
+      debugPrint('Error deleting refresh_token: $e');
+    }
+    try {
+      await _apiService.secureStorage.deleteAll();
+    } catch (e) {
+      debugPrint('Error clearing secure storage: $e');
+    }
   }
 
   Future<bool> isLoggedIn() async {
-    final token = await _apiService.secureStorage.read(key: 'access_token');
-    return token != null;
+    try {
+      final token = await _apiService.secureStorage.read(key: 'access_token');
+      return token != null && token.trim().isNotEmpty && token != 'null';
+    } catch (e) {
+      debugPrint('Error reading access_token: $e');
+      return false;
+    }
   }
 }

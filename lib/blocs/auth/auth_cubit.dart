@@ -53,9 +53,10 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     try {
       await _authRepository.logout();
+    } catch (_) {
+      // Ignore error to ensure unauthenticated state is always reached
+    } finally {
       emit(AuthUnauthenticated());
-    } catch (e) {
-      emit(AuthError(e.toString()));
     }
   }
 }

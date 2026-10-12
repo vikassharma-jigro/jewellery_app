@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../blocs/transaction/transaction_cubit.dart';
+import '../data/models/transaction_model.dart';
 
 class StockMovementScreen extends StatefulWidget {
   const StockMovementScreen({super.key});
@@ -14,7 +15,6 @@ class StockMovementScreen extends StatefulWidget {
 class _StockMovementScreenState extends State<StockMovementScreen> {
   String _selectedMetal = 'All Materials';
   String _selectedType = 'ALL'; // ALL | IN | OUT
-  int _activePage = 1;
 
   @override
   void initState() {
@@ -22,14 +22,27 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
     context.read<TransactionCubit>().fetchTransactions();
   }
 
-  List<dynamic> _getFilteredEntries(List<dynamic> allEntries) {
+  bool _isTxIn(TransactionModel tx) {
+    return tx.type == TransactionType.purchase ||
+        tx.type == TransactionType.salesReturn ||
+        tx.type == TransactionType.metalJama;
+  }
+
+  String _metalString(TransactionModel tx) {
+    if (tx.metalType == MetalType.gold) return 'Gold';
+    if (tx.metalType == MetalType.jewellery) return 'Jewellery';
+    return 'None';
+  }
+
+  List<TransactionModel> _getFilteredEntries(List<TransactionModel> allEntries) {
     return allEntries.where((entry) {
-      final metal = entry['metal'] ?? '';
+      final metal = _metalString(entry);
       final matchesMetal =
           _selectedMetal == 'All Materials' || metal == _selectedMetal;
-      final matchesType =
-          _selectedType == 'ALL' ||
-          (entry['type']?.toUpperCase() == _selectedType);
+      final isIn = _isTxIn(entry);
+      final matchesType = _selectedType == 'ALL' ||
+          (_selectedType == 'IN' && isIn) ||
+          (_selectedType == 'OUT' && !isIn);
       return matchesMetal && matchesType;
     }).toList();
   }
@@ -38,7 +51,6 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
     setState(() {
       _selectedMetal = 'All Materials';
       _selectedType = 'ALL';
-      _activePage = 1;
     });
   }
 
@@ -89,15 +101,10 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Page Header & Actions
                   _buildPageHeader(isDesktop),
                   const SizedBox(height: 24),
-
-                  // Filters Panel
                   _buildFiltersPanel(isDesktop),
                   const SizedBox(height: 24),
-
-                  // Data Table or List Card
                   _buildDataView(isDesktop, filteredEntries),
                   const SizedBox(height: 40),
                 ],
@@ -110,7 +117,7 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
   }
 
   Widget _buildPageHeader(bool isDesktop) {
-    final titleWidget = Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
         Text(
@@ -129,8 +136,6 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
         ),
       ],
     );
-
-    return titleWidget;
   }
 
   Widget _buildFiltersPanel(bool isDesktop) {
@@ -146,54 +151,6 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
         runSpacing: 16,
         crossAxisAlignment: WrapCrossAlignment.end,
         children: [
-          // Date Range picker mock
-          SizedBox(
-            width: isDesktop ? 220 : double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'DATE RANGE',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: kMuted,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: kCardHigh,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: kDivider.withValues(alpha: 0.5),
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
-                        'Oct 01, 2023 - Oct 31, 2023',
-                        style: TextStyle(fontSize: 13, color: kText),
-                      ),
-                      Icon(
-                        Icons.calendar_today_outlined,
-                        size: 16,
-                        color: kMuted,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           // Metal Type Dropdown
           SizedBox(
             width: isDesktop ? 200 : double.infinity,
@@ -240,16 +197,12 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
                           child: Text('All Materials'),
                         ),
                         DropdownMenuItem(
-                          value: '18K Yellow Gold',
-                          child: Text('18K Yellow Gold'),
+                          value: 'Gold',
+                          child: Text('Gold'),
                         ),
                         DropdownMenuItem(
-                          value: '22K Yellow Gold',
-                          child: Text('22K Yellow Gold'),
-                        ),
-                        DropdownMenuItem(
-                          value: '950 Platinum',
-                          child: Text('950 Platinum'),
+                          value: 'Jewellery',
+                          child: Text('Jewellery'),
                         ),
                       ],
                     ),
@@ -259,14 +212,14 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
             ),
           ),
 
-          // Type toggle
+          // Movement Type (ALL | IN | OUT)
           SizedBox(
             width: isDesktop ? 220 : double.infinity,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'TYPE',
+                  'MOVEMENT TYPE',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -274,54 +227,31 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: kCardHigh,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: kDivider.withValues(alpha: 0.1)),
-                  ),
-                  child: Row(
-                    children: [
-                      _buildTypeTab('ALL'),
-                      _buildTypeTab('IN'),
-                      _buildTypeTab('OUT'),
-                    ],
-                  ),
+                Row(
+                  children: [
+                    _buildTypeToggle('ALL'),
+                    const SizedBox(width: 8),
+                    _buildTypeToggle('IN'),
+                    const SizedBox(width: 8),
+                    _buildTypeToggle('OUT'),
+                  ],
                 ),
               ],
             ),
           ),
 
           // Reset button
-          GestureDetector(
-            onTap: _resetFilters,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.filter_alt_off_outlined, color: kMuted, size: 18),
-                  SizedBox(width: 6),
-                  Text(
-                    'RESET FILTERS',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: kMuted,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          TextButton.icon(
+            onPressed: _resetFilters,
+            icon: const Icon(Icons.refresh, size: 16, color: kGold),
+            label: const Text('Reset', style: TextStyle(color: kGold)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTypeTab(String type) {
+  Widget _buildTypeToggle(String type) {
     final active = _selectedType == type;
     return Expanded(
       child: GestureDetector(
@@ -331,21 +261,19 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
           });
         },
         child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
           alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: active
-                ? kGoldContainer.withValues(alpha: 0.2)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(6),
+            color: active ? kGold.withValues(alpha: 0.15) : kCardHigh,
             border: Border.all(
-              color: active ? kGold.withValues(alpha: 0.4) : Colors.transparent,
+              color: active ? kGold : kDivider.withValues(alpha: 0.3),
             ),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
             type,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.bold,
               color: active ? kGold : kMuted,
             ),
@@ -355,7 +283,7 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
     );
   }
 
-  Widget _buildDataView(bool isDesktop, List<dynamic> entries) {
+  Widget _buildDataView(bool isDesktop, List<TransactionModel> entries) {
     if (entries.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(40),
@@ -392,22 +320,17 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
                 1: FlexColumnWidth(1.2),
                 2: FlexColumnWidth(1.8),
                 3: FlexColumnWidth(1.2),
-                4: FlexColumnWidth(1.0),
+                4: FlexColumnWidth(1.2),
                 5: FlexColumnWidth(2.0),
-                6: FlexColumnWidth(1.2),
               },
               children: [
-                // Table Header
                 TableRow(
                   decoration: BoxDecoration(
                     color: kCardHigh.withValues(alpha: 0.5),
                   ),
                   children: const [
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       child: Text(
                         'DATE & TIME',
                         style: TextStyle(
@@ -418,10 +341,7 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       child: Text(
                         'TYPE',
                         style: TextStyle(
@@ -432,10 +352,7 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       child: Text(
                         'METAL TYPE',
                         style: TextStyle(
@@ -446,12 +363,9 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       child: Text(
-                        'QTY (G)',
+                        'WEIGHT (G)',
                         textAlign: TextAlign.right,
                         style: TextStyle(
                           fontSize: 11,
@@ -461,12 +375,9 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       child: Text(
-                        'RATE',
+                        'RATE (₹/G)',
                         textAlign: TextAlign.right,
                         style: TextStyle(
                           fontSize: 11,
@@ -476,27 +387,9 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       child: Text(
-                        'STAFF',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: kMuted,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
-                      child: Text(
-                        'STATUS',
-                        textAlign: TextAlign.center,
+                        'CUSTOMER',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -506,9 +399,10 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
                     ),
                   ],
                 ),
-                // Table Body Rows
                 ...entries.map((entry) {
-                  final isIn = entry['type'] == 'IN';
+                  final isIn = _isTxIn(entry);
+                  final weight = entry.finalWeight ?? entry.weight ?? 0.0;
+                  final rate = entry.goldRate ?? 0.0;
                   return TableRow(
                     decoration: BoxDecoration(
                       border: Border(
@@ -519,47 +413,15 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
                       ),
                     ),
                     children: [
-                      // Date & Time
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              entry['createdAt'] != null
-                                  ? DateFormat(
-                                      'MMM dd, yyyy',
-                                    ).format(DateTime.parse(entry['createdAt']))
-                                  : 'Unknown Date',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: kText,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              entry['createdAt'] != null
-                                  ? DateFormat(
-                                      'HH:mm a',
-                                    ).format(DateTime.parse(entry['createdAt']))
-                                  : 'Unknown Time',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: kMuted,
-                              ),
-                            ),
-                          ],
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        child: Text(
+                          DateFormat('MMM dd, yyyy · HH:mm').format(entry.createdAt.toLocal()),
+                          style: const TextStyle(fontSize: 13, color: kText),
                         ),
                       ),
-                      // Type (STOCK IN / OUT)
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                         child: Row(
                           children: [
                             Icon(
@@ -579,143 +441,38 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
                           ],
                         ),
                       ),
-                      // Metal Type
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: kDivider),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            entry['metal'] ?? 'Unknown',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: kText,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        child: Text(
+                          _metalString(entry),
+                          style: const TextStyle(fontSize: 13, color: kText),
                         ),
                       ),
-                      // Qty
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                         child: Text(
-                          '${isIn ? '+' : '-'} ${entry['amount']?.toString() ?? '0'}',
+                          '${isIn ? '+' : '-'} ${weight.toStringAsFixed(2)} g',
                           textAlign: TextAlign.right,
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 13,
                             fontWeight: FontWeight.bold,
                             color: isIn ? kGold : kText,
                           ),
                         ),
                       ),
-                      // Rate
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                         child: Text(
-                          '\$ ${entry['amount']?.toString() ?? '0'}',
+                          rate > 0 ? '₹ ${rate.toStringAsFixed(0)}' : '-',
                           textAlign: TextAlign.right,
                           style: const TextStyle(fontSize: 13, color: kMuted),
                         ),
                       ),
-                      // Staff
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 12,
-                              backgroundColor: kGoldContainer.withValues(
-                                alpha: 0.2,
-                              ),
-                              child: Text(
-                                entry['entityName'] != null
-                                    ? entry['entityName']
-                                          .substring(0, 1)
-                                          .toUpperCase()
-                                    : 'U',
-                                style: const TextStyle(
-                                  color: kGold,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              entry['entityName'] ?? 'Unknown User',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: kText,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Status
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
-                        ),
-                        child: Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  (entry['status'] == 'COMPLETED'
-                                          ? Colors.greenAccent
-                                          : Colors.orangeAccent)
-                                      .withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 6,
-                                  height: 6,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: entry['status'] == 'COMPLETED'
-                                        ? Colors.greenAccent
-                                        : Colors.orangeAccent,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  entry['status'] ?? 'PENDING',
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                    color: entry['status'] == 'COMPLETED'
-                                        ? Colors.greenAccent
-                                        : Colors.orangeAccent,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        child: Text(
+                          entry.customerName ?? 'Customer',
+                          style: const TextStyle(fontSize: 13, color: kText),
                         ),
                       ),
                     ],
@@ -723,209 +480,88 @@ class _StockMovementScreenState extends State<StockMovementScreen> {
                 }),
               ],
             ),
-            _buildPaginationBar(),
           ],
         ),
       );
     } else {
-      // Mobile List Card view
-      return Column(
-        children: [
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: entries.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final entry = entries[index];
-              final isIn = entry['type'] == 'IN';
-              return Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: kCard,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: kDivider.withValues(alpha: 0.2)),
-                ),
-                child: Column(
+      // Mobile View
+      return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: entries.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          final entry = entries[index];
+          final isIn = _isTxIn(entry);
+          final weight = entry.finalWeight ?? entry.weight ?? 0.0;
+          final rate = entry.goldRate ?? 0.0;
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: kCard,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: kDivider.withValues(alpha: 0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '${entry['date']} • ${entry['time']}',
-                          style: const TextStyle(fontSize: 11, color: kMuted),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                                (entry['status'] == 'COMPLETED'
-                                        ? Colors.greenAccent
-                                        : Colors.orangeAccent)
-                                    .withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            entry['status'] ?? 'PENDING',
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                              color: entry['status'] == 'COMPLETED'
-                                  ? Colors.greenAccent
-                                  : Colors.orangeAccent,
-                            ),
-                          ),
-                        ),
-                      ],
+                    Text(
+                      DateFormat('MMM dd, yyyy · HH:mm').format(entry.createdAt.toLocal()),
+                      style: const TextStyle(fontSize: 11, color: kMuted),
                     ),
-                    const SizedBox(height: 12),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              isIn ? Icons.south_west : Icons.north_east,
-                              color: isIn ? kGold : Colors.redAccent,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              isIn ? 'STOCK IN' : 'STOCK OUT',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: isIn ? kGold : Colors.redAccent,
-                              ),
-                            ),
-                          ],
+                        Icon(
+                          isIn ? Icons.south_west : Icons.north_east,
+                          color: isIn ? kGold : Colors.redAccent,
+                          size: 14,
                         ),
+                        const SizedBox(width: 4),
                         Text(
-                          '${isIn ? '+' : '-'} ${entry['amount']?.toString() ?? '0'}',
+                          isIn ? 'STOCK IN' : 'STOCK OUT',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: isIn ? kGold : kText,
+                            color: isIn ? kGold : Colors.redAccent,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Metal: ${entry['metal']}',
-                          style: const TextStyle(fontSize: 12, color: kText),
-                        ),
-                        Text(
-                          'Rate: \$ ${entry['amount']?.toString() ?? '0'}',
-                          style: const TextStyle(fontSize: 12, color: kMuted),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    const Divider(color: kDivider, height: 1),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 10,
-                          backgroundColor: kGoldContainer.withValues(
-                            alpha: 0.2,
-                          ),
-                          child: Text(
-                            entry['entityName'] != null
-                                ? entry['entityName']
-                                      .substring(0, 1)
-                                      .toUpperCase()
-                                : 'U',
-                            style: const TextStyle(
-                              color: kGold,
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          entry['entityName'] ?? 'Unknown User',
-                          style: const TextStyle(fontSize: 12, color: kMuted),
                         ),
                       ],
                     ),
                   ],
                 ),
-              );
-            },
-          ),
-          const SizedBox(height: 16),
-          _buildPaginationBar(),
-        ],
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${_metalString(entry)} · ${entry.customerName ?? 'Customer'}',
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                    ),
+                    Text(
+                      '${isIn ? '+' : '-'} ${weight.toStringAsFixed(2)} g',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: isIn ? kGold : kText,
+                      ),
+                    ),
+                  ],
+                ),
+                if (rate > 0) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'Rate: ₹ ${rate.toStringAsFixed(0)}/g',
+                    style: const TextStyle(fontSize: 11, color: kMuted),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
       );
     }
-  }
-
-  Widget _buildPaginationBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      color: kCard2,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Showing 1-4 of 4 entries',
-            style: TextStyle(fontSize: 11, color: kMuted),
-          ),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.chevron_left, size: 20, color: kMuted),
-                onPressed: null, // disabled
-              ),
-              _buildPageButton(1),
-              _buildPageButton(2),
-              _buildPageButton(3),
-              IconButton(
-                icon: const Icon(Icons.chevron_right, size: 20, color: kMuted),
-                onPressed: () {},
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPageButton(int page) {
-    final active = _activePage == page;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _activePage = page;
-        });
-      },
-      child: Container(
-        width: 32,
-        height: 32,
-        margin: const EdgeInsets.symmetric(horizontal: 2),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: active ? kGold : Colors.transparent,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          page.toString(),
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: active ? const Color(0xFF241A00) : kMuted,
-          ),
-        ),
-      ),
-    );
   }
 }

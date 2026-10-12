@@ -49,6 +49,7 @@ class MyApp extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
+            lazy: false,
             create: (context) =>
                 AuthCubit(context.read<AuthRepository>())..checkAuthStatus(),
           ),

@@ -6,8 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../theme/app_theme.dart';
 import '../widgets/bottom_nav.dart';
 import '../../core/network/api_endpoints.dart';
-import 'login_screen.dart';
 import '../blocs/auth/auth_cubit.dart';
+import '../core/utils/logout_helper.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -448,63 +448,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               letterSpacing: 1.0,
             ),
           ),
-          onPressed: () {
-            // Confirm logout
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                backgroundColor: kCard,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: kDivider.withValues(alpha: 0.3)),
-                ),
-                title: const Text(
-                  'Confirm Logout',
-                  style: TextStyle(
-                    fontFamily: 'Playfair Display',
-                    color: kGold,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                content: const Text(
-                  'Are you sure you want to securely close the ledger session?',
-                  style: TextStyle(color: kText),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      'CANCEL',
-                      style: TextStyle(color: kMuted),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context); // pop dialog
-                      context.read<AuthCubit>().logout().then((_) {
-                        if (context.mounted) {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const LoginScreen(),
-                            ),
-                            (route) => false,
-                          );
-                        }
-                      });
-                    },
-                    child: const Text(
-                      'LOGOUT',
-                      style: TextStyle(
-                        color: kError,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
+          onPressed: () => showLogoutConfirmationDialog(context),
         ),
       ),
     );
@@ -556,89 +500,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      Center(
-                        child: GestureDetector(
-                          onTap: () async {
-                            final picker = ImagePicker();
-                            final pickedFile = await picker.pickImage(
-                              source: ImageSource.gallery,
-                            );
-                            if (pickedFile != null) {
-                              setState(() {
-                                pickedImagePath = pickedFile.path;
-                              });
-                            }
-                          },
-                          child: Stack(
-                            children: [
-                              Container(
-                                width: 100,
-                                height: 100,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: kGold, width: 2),
-                                  color: kCardHigh,
-                                  image: pickedImagePath != null
-                                      ? DecorationImage(
-                                          image: FileImage(
-                                            File(pickedImagePath!),
-                                          ),
-                                          fit: BoxFit.cover,
-                                        )
-                                      : null,
-                                ),
-                                child: pickedImagePath == null
-                                    ? (user?.avatarUrl?.isNotEmpty == true
-                                          ? ClipOval(
-                                              child: Image.network(
-                                                '${ApiEndpoints.baseUrl.replaceAll('/api', '')}${user!.avatarUrl}',
-                                                fit: BoxFit.cover,
-                                                width: 100,
-                                                height: 100,
-                                                errorBuilder:
-                                                    (
-                                                      context,
-                                                      error,
-                                                      stackTrace,
-                                                    ) => const Center(
-                                                      child: Icon(
-                                                        Icons.person_outline,
-                                                        size: 40,
-                                                        color: kGold,
-                                                      ),
-                                                    ),
-                                              ),
-                                            )
-                                          : const Center(
-                                              child: Icon(
-                                                Icons.person_outline,
-                                                size: 40,
-                                                color: kGold,
-                                              ),
-                                            ))
-                                    : null,
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: kGold,
-                                  ),
-                                  child: const Icon(
-                                    Icons.camera_alt,
-                                    size: 16,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
+                      // Center(
+                      //   child: GestureDetector(
+                      //     onTap: () async {
+                      //       final picker = ImagePicker();
+                      //       final pickedFile = await picker.pickImage(
+                      //         source: ImageSource.gallery,
+                      //       );
+                      //       if (pickedFile != null) {
+                      //         setState(() {
+                      //           pickedImagePath = pickedFile.path;
+                      //         });
+                      //       }
+                      //     },
+                      //     child: Stack(
+                      //       children: [
+                      //         Container(
+                      //           width: 100,
+                      //           height: 100,
+                      //           decoration: BoxDecoration(
+                      //             shape: BoxShape.circle,
+                      //             border: Border.all(color: kGold, width: 2),
+                      //             color: kCardHigh,
+                      //             image: pickedImagePath != null
+                      //                 ? DecorationImage(
+                      //                     image: FileImage(
+                      //                       File(pickedImagePath!),
+                      //                     ),
+                      //                     fit: BoxFit.cover,
+                      //                   )
+                      //                 : null,
+                      //           ),
+                      //           child: pickedImagePath == null
+                      //               ? (user?.avatarUrl?.isNotEmpty == true
+                      //                     ? ClipOval(
+                      //                         child: Image.network(
+                      //                           '${ApiEndpoints.baseUrl.replaceAll('/api', '')}${user!.avatarUrl}',
+                      //                           fit: BoxFit.cover,
+                      //                           width: 100,
+                      //                           height: 100,
+                      //                           errorBuilder:
+                      //                               (
+                      //                                 context,
+                      //                                 error,
+                      //                                 stackTrace,
+                      //                               ) => const Center(
+                      //                                 child: Icon(
+                      //                                   Icons.person_outline,
+                      //                                   size: 40,
+                      //                                   color: kGold,
+                      //                                 ),
+                      //                               ),
+                      //                         ),
+                      //                       )
+                      //                     : const Center(
+                      //                         child: Icon(
+                      //                           Icons.person_outline,
+                      //                           size: 40,
+                      //                           color: kGold,
+                      //                         ),
+                      //                       ))
+                      //               : null,
+                      //         ),
+                      //         Positioned(
+                      //           bottom: 0,
+                      //           right: 0,
+                      //           child: Container(
+                      //             padding: const EdgeInsets.all(6),
+                      //             decoration: const BoxDecoration(
+                      //               shape: BoxShape.circle,
+                      //               color: kGold,
+                      //             ),
+                      //             child: const Icon(
+                      //               Icons.camera_alt,
+                      //               size: 16,
+                      //               color: Colors.black,
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 24),
                       _buildTextField(
                         fullNameController,
                         'Full Name',

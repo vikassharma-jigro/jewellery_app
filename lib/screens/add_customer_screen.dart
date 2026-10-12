@@ -166,6 +166,10 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 buildTextField(
                   controller: nameController,
                   hint: "Enter customer name",
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(20),
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                  ],
                 ),
 
                 const SizedBox(height: 16),
@@ -178,6 +182,12 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                     LengthLimitingTextInputFormatter(10),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      if (newValue.text.isEmpty) return newValue;
+                      return RegExp(r'^[6-9]\d*$').hasMatch(newValue.text)
+                          ? newValue
+                          : oldValue;
+                    }),
                   ],
                 ),
 
@@ -219,6 +229,9 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                           controller: goldController,
                           hint: "Enter gold balance",
                           keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(6),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -248,6 +261,9 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                           controller: jewelleryController,
                           hint: "Enter jewellery balance",
                           keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(5),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -280,6 +296,9 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                           controller: dueController,
                           hint: "Enter amount",
                           keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(8),
+                          ],
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -367,6 +386,19 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text("Please enter customer name"),
+                            ),
+                          );
+                          return;
+                        }
+
+                        final mobile = mobileController.text.trim();
+                        if (mobile.isNotEmpty &&
+                            !RegExp(r'^[6-9]\d{9}$').hasMatch(mobile)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Please enter a valid 10-digit Indian mobile number",
+                              ),
                             ),
                           );
                           return;

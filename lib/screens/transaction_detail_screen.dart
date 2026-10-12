@@ -149,6 +149,7 @@ class TransactionDetailScreen extends StatelessWidget {
                     ? TransactionType.salesReturn
                     : TransactionType.purchaseReturn,
                 initialLinkedTransactionId: transaction.id,
+                initialTransaction: transaction,
               ),
             ),
           );

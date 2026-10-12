@@ -11,6 +11,7 @@ import '../blocs/dashboard/dashboard_cubit.dart';
 import '../blocs/stock/stock_cubit.dart';
 import '../data/models/transaction_model.dart';
 import 'all_transactions_screen.dart';
+import 'profile_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -84,42 +85,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            const CircleAvatar(
-                              radius: 24,
-                              backgroundColor: AppTheme.goldLight,
-                              child: Text(
-                                'AR',
-                                style: TextStyle(
-                                  color: AppTheme.goldDark,
-                                  fontWeight: FontWeight.w700,
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ProfileScreen(),
+                              ),
+                            );
+                          },
+                          child: Row(
+                            children: [
+                              const CircleAvatar(
+                                radius: 24,
+                                backgroundColor: AppTheme.goldLight,
+                                child: Text(
+                                  'AR',
+                                  style: TextStyle(
+                                    color: AppTheme.goldDark,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Welcome back',
-                                    style: TextStyle(
-                                      color: AppTheme.muted,
-                                      fontSize: 12,
+                              const SizedBox(width: 12),
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Welcome back',
+                                      style: TextStyle(
+                                        color: AppTheme.muted,
+                                        fontSize: 12,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    'AU Relian',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
+                                    Text(
+                                      'AU Relian',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 20),
                         _HeroBalance(

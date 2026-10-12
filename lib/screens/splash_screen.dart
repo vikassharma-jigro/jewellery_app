@@ -16,20 +16,39 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   bool _minTimeElapsed = false;
   AuthState? _pendingState;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 2), () {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final currentState = context.read<AuthCubit>().state;
+        if (currentState is! AuthInitial && currentState is! AuthLoading) {
+          _pendingState = currentState;
+        }
+      }
+    });
+
+    _timer = Timer(const Duration(seconds: 2), () {
       if (mounted) {
         setState(() {
           _minTimeElapsed = true;
         });
-        if (_pendingState != null) {
-          _navigateBasedOnState(_pendingState!);
+        final stateToNavigate =
+            _pendingState ?? context.read<AuthCubit>().state;
+        if (stateToNavigate is! AuthInitial &&
+            stateToNavigate is! AuthLoading) {
+          _navigateBasedOnState(stateToNavigate);
         }
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   void _navigateBasedOnState(AuthState state) {
@@ -39,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
-    } else if (state is AuthUnauthenticated || state is AuthError) {
+    } else {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const LoginScreen()),

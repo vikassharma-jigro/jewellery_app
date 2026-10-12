@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:jewellary_stock/screens/login_screen.dart';
 import 'package:jewellary_stock/screens/reports_details_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/section_title.dart';
 import 'customer_report_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/customer/customer_cubit.dart';
+import '../core/utils/logout_helper.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -236,12 +236,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                },
+                onPressed: () => showLogoutConfirmationDialog(context),
                 child: const Text('Log Out'),
               ),
             ),

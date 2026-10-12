@@ -31,8 +31,10 @@ class ApiService {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = await secureStorage.read(key: 'access_token');
-          if (token != null) {
+          if (token != null && token.trim().isNotEmpty && token != 'null') {
             options.headers['Authorization'] = 'Bearer $token';
+          } else {
+            options.headers.remove('Authorization');
           }
           return handler.next(options);
         },
